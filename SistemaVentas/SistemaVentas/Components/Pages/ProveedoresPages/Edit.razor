@@ -1,0 +1,316 @@
+﻿@page "/EditProveedores"
+@page "/EditProveedores/proveedorId={proveedorId:int}"
+@rendermode InteractiveAuto
+@inject NavigationManager navigation
+@* @inject ProveedoresService proveedorService
+@inject TiposContribuyenteService tipoContribuyenteService
+@inject ContactosService contactoService
+ *@
+<PageTitle>Editar Proveedor</PageTitle>
+<EditForm Model="proveedor" OnValidSubmit="Modificar" FormName="EditarProveedores">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			@*Header*@
+			<div class="card-header">
+				<h3><strong>Editar Proveedor</strong></h3>
+			</div>
+			@*Cuerpo*@
+			<div class="card-body">
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Proveedor Id*@
+						<label class="form-label" for="proveedorId"><strong>ProveedorId:</strong></label>
+						<InputNumber id="proveedorId" class="form-control" @bind-Value="proveedor.ProveedorId" readonly></InputNumber>
+					</div>
+					<div class="col-4">
+						@*FechaCreacion*@
+						<label class="form-label" for="fecha"><strong>Fecha Creaci&oacute;n:</strong></label>
+						<InputDate id="fecha" class="form-control" @bind-Value="proveedor.FechaCreacion" readonly></InputDate>
+						<ValidationMessage For="@(() => proveedor.FechaCreacion)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Nombre*@
+						<label class="form-label" for="nombre"><strong>Nombre:</strong></label>
+						<InputText id="nombre" class="form-control" @bind-Value="proveedor.Nombre" placeholder="Ej: Juan Pérez"></InputText>
+						<ValidationMessage For="@(() => proveedor.Nombre)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Direccion*@
+						<label class="form-label" for="direccion"><strong>Direcci&oacute;n:</strong></label>
+						<InputText id="direccion" class="form-control" @bind-Value="proveedor.Direccion" placeholder="Ej: Ave. Libertad #23"></InputText>
+						<spam class="mensajeError">@mensajeNombre</spam>
+						<ValidationMessage For="@(() => proveedor.Direccion)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Email*@
+						<label class="form-label" for="mail"><strong>Email:</strong></label>
+						<InputText id="email" class="form-control" @bind-Value="proveedor.Email" placeholder="Ej: juanperez123@gmail.com"></InputText>
+						<spam class="mensajeError">@mensajeEmail</spam>
+						<ValidationMessage For="@(() => proveedor.Email)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*TipoContribuyente*@
+						<label class="form-label" for="ipoContribuyente"><strong>Tipo de Contribuyente:</strong></label>
+						@* <InputSelect id="tipoContribuyente" class="form-select" @bind-Value="proveedor.TipoContribuyente">
+							<option value="0">Elija una opci&oacute;n</option>
+							@foreach (var tipo in tiposContribuyente)
+							{
+								<option value="@tipo.Descripcion">@tipo.Descripcion</option>
+							}
+						</InputSelect> *@
+						<ValidationMessage For="@(() => proveedor.TipoContribuyente)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-4">
+						@*RNC*@
+						<label class="form-label" for="rnc"><strong>RNC:</strong></label>
+						<label><em>(Sin guiones)</em></label>
+						<InputText id="rnc" class="form-control" @bind-Value="proveedor.RNC" placeholder="40234573653"></InputText>
+						<spam class="mensajeError">@mensajeRNC</spam>
+						<ValidationMessage For="@(() => proveedor.RNC)"></ValidationMessage>
+					</div>
+					<div class="col-8">
+						@*Nota*@
+						<label class="form-label" for="nota"><strong>Nota:</strong></label>
+						<label><em>(Opcional)</em></label>
+						<InputTextArea id="nota" class="form-control" @bind-Value="proveedor.Nota" placeholder="Ingrese una nota"></InputTextArea>
+						<ValidationMessage For="@(() => proveedor.Nota)"></ValidationMessage>
+					</div>
+				</div>
+				@*ProveedoresDetalles*@
+				<fieldset class="border-primmary border border-2">
+					@*Body*@
+					<div class="card-body">
+						<section class="row mb-4">
+							<h3><strong>Detalles</strong></h3>
+							<div class="row align-content-center">
+								@*Contacto*@
+								<div class="col-4">
+									<label class="form-label" for="Tipocontacto"><strong>Tipo de Contacto:</strong></label>
+									@* <InputSelect id="Tipocontacto" class="form-select" @bind-Value="tipo">
+										<option>Elija una opci&oacute;n</option>
+										@foreach (var contacto in contactos)
+										{
+											<option value="@contacto.ContactoId">@contacto.Descripcion</option>
+										}
+									</InputSelect> *@
+								</div>
+								@*Descripcion*@
+								<div class="col-4">
+									<label class="form-label" for="descripcion"><strong>Contacto:</strong></label>
+									<InputText id="descripcion" class="form-control" @bind-Value="contacto" placeholder="Ingrese un número para el contacto"></InputText>
+									<spam class="mensajeError">@mensaje</spam>
+								</div>
+								@*Boton*@
+								<div class="col-4 d-flex align-items-end">
+									<button type="button" class="btn btn-outline-success" @onclick="AgregarDetalle"><i class="bi bi-plus-circle" /> Agregar</button>
+								</div>
+							</div>
+						</section>
+						<section>
+							@if (listaTemporal.Count > 0)
+							{
+								@*Table Detalles*@
+								<table class="table table-bordered miTabla">
+									<thead>
+										<tr>
+											<th>Tipo de Contacto</th>
+											<th>Contacto</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										@foreach (var detalle in listaTemporal)
+										{
+											@* <tr>
+												<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
+												<td>@detalle.Contacto</td>
+												<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
+											</tr> *@
+										}
+									</tbody>
+								</table>
+								<p><strong>Total de Detalles: </strong>@proveedor.ProveedoresDetalle.Count</p>
+							}
+						</section>
+					</div>
+				</fieldset>
+			</div>
+			@*Footer*@
+			<div class="card-footer d-flex justify-content-center">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="submit" class="btn btn-outline-success"><i class="bi bi-floppy-fill" /> Modificar</button>
+			</div>
+		</div>
+	</div>
+</EditForm>
+@mensaje
+
+@code {
+	[Parameter]
+	public int proveedorId { get; set; }
+
+	public Proveedores proveedor { get; set; } = new Proveedores();
+	// public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
+	// public List<Contactos> contactos = new List<Contactos>();
+	public List<ProveedoresDetalle> listaTemporal = new List<ProveedoresDetalle>();
+
+	public int tipo { get; set; }
+	public string contacto { get; set; } = string.Empty;
+	public string mensaje { get; set; } = string.Empty;
+
+	public string mensajeNombre { get; set; } = string.Empty;
+	public string mensajeEmail { get; set; } = string.Empty;
+	public string mensajeRNC { get; set; } = string.Empty;
+
+	public string nombreLast { get; set; } = string.Empty;
+	public string emailLast { get; set; } = string.Empty;
+	public string rncLast { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+
+		// tiposContribuyente = await tipoContribuyenteService.GetTiposContribuyentes();
+		// contactos = await contactoService.GetContactos();
+		// proveedor = await proveedorService.GetProveedor(proveedorId);
+		listaTemporal = proveedor.ProveedoresDetalle.ToList();
+
+		nombreLast = proveedor.Nombre;
+		emailLast = proveedor.Email;
+		rncLast = proveedor.RNC;
+	}
+
+	public async Task Modificar()
+	{
+		// if (await ValidarProveedor())
+		// {
+		// 	if (String.IsNullOrEmpty(proveedor.Nota))
+		// 		proveedor.Nota = "----";
+
+		// 	var response = await proveedorService.Update(proveedor);
+
+		// 	if (response.IsSuccessStatusCode)
+		// 	{
+		// 		mensaje = "La solicitud fue exitosa.";
+		// 	}
+		// 	else
+		// 	{
+		// 		mensaje = "La solicitud falló con el siguiente estado: " + response.ToString();
+		// 	}
+
+		// 	Console.WriteLine("Entró a la función Crear");
+		// }
+		// else
+		// 	mensaje = "Algunos datos ya existen en la base de datos.";
+
+		StateHasChanged();
+		await Task.Delay(2000);
+		await LimpiarPantalla();
+	}
+
+	// public async Task<bool> ValidarProveedor()
+	// {
+	// 	var validar = await proveedorService.GetProveedores();
+	// 	var nombre = validar.FirstOrDefault(p => p.Nombre == proveedor.Nombre);
+	// 	var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
+	// 	var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
+
+	// 	bool nombreValido = true;
+	// 	bool emailValido = true;
+	// 	bool rncValido = true;
+
+	// 	if (nombre != null && nombre.Nombre != nombreLast)
+	// 	{
+	// 		nombreValido = false;
+	// 		mensajeNombre = "Ya existe un proveedor con este nombre";
+	// 	}
+
+	// 	if (email != null && email.Email != emailLast)
+	// 	{
+	// 		emailValido = false;
+	// 		mensajeEmail = "Ya existe un proveedor con este email";
+	// 	}
+
+	// 	if (rnc != null && rnc.RNC != rncLast)
+	// 	{
+	// 		rncValido = false;
+	// 		mensajeRNC = "Ya existe un proveedor con este número de RNC";
+	// 	}
+
+	// 	return nombreValido && emailValido && rncValido;
+	// }
+
+	public async Task AgregarDetalle()
+	{
+		if (!String.IsNullOrEmpty(contacto) && tipo != 0)
+		{
+			// if (await ValidarDetalle())
+			// {
+			// 	var nuevoDetalle = new ProveedoresDetalle { ContactoId = tipo, Contacto = contacto };
+			// 	proveedor.ProveedoresDetalle.Add(nuevoDetalle);
+			// 	listaTemporal.Add(nuevoDetalle);
+			// }
+			// else
+			// 	mensaje = "La longitud del contacto debe ser de 10 digitos";
+		}
+	}
+
+	// public string ObtenerTipoContacto(int id)
+	// {
+	// 	var dato = contactos.FirstOrDefault(c => c.ContactoId == id);
+
+	// 	return dato.Descripcion;
+	// }
+
+	// public async Task<bool> ValidarDetalle()
+	// {
+	// 	var validar = await proveedorService.GetProveedores();
+
+	// 	if (contacto.Length != 10)
+	// 		return false;
+
+	// 	foreach (var detalle in validar)
+	// 	{
+	// 		foreach (var contactos in detalle.ProveedoresDetalle)
+	// 		{
+	// 			if (contactos.Contacto == contacto)
+	// 				return false;
+	// 		}
+	// 	}
+
+	// 	foreach (var detalle in listaTemporal)
+	// 	{
+	// 		if (detalle.Contacto == contacto)
+	// 			return false;
+	// 	}
+
+	// 	return true;
+	// }
+
+	public async Task EliminarDetalle(ProveedoresDetalle detalle)
+	{
+		detalle.Eliminado = true;
+
+		listaTemporal.Remove(detalle);
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		// message = string.Empty;
+		// transmitter = string.Empty;
+		// await Task.Delay(2000);
+		// mensaje = string.Empty;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Proveedores");
+	}
+}
