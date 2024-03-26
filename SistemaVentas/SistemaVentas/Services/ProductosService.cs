@@ -62,6 +62,12 @@ public class ProductosService
 			.AsNoTracking()
 			.FirstOrDefaultAsync(p => p.Nombre.ToLower() == nombre.ToLower());
 	}
+	public async Task<Productos?> BuscarDescripcion(string descripcion)
+	{
+		return await _contexto.Productos
+			.AsNoTracking()
+			.FirstOrDefaultAsync(p => p.Descripcion.ToLower() == descripcion.ToLower());
+	}
 	public List<Productos> Listar(Expression<Func<Productos, bool>> criterio)
 	{
 		return _contexto.Productos
