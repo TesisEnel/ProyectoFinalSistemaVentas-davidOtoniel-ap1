@@ -5,72 +5,66 @@ using System.Linq.Expressions;
 
 namespace SistemaVentas.Services;
 
-public class ProductosService
+public class CategoriasService
 {
 	private readonly ApplicationDbContext _contexto;
 
-	public ProductosService(ApplicationDbContext contexto)
+	public CategoriasService(ApplicationDbContext contexto)
 	{
 		_contexto = contexto;
 	}
 
-	public async Task<bool> Guardar(Productos producto)
+	public async Task<bool> Guardar(Categorias categoria)
 	{
-		if (!await Existe(producto.ProductoId))
-			return await Insertar(producto);
+		if (!await Existe(categoria.CategoriaId))
+			return await Insertar(categoria);
 		else
-			return await Modificar(producto);
+			return await Modificar(categoria);
 	}
 
-	private async Task<bool> Insertar(Productos producto)
+	private async Task<bool> Insertar(Categorias categoria)
 	{
-		_contexto.Productos.Add(producto);
+		_contexto.Categorias.Add(categoria);
 		return await _contexto.SaveChangesAsync() > 0;
 	}
 
-	public async Task<bool> Modificar(Productos producto)
+	public async Task<bool> Modificar(Categorias categoria)
 	{
-		_contexto.Update(producto);
+		_contexto.Update(categoria);
 		return await _contexto.SaveChangesAsync() > 0;
 	}
 
 	public async Task<bool> Existe(int id)
 	{
-		return await _contexto.Productos
-			.AnyAsync(p => p.ProductoId == id);
+		return await _contexto.Categorias
+			.AnyAsync(c => c.CategoriaId == id);
 	}
 
-	public async Task<bool> Eliminar(Productos producto)
+	public async Task<bool> Eliminar(Categorias categoria)
 	{
-		var cantidad = await _contexto.Productos
-			.Where(p => p.ProductoId == producto.ProductoId)
+		var cantidad = await _contexto.Categorias
+			.Where(c => c.CategoriaId == categoria.CategoriaId)
 			.ExecuteDeleteAsync();
 
 		return cantidad > 0;
 	}
 
-	public async Task<Productos?> BuscarId(int id)
+	public async Task<Categorias?> BuscarId(int id)
 	{
-		return await _contexto.Productos
+		return await _contexto.Categorias
 			.AsNoTracking()
-			.FirstOrDefaultAsync(p => p.ProductoId == id);
+			.FirstOrDefaultAsync(c => c.CategoriaId == id);
 	}
 
-	public async Task<Productos?> BuscarNombre(string nombre)
+	public async Task<Categorias?> BuscarDescripcion(string descripcion)
 	{
-		return await _contexto.Productos
+		return await _contexto.Categorias
 			.AsNoTracking()
-			.FirstOrDefaultAsync(p => p.Nombre.ToLower() == nombre.ToLower());
+			.FirstOrDefaultAsync(c => c.Descripcion.ToLower() == descripcion.ToLower());
 	}
-	public async Task<Productos?> BuscarDescripcion(string descripcion)
+	public List<Categorias> Listar(Expression<Func<Categorias, bool>> criterio)
 	{
-		return await _contexto.Productos
-			.AsNoTracking()
-			.FirstOrDefaultAsync(p => p.Descripcion.ToLower() == descripcion.ToLower());
-	}
-	public List<Productos> Listar(Expression<Func<Productos, bool>> criterio)
-	{
-		return _contexto.Productos
+		return _contexto.Categorias
 			.AsNoTracking()
 			.Where(criterio)
 			.ToList();
