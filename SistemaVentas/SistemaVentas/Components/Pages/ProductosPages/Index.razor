@@ -1,6 +1,7 @@
 ﻿@page "/Productos"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
+@inject ProductosService productosService
 
 <PageTitle>Productos</PageTitle>
 <div class="container">
@@ -125,7 +126,7 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-
+		productos = productosService.Listar(p => p.ProductoId > 0);
 		loading = false;
 
 		if (productos.Count == 0)
