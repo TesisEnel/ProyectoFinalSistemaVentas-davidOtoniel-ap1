@@ -1,5 +1,83 @@
-﻿<h3>Delete</h3>
+﻿@page "/DeleteProductos"
+@page "/DeleteProductos/productoId={productoId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ProductosService productosService
+
+<PageTitle>Eliminar Producto</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Detalles de Producto</strong></h3>
+		</div>
+		@*Cuerpo*@
+		<div class="card-body">
+			<div class="row">
+				<div class="col-8">
+					<div class="col-md-11">
+						<h3 class="text-center"><strong>Datos del Producto</strong></h3>
+						<div class="border-primmary border border-2 borde">
+							<div class="card-body">
+								<div class="row">
+									@*Imagen*@
+									<div class="col-2">
+										<div class="text-center">
+											<img src="Imagenes/mensajero.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+										</div>
+									</div>
+									@*Datos del proveedor*@
+									<div class="col-9">
+										<ul class="list-unstyled" style="margin-top: 20px; margin-bottom: 20px;">
+											<li><strong>ProductoId:</strong> @producto.ProductoId</li>
+											<li><strong>FechaCreacion:</strong> @producto.FechaCreacion.ToShortDateString()</li>
+											<li><strong>Nombre:</strong> @producto.Nombre</li>
+											<li><strong>Descripci&oacute;n:</strong> @producto.Descripcion</li>
+											<li><strong>Categor&iacute;a:</strong> @producto.Categoria</li>
+											<li><strong>Precio:</strong> @producto.Precio.ToString("N2")</li>
+											<li><strong>Existencia:</strong> @producto.Existencia</li>
+											<li><strong>Nota:</strong> @producto.Nota</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		@*Footer*@
+		<div class="card-footer d-flex justify-content-center">
+			<div class="px-2">
+				<button type="button" class="btn btn-outline-dark" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Cancelar</button>
+			</div>
+			<button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="bi bi-trash3-fill" /> Eliminar</button>
+		</div>
+	</div>
+</div>
+@mensaje
 
 @code {
+	[Parameter]
+	public int productoId { get; set; }
+	public Productos producto { get; set; } = new Productos();
+	public string mensaje { get; set; } = string.Empty;
 
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		producto = (await productosService.BuscarId(productoId))!;
+	}
+
+	public async Task Eliminar()
+	{
+		producto.Eliminado = true;
+		await productosService.Modificar(producto);
+		Volver();
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Productos");
+	}
 }
