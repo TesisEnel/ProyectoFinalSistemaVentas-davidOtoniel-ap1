@@ -1,0 +1,126 @@
+﻿@page "/ViewProveedores"
+@page "/ViewProveedores/proveedorId={proveedorId:int}"
+@rendermode InteractiveAuto
+@inject NavigationManager navigation
+@* @inject ProveedoresService proveedorService
+@inject TiposContribuyenteService tipoContribuyenteService
+@inject ContactosService contactoService *@
+
+<PageTitle>Detalles de Proveedor</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Detalles de Proveedor</strong></h3>
+		</div>
+		@*Cuerpo*@
+		<div class="card-body">
+			<div class="row">
+				<div class="col-8">
+					<div class="col-md-11">
+						<h3 class="text-center"><strong>Datos del Proveedor</strong></h3>
+						<div class="border-primmary border border-2 borde">
+							<div class="card-body">
+								<div class="row">
+									@*Imagen*@
+									<div class="col-2">
+										<div class="text-center">
+											<img src="Imagenes/mensajero.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+										</div>
+									</div>
+									@*Datos del proveedor*@
+									<div class="col-9">
+										<ul class="list-unstyled" style="margin-top: 20px; margin-bottom: 20px;">
+											<li><strong>ProveedorId:</strong> @proveedor.ProveedorId</li>
+											<li><strong>FechaCreacion:</strong> @proveedor.FechaCreacion.ToShortDateString()</li>
+											<li><strong>Nombre:</strong> @proveedor.Nombre</li>
+											<li><strong>Dirección:</strong> @proveedor.Direccion</li>
+											<li><strong>Email:</strong> @proveedor.Email</li>
+											<li><strong>TipoContribuyente:</strong> @proveedor.TipoContribuyente</li>
+											<li><strong>RNC:</strong> @proveedor.RNC</li>
+											<li><strong>Nota:</strong> @proveedor.Nota</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				@*Detalles del proveedor*@
+				<div class="col-4">
+					<h3 class="text-center"><strong>Contactos</strong></h3>
+					<fieldset class="border-primmary border border-2 borde">
+						<div class="card-body">
+							<section>
+								@if (proveedor.ProveedoresDetalle.Count > 0)
+								{
+									<table class="table table-bordered miTabla">
+										<thead>
+											<tr>
+												<th>Tipo de Contacto</th>
+												<th>Contacto</th>
+											</tr>
+										</thead>
+										<tbody>
+											@foreach (var detalle in proveedor.ProveedoresDetalle)
+											{
+												@* <tr>
+													<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
+													<td>@detalle.Contacto</td>
+												</tr> *@
+											}
+										</tbody>
+									</table>
+									<p><strong>Total de Detalles: </strong>@proveedor.ProveedoresDetalle.Count</p>
+								}
+								else
+								{
+									<h4>Este proveedor no tiene contactos agregados</h4>
+								}
+							</section>
+						</div>
+					</fieldset>
+				</div>
+			</div>
+		</div>
+		@*Footer*@
+		<div class="card-footer">
+			<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+		</div>
+	</div>
+</div>
+
+@mensaje
+
+@code {
+	[Parameter]
+	public int proveedorId { get; set; }
+
+	public Proveedores proveedor { get; set; } = new Proveedores();
+	// public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
+	// public List<Contactos> contactos = new List<Contactos>();
+	public int tipo { get; set; }
+	public string contacto { get; set; } = string.Empty;
+	public string mensaje { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+
+		// tiposContribuyente = await tipoContribuyenteService.GetTiposContribuyentes();
+		// contactos = await contactoService.GetContactos();
+		// proveedor = await proveedorService.GetProveedor(proveedorId);
+	}
+
+	// public string ObtenerTipoContacto(int id)
+	// {
+	// 	var dato = contactos.FirstOrDefault(c => c.ContactoId == id);
+
+	// 	return dato.Descripcion;
+	// }
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Proveedores");
+	}
+}
