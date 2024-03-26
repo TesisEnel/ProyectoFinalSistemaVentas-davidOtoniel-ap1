@@ -1,6 +1,7 @@
 ﻿@page "/CreateProductos"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
+@inject ProductosService productosService
 
 <PageTitle>Crear Nuevo Producto</PageTitle>
 <EditForm Model="producto" OnValidSubmit="Crear" FormName="RegistroProductos">
@@ -53,7 +54,7 @@
 					</div>
 					<div class="col-4">
 						@*Categoria*@
-						<label class="form-label" for="categoria"><strong>Categoria:</strong></label>
+						<label class="form-label" for="categoria"><strong>Categor&iacute;a:</strong></label>
 						<InputSelect id="categoria" class="form-select" @bind-Value="producto.Categoria">
 							<option>Elija una opci&oacute;n</option>
 							@* @foreach (var categoria in listaCategorias)
@@ -91,7 +92,6 @@
 	public Productos producto { get; set; } = new Productos();
 	public string mensaje { get; set; } = string.Empty;
 	// public List<Categorias> listaCategorias = new List<Categorias>();
-	// public List<Proveedores> listaProveedores = new List<Proveedores>();
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -100,21 +100,33 @@
 
 	public async Task Crear()
 	{
-		mensaje = "Se creo";
-	}
-	public async Task LimpiarPantalla()
-	{
-		// message = string.Empty;
-		// transmitter = string.Empty;
-		// await Task.Delay(2000);
-		// mensaje = string.Empty;
+		if (!await Validar() && await productosService.Guardar(producto))
+		{
+			mensaje = "Se guardó correctamente el cliente.";
+		}
+		else
+		{
+			mensaje = "No se pudo guardar el cliente.";
+		}
 	}
 
-	// public string ObtenerNombre(int id)
-	// {
-	// 	// var descripcion = accesorios.FirstOrDefault(a => a.AccesorioId == id);
-	// 	// return descripcion.Descripcion;
-	// }
+	public async Task<bool> Validar()
+	{
+		var nombre = await productosService.BuscarNombre(producto.Nombre);
+		var descripcion = await productosService.BuscarDescripcion(producto.Descripcion);
+
+		if (nombre != null)
+		{
+			mensaje = "Ya existe un producto con este nombre.";
+			return true;
+		}
+		else if (descripcion != null)
+		{
+			mensaje = "Ya existe un producto con esta descripción.";
+			return true;
+		}
+		return false;
+	}
 
 	void Volver()
 	{

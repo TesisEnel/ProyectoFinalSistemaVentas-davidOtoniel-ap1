@@ -5,6 +5,7 @@ using SistemaVentas.Client.Pages;
 using SistemaVentas.Components;
 using SistemaVentas.Components.Account;
 using SistemaVentas.Data;
+using SistemaVentas.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 	.AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+builder.Services.AddScoped<ProductosService>();
 
 var app = builder.Build();
 

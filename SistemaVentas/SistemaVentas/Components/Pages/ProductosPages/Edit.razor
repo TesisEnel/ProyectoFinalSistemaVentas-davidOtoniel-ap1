@@ -1,5 +1,136 @@
-﻿<h3>Edit</h3>
+﻿@page "/EditProductos"
+@page "/EditProductos/productoId={productoId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ProductosService productosService
+
+<PageTitle>Editar Proveedor</PageTitle>
+<EditForm Model="producto" OnValidSubmit="Modificar" FormName="EditarProductos">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			@*Header*@
+			<div class="card-header">
+				<h3 class="align-text-center"><strong>Crear Nuevo Producto</strong></h3>
+			</div>
+			@*Cuerpo*@
+			<div class="card-body">
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Producto Id*@
+						<label class="form-label" for="productoId"><strong>ProductoId:</strong></label>
+						<InputNumber id="productoId" class="form-control" @bind-Value="producto.ProductoId" readonly></InputNumber>
+					</div>
+					<div class="col-4">
+						@*FechaCreacion*@
+						<label class="form-label" for="fechaCreacion"><strong>Fecha Creaci&oacute;n:</strong></label>
+						<InputDate id="fechaCreacion" class="form-control" @bind-Value="producto.FechaCreacion" readonly></InputDate>
+						<ValidationMessage For="@(() => producto.FechaCreacion)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Nombre*@
+						<label class="form-label" for="nombre"><strong>Nombre:</strong></label>
+						<InputText id="nombre" class="form-control" @bind-Value="producto.Nombre" placeholder="Ej: Jugo de naranja"></InputText>
+						<ValidationMessage For="@(() => producto.Nombre)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Descripcion*@
+						<label class="form-label" for="descripcion"><strong>Descripci&oacute;n:</strong></label>
+						<InputTextArea id="descripcion" class="form-control" @bind-Value="producto.Descripcion" placeholder="Ej: Jugo 100% natural de naranja"></InputTextArea>
+						<ValidationMessage For="@(() => producto.Descripcion)"></ValidationMessage>
+					</div>
+					<div class="col-2">
+						@*Precio*@
+						<label class="form-label" for="precio"><strong>Precio:</strong></label>
+						<InputNumber id="precio" class="form-control" @bind-Value="producto.Precio"></InputNumber>
+						<ValidationMessage For="@(() => producto.Precio)"></ValidationMessage>
+					</div>
+					<div class="col-2">
+						@*Existencia*@
+						<label class="form-label" for="existencia"><strong>Existencia:</strong></label>
+						<InputNumber id="existencia" class="form-control" @bind-Value="producto.Existencia"></InputNumber>
+						<ValidationMessage For="@(() => producto.Existencia)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Categoria*@
+						<label class="form-label" for="categoria"><strong>Categor&iacute;a:</strong></label>
+						<InputSelect id="categoria" class="form-select" @bind-Value="producto.Categoria">
+							<option>Elija una opci&oacute;n</option>
+							@* @foreach (var categoria in listaCategorias)
+							{
+							<option value="@categoria.Descripcion">@categoria.Descripcion</option>
+							} *@
+						</InputSelect>
+						<ValidationMessage For="@(() => producto.Descripcion)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-5">
+						@*Nota*@
+						<label class="form-label" for="nota"><strong>Nota: </strong>(Opcional)</label>
+						<InputTextArea id="nota" class="form-control" @bind-Value="producto.Nota" placeholder="Ingrese una nota"></InputTextArea>
+						<ValidationMessage For="@(() => producto.Nota)"></ValidationMessage>
+					</div>
+				</div>
+			</div>
+			@*Footer*@
+			<div class="card-footer d-flex justify-content-center">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="submit" class="btn btn-outline-success"><i class="bi bi-floppy-fill" /> Modificar</button>
+			</div>
+		</div>
+	</div>
+</EditForm>
+@mensaje
 
 @code {
+	[Parameter]
+	public int productoId { get; set; }
+	public Productos producto { get; set; } = new Productos();
+	public string mensaje { get; set; } = string.Empty;
 
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		producto = (await productosService.BuscarId(productoId))!;
+	}
+
+	public async Task Modificar()
+	{
+		if (!await Validar() && await productosService.Guardar(producto))
+		{
+			mensaje = "Se modificó correctamente el producto.";
+		}
+		else
+		{
+			mensaje = "No se pudo modificar el producto.";
+		}
+	}
+
+	public async Task<bool> Validar()
+	{
+		var nombre = await productosService.BuscarNombre(producto.Nombre);
+		var descripcion = await productosService.BuscarDescripcion(producto.Descripcion);
+
+		if (nombre != null)
+		{
+			mensaje = "Ya existe un producto con este nombre.";
+			return true;
+		}
+		else if (descripcion != null)
+		{
+			mensaje = "Ya existe un producto con esta descripción.";
+			return true;
+		}
+		return false;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Productos");
+	}
 }
