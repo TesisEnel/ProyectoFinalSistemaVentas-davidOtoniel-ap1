@@ -41,18 +41,6 @@
 						<InputTextArea id="descripcion" class="form-control" @bind-Value="producto.Descripcion" placeholder="Ej: Jugo 100% natural de naranja"></InputTextArea>
 						<ValidationMessage For="@(() => producto.Descripcion)"></ValidationMessage>
 					</div>
-					<div class="col-2">
-						@*Precio*@
-						<label class="form-label" for="precio"><strong>Precio:</strong></label>
-						<InputNumber id="precio" class="form-control" @bind-Value="producto.Precio"></InputNumber>
-						<ValidationMessage For="@(() => producto.Precio)"></ValidationMessage>
-					</div>
-					<div class="col-2">
-						@*Existencia*@
-						<label class="form-label" for="existencia"><strong>Existencia:</strong></label>
-						<InputNumber id="existencia" class="form-control" @bind-Value="producto.Existencia"></InputNumber>
-						<ValidationMessage For="@(() => producto.Existencia)"></ValidationMessage>
-					</div>
 					<div class="col-4">
 						@*Categoria*@
 						<label class="form-label" for="categoria"><strong>Categor&iacute;a:</strong></label>
@@ -65,9 +53,7 @@
 						</InputSelect>
 						<ValidationMessage For="@(() => producto.Descripcion)"></ValidationMessage>
 					</div>
-				</div>
-				<div class="row mb-3">
-					<div class="col-5">
+					<div class="col-4">
 						@*Nota*@
 						<label class="form-label" for="nota"><strong>Nota: </strong>(Opcional)</label>
 						<InputTextArea id="nota" class="form-control" @bind-Value="producto.Nota" placeholder="Ingrese una nota"></InputTextArea>
