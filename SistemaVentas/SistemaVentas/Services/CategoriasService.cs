@@ -1,6 +1,7 @@
 ﻿using Library.Models;
 using Microsoft.EntityFrameworkCore;
 using SistemaVentas.Data;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace SistemaVentas.Services;
@@ -62,7 +63,7 @@ public class CategoriasService
 			.AsNoTracking()
 			.FirstOrDefaultAsync(c => c.Descripcion.ToLower() == descripcion.ToLower());
 	}
-	public List<Categorias> Listar(Expression<Func<Categorias, bool>> criterio)
+	public async Task<List<Categorias>>? Listar(Expression<Func<Categorias, bool>> criterio)
 	{
 		return _contexto.Categorias
 			.AsNoTracking()
