@@ -117,7 +117,7 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		categorias = categoriasService.Listar(c => c.CategoriaId > 0);
+		// categorias = categoriasService.Listar(c => c.CategoriaId > 0);
 		loading = false;
 
 		if (categorias.Count == 0)
