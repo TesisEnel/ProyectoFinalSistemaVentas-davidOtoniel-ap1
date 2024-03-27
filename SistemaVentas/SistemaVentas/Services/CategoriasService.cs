@@ -31,9 +31,11 @@ public class CategoriasService
 
 	public async Task<bool> Modificar(Categorias categoria)
 	{
-		_contexto.Update(categoria);
-		return await _contexto.SaveChangesAsync() > 0;
-	}
+        _contexto.Update(categoria);
+        var modifico = await _contexto.SaveChangesAsync() > 0;
+        _contexto.Entry(categoria).State = EntityState.Detached;
+        return modifico;
+    }
 
 	public async Task<bool> Existe(int id)
 	{
