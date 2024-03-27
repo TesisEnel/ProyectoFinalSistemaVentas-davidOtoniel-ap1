@@ -2,8 +2,8 @@
 @page "/DeleteProveedores/proveedorId={proveedorId:int}"
 @rendermode InteractiveAuto
 @inject NavigationManager navigation
-@* @inject ProveedoresService proveedorService
-@inject TiposContribuyenteService tipoContribuyenteService
+@inject ProveedoresService proveedorService
+@* @inject TiposContribuyenteService tipoContribuyenteService
 @inject ContactosService contactoService *@
 
 <PageTitle>Eliminar Proveedor</PageTitle>
@@ -111,15 +111,14 @@
 
 		// tiposContribuyente = await tipoContribuyenteService.GetTiposContribuyentes();
 		// contactos = await contactoService.GetContactos();
-		// proveedor = await proveedorService.GetProveedor(proveedorId);
+		proveedor = await proveedorService.BuscarId(proveedorId);
 	}
 
 	public async Task Eliminar()
 	{
-		proveedor.Eliminado = true;
-		// await proveedorService.Update(proveedor);
-
-		// mensaje = "Se creo";
+		proveedor.Eliminado = true; 
+		//Lo que se hace aqui es que en lugar de eliminar, se cambia Eliminado a true
+		await proveedorService.Crear(proveedor); 
 	}
 
 	// public string ObtenerTipoContacto(int id)

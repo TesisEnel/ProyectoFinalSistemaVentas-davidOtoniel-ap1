@@ -1,8 +1,8 @@
 ﻿@page "/CreateProveedores"
-@* @rendermode InteractiveAuto *@
+@rendermode InteractiveServer
 @inject NavigationManager navigation
-@* @inject ProveedoresService proveedorService
-@inject TiposContribuyenteService tipoContribuyenteService
+@inject ProveedoresService proveedorService
+@* @inject TiposContribuyenteService tipoContribuyenteService
 @inject ContactosService contactoService *@
 
 <PageTitle>Crear Nuevo Proveedor</PageTitle>
@@ -27,6 +27,8 @@
 						<label class="form-label" for="fecha"><strong>Fecha Creaci&oacute;n:</strong></label>
 						<InputDate id="fecha" class="form-control" @bind-Value="proveedor.FechaCreacion" readonly></InputDate>
 					</div>
+				</div>
+				<div class="row mb-3">
 					<div class="col-4">
 						@*Nombre*@
 						<label class="form-label" for="nombre"><strong>Nombre:</strong></label>
@@ -34,8 +36,6 @@
 						<spam class="mensajeError">@mensajeNombre</spam>
 						<ValidationMessage For="@(() => proveedor.Nombre)"></ValidationMessage>
 					</div>
-				</div>
-				<div class="row mb-3">
 					<div class="col-4">
 						@*Direccion*@
 						<label class="form-label" for="direccion"><strong>Direcci&oacute;n:</strong></label>
@@ -43,8 +43,16 @@
 						<ValidationMessage For="@(() => proveedor.Direccion)"></ValidationMessage>
 					</div>
 					<div class="col-4">
+						@*Ciudad*@
+						<label class="form-label" for="ciudad"><strong>Ciudad:</strong></label>
+						<InputText id="ciudad" class="form-control" @bind-Value="proveedor.Ciudad" placeholder="Ej: San Francisco de Macorís"></InputText>
+						<ValidationMessage For="@(() => proveedor.Ciudad)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-4">
 						@*Email*@
-						<label class="form-label" for="mail"><strong>Email:</strong></label>
+						<label class="form-label" for="email"><strong>Email:</strong></label>
 						<InputText id="email" class="form-control" @bind-Value="proveedor.Email" placeholder="Ej: juanperez123@gmail.com"></InputText>
 						<spam class="mensajeError">@mensajeEmail</spam>
 						<ValidationMessage For="@(() => proveedor.Email)"></ValidationMessage>
@@ -52,17 +60,15 @@
 					<div class="col-4">
 						@*TipoContribuyente*@
 						<label class="form-label" for="ipoContribuyente"><strong>Tipo de Contribuyente:</strong></label>
-						@* <InputSelect id="tipoContribuyente" class="form-select" @bind-Value="proveedor.TipoContribuyente">
+						<InputSelect id="tipoContribuyente" class="form-select" @bind-Value="proveedor.TipoContribuyente">
 							<option value="0">Elija una opci&oacute;n</option>
 							@foreach (var tipo in tiposContribuyente)
 							{
 								<option value="@tipo.Descripcion">@tipo.Descripcion</option>
 							}
-						</InputSelect> *@
+						</InputSelect>
 						<ValidationMessage For="@(() => proveedor.TipoContribuyente)"></ValidationMessage>
 					</div>
-				</div>
-				<div class="row mb-3">
 					<div class="col-4">
 						@*RNC*@
 						<label class="form-label" for="rnc"><strong>RNC:</strong></label>
@@ -71,7 +77,9 @@
 						<spam class="mensajeError">@mensajeRNC</spam>
 						<ValidationMessage For="@(() => proveedor.RNC)"></ValidationMessage>
 					</div>
-					<div class="col-8">
+				</div>
+				<div class="row mb-3">
+					<div class="col-12">
 						@*Nota*@
 						<label class="form-label" for="nota"><strong>Nota:</strong></label>
 						<label>(Opcional)</label>
@@ -87,7 +95,7 @@
 							<h3><strong>Detalles</strong></h3>
 							<div class="row align-content-center">
 								@*Contacto*@
-								@* <div class="col-4">
+								<div class="col-4">
 									<label class="form-label" for="Tipocontacto"><strong>Tipo de Contacto:</strong></label>
 									<InputSelect id="Tipocontacto" class="form-select" @bind-Value="tipo">
 										<option>Elija una opci&oacute;n</option>
@@ -96,10 +104,10 @@
 											<option value="@contacto.ContactoId">@contacto.Descripcion</option>
 										}
 									</InputSelect>
-								</div> *@
+								</div>
 								@*Descripcion*@
 								<div class="col-4">
-									<label class="form-label" for="descripcion"><strong>Contacto:</strong></label>
+									<label class="form-label" for="descripcion"><strong>N&uacute;mero de Contacto:</strong></label>
 									<label>(Sin guiones)</label>
 									<InputText id="descripcion" class="form-control" @bind-Value="contacto" placeholder="Ingrese un número para el contacto"></InputText>
 									<spam class="mensajeError">@mensaje</spam>
@@ -123,17 +131,17 @@
 										</tr>
 									</thead>
 									<tbody>
-										@* @foreach (var detalle in proveedor.ProveedoresDetalle)
+										@foreach (var detalle in proveedor.ProveedoresDetalle)
 										{
 											<tr>
 												<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
 												<td>@detalle.Contacto</td>
 												<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
 											</tr>
-										} *@
+										}
 									</tbody>
 								</table>
-								<p><strong>Total de Detalles: </strong>@proveedor.ProveedoresDetalle.Count</p>
+								<p><strong>Total Números de Contactos: </strong>@proveedor.ProveedoresDetalle.Count</p>
 							}
 						</section>
 					</div>
@@ -155,8 +163,8 @@
 @code {
 	public Proveedores proveedor { get; set; } = new Proveedores();
 
-	// public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
-	// public List<Contactos> contactos = new List<Contactos>();
+	public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
+	public List<Contactos> contactos = new List<Contactos>();
 	public int tipo { get; set; }
 	public string contacto { get; set; } = string.Empty;
 	public string mensaje { get; set; } = string.Empty;
@@ -175,109 +183,107 @@
 
 	public async void Crear()
 	{
-		// if (await ValidarProveedor())
-		// {
-		// 	if (String.IsNullOrEmpty(proveedor.Nota))
-		// 		proveedor.Nota = "----";
+		if (await ValidarProveedor())
+		{
+			if (String.IsNullOrEmpty(proveedor.Nota))
+				proveedor.Nota = "----";
 
-		// 	var response = await proveedorService.Update(proveedor);
+			var response = await proveedorService.Crear(proveedor);
 
-		// 	if (response.IsSuccessStatusCode)
-		// 	{
-		// 		mensaje = "La solicitud fue exitosa.";
-		// 	}
-		// 	else
-		// 	{
-		// 		mensaje = "La solicitud falló con el siguiente estado: " + response.ToString();
-		// 	}
-
-		// 	Console.WriteLine("Entró a la función Crear");
-		// }
-		// else
-		// 	mensaje = "Algunos datos ya existen en la base de datos.";
+			// if (response.IsSuccessStatusCode)
+			// {
+			// 	mensaje = "La solicitud fue exitosa.";
+			// }
+			// else
+			// {
+			// 	mensaje = "La solicitud falló con el siguiente estado: " + response.ToString();
+			// }
+		}
+		else
+			mensaje = "Algunos datos ya existen en la base de datos.";
 
 		StateHasChanged();
 		await Task.Delay(2000);
 		await LimpiarPantalla();
 	}
 
-	// public async Task<bool> ValidarProveedor()
-	// {
-	// 	var validar = await proveedorService.GetProveedores();
-	// 	var nombre = validar.FirstOrDefault(p => p.Nombre == proveedor.Nombre);
-	// 	var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
-	// 	var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
+	public async Task<bool> ValidarProveedor()
+	{
+		var validar = await proveedorService.Listar(p => p.Eliminado == false);
+		var nombre = validar.FirstOrDefault(p => p.Nombre == proveedor.Nombre);
+		var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
+		var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
 
-	// 	bool nombreValido = true;
-	// 	bool emailValido = true;
-	// 	bool rncValido = true;
+		bool nombreValido = true;
+		bool emailValido = true;
+		bool rncValido = true;
 
-	// 	if (nombre != null)
-	// 	{
-	// 		nombreValido = false;
-	// 		mensajeNombre = "Ya existe un proveedor con este nombre";
-	// 	}
+		if (nombre != null)
+		{
+			nombreValido = false;
+			mensajeNombre = "Ya existe un proveedor con este nombre";
+		}
 
-	// 	if (email != null)
-	// 	{
-	// 		emailValido = false;
-	// 		mensajeEmail = "Ya existe un proveedor con este email";
-	// 	}
+		if (email != null)
+		{
+			emailValido = false;
+			mensajeEmail = "Ya existe un proveedor con este email";
+		}
 
-	// 	if (rnc != null)
-	// 	{
-	// 		rncValido = false;
-	// 		mensajeRNC = "Ya existe un proveedor con este número de RNC";
-	// 	}
+		if (rnc != null)
+		{
+			rncValido = false;
+			mensajeRNC = "Ya existe un proveedor con este número de RNC";
+		}
 
-	// 	return nombreValido && emailValido && rncValido;
-	// }
+		return nombreValido && emailValido && rncValido;
+	}
 
 	public async Task AgregarDetalle()
 	{
 		if (!String.IsNullOrEmpty(contacto) && tipo != 0)
 		{
-			// if (await ValidarDetalle())
-			// {
-			// 	var nuevoDetalle = new ProveedoresDetalle { ContactoId = tipo, Contacto = contacto };
-			// 	proveedor.ProveedoresDetalle.Add(nuevoDetalle);
-			// }
-			// else
-			// 	mensaje = "La longitud del contacto debe ser de 10 digitos";
+			if (await ValidarDetalle())
+			{
+				var nuevoDetalle = new ProveedoresDetalle { ContactoId = tipo, Contacto = contacto };
+				proveedor.ProveedoresDetalle.Add(nuevoDetalle);
+			}
+			else
+				mensaje = "La longitud del contacto debe ser de 10 digitos";
 		}
 	}
 
-	// public async Task<bool> ValidarDetalle()
-	// {
-	// 	// var validar = await proveedorService.GetProveedores();
+	public async Task<bool> ValidarDetalle()
+	{
+		var validar = await proveedorService.Listar(p => p.Eliminado == false);
 
-	// 	if (contacto.Length != 10)
-	// 		return false;
+		if (contacto.Length != 10)
+			return false;
 
-	// 	foreach (var detalle in validar)
-	// 	{
-	// 		foreach (var contactos in detalle.ProveedoresDetalle)
-	// 		{
-	// 			if (contactos.Contacto == contacto)
-	// 				return false;
-	// 		}
-	// 	}
+		foreach (var detalle in validar)
+		{
+			foreach (var contactos in detalle.ProveedoresDetalle)
+			{
+				if (contactos.Contacto == contacto)
+					return false;
+			}
+		}
 
-	// 	foreach (var detalle in proveedor.ProveedoresDetalle)
-	// 	{
-	// 		if (detalle.Contacto == contacto)
-	// 			return false;
-	// 	}
+		foreach (var detalle in proveedor.ProveedoresDetalle)
+		{
+			if (detalle.Contacto == contacto)
+				return false;
+		}
 
-	// 	return true;
-	// }
+		return true;
+	}
 
-	// public string ObtenerTipoContacto(int id)
-	// {
-	// 	var dato = contactos.FirstOrDefault(c => c.ContactoId == id);
+	public string ObtenerTipoContacto(int id)
+	{
+		var dato = contactos.FirstOrDefault(c => c.ContactoId == id);
 
-	// 	return dato.Descripcion;
-	// }
+		return dato.Descripcion;
+	}
 
 	public async Task EliminarDetalle(ProveedoresDetalle detalle)
 	{
