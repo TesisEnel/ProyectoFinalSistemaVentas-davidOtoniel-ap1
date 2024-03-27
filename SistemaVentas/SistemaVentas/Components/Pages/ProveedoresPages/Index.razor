@@ -102,13 +102,14 @@
 								<td>@proveedor.TipoContribuyente</td>
 								<td>
 									<div class="btn-group" role="group">
-										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(proveedor.ProveedorId)">
+										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(proveedor.ProveedorId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
 											<i class="bi bi-eye"></i>
 										</button>
-										<button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(proveedor.ProveedorId)">
+
+										<button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(proveedor.ProveedorId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
 											<i class="bi bi-pencil-square"></i>
 										</button>
-										<button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(proveedor.ProveedorId)">
+										<button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(proveedor.ProveedorId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar">
 											<i class="bi bi-trash3-fill"></i>
 										</button>
 									</div>
