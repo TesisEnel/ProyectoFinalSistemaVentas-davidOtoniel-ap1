@@ -1,0 +1,127 @@
+﻿@page "/"
+@inject NavigationManager navigation
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<div class="container fondo">
+    <div class="d-flex justify-content-center">
+        <img src="/Imagenes/vendedor.png" style="width: 200px; height: auto; margin-right: 10px;" />
+    </div>
+    <h1 class="miMensaje"><strong>Men&uacute; Principal</strong></h1>
+
+    <div class="container">
+        <div class="card shadow-lg contenedor">
+            @* <div class="card-header">
+            <h3><strong>Men&uacute;</strong></h3>
+            </div> *@
+            <div class="card-body">
+                @*Fila #1*@
+                <div class="row justify-content-center mb-5">
+                    @*Clientes*@
+                    <div class="col-md-3 text-center">
+                        <button type="button" class="d-block mx-auto borde" @onclick="IrAClientes">
+                            <h6><strong>Clientes</strong></h6>
+                            <img src="Imagenes/clasificacion.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
+                    @*Proveedores*@
+                    <div class="col-md-3 text-center">
+                        <button class="d-block mx-auto borde" @onclick="IrAProveedores">
+                            <h6><strong>Proveedores</strong></h6>
+                            <img src="Imagenes/repartidor.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
+                    @*Productos*@
+                    <div class="col-md-3 text-center">
+                        <button type="button" class="d-block mx-auto borde" @onclick="IrAProductos">
+                            <h6><strong>Productos</strong></h6>
+                            <img src="Imagenes/productos-lacteos.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
+                </div>
+                @*Fila #2*@
+                <div class="row justify-content-center mb-5">
+                    @*Ventas*@
+                    <div class="col-md-3 text-center">
+                        <button class="d-block mx-auto borde" @onclick="IrAVentas">
+                            <h6><strong>Ventas</strong></h6>
+                            <img src="Imagenes/bolsa-de-valores.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
+                    @*Categorias*@
+                    <div class="col-md-3 text-center">
+                        <button type="button" class="d-block mx-auto borde" @onclick="IrACategorias">
+                            <h6><strong>Categor&iacute;as</strong></h6>
+                            <img src="Imagenes/canasta.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
+                    @*Inventario*@
+                    <div class="col-md-3 text-center">
+                        <button class="d-block mx-auto borde" @onclick="IrAProveedores">
+                            <h6><strong>Inventario</strong></h6>
+                            <img src="Imagenes/la-gestion-del-inventario.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
+                </div>
+                @*Fila #3*@
+                <div class="row justify-content-center mb-5">
+                    @*Reportes*@
+                    <div class="col-md-3 text-center">
+                        <button class="d-block mx-auto borde" @onclick="IrAVentas">
+                            <h6><strong>Reportes</strong></h6>
+                            <img src="Imagenes/reporte.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
+                    @*Acerca de*@
+                    <div class="col-md-3 text-center">
+                        <button type="button" class="d-block mx-auto borde" @onclick="IrAAcercaDe">
+                            <h6><strong>Acerca de</strong></h6>
+                            <img src="Imagenes/acerca-de.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
+                    @*Vacio*@
+                    <div class="col-md-3 text-center">
+                        <button type="button" class="d-block mx-auto borde" @onclick="Anyways">
+                            <h6><strong>Vacio</strong></h6>
+                            <img src="Imagenes/advertencia.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private void IrAClientes()
+    {
+        navigation.NavigateTo("/Clientes");
+    }
+
+    private void IrAProveedores()
+    {
+        navigation.NavigateTo("/Proveedores");
+    }
+    private void IrAVentas()
+    {
+        navigation.NavigateTo("/Ventas");
+    }
+    private void IrAProductos()
+    {
+        navigation.NavigateTo("/Productos");
+    }
+    private void IrAAcercaDe()
+    {
+        navigation.NavigateTo("/AcercaDe");
+    }
+    private void Anyways()
+    {
+        navigation.NavigateTo("/Probar");
+    }
+    private void IrACategorias()
+    {
+        navigation.NavigateTo("/Categorias");
+    }
+}

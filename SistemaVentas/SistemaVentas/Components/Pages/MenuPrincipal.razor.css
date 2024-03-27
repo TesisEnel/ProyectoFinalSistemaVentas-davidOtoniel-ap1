@@ -1,0 +1,38 @@
+﻿.miMensaje {
+    margin: 10px 24px 0 24px;
+    text-align: center;
+    color: white;
+    background-color: black;
+    padding: 10px;
+    border-radius: 5px 5px 0 0;
+}
+
+.contenedor {
+    border-radius: 0 0 5px 5px;
+    margin-left: 12px;
+    margin-right: 12px;
+    margin-bottom: 10px;
+}
+
+.miTabla {
+    text-align: center;
+}
+
+.miFlecha {
+    margin-top: 10px;
+}
+
+.fondo {
+    background-color: cornflowerblue;
+    border-radius: 5px;
+    margin-top: 20px;
+    margin-bottom: 35px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.borde {
+    border-radius: 5px;
+}
