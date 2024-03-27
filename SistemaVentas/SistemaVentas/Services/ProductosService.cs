@@ -68,7 +68,7 @@ public class ProductosService
 			.AsNoTracking()
 			.FirstOrDefaultAsync(p => p.Descripcion.ToLower() == descripcion.ToLower());
 	}
-	public List<Productos> Listar(Expression<Func<Productos, bool>> criterio)
+	public async Task<List<Productos>>? Listar(Expression<Func<Productos, bool>> criterio)
 	{
 		return _contexto.Productos
 			.AsNoTracking()
