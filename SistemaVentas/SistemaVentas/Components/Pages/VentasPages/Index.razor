@@ -1,0 +1,223 @@
+﻿@page "/Ventas"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject VentasService ventasService
+
+<PageTitle>Ventas</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Ventas</strong></h3>
+			<div class="d-flex align-items-start">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="button" class="btn btn-outline-primary" @onclick="IrACrear"><i class="bi bi-plus-circle" /> Crear</button>
+			</div>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			@if (loading)
+			{
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border text-info">
+					</div>
+				</div>
+			}
+			else if (ventas.Count == 0)
+			{
+				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay ventas creadas</h1>
+			}
+			else
+			{
+				@*Fechas*@
+				<div class="mb-3">
+					<div class="row">
+						<div class="col-3">
+							<label class="form-label" for="desde"><strong>Desde:</strong></label>
+							<InputDate id="desde" class="form-control" @bind-Value="desde"></InputDate>
+						</div>
+						<div class="col-3">
+							<label class="form-label" for="hasta"><strong>Hasta:</strong></label>
+							<InputDate id="hasta" class="form-control" @bind-Value="hasta"></InputDate>
+						</div>
+					</div>
+				</div>
+
+				@*Campos a Filtrar*@
+				<div class="mb-3">
+					<div class="row align-items-center">
+						<label class="form-label" for="filtro"><strong>Campo a Filtrar:</strong></label>
+						<div class="col-3">
+							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+								<option>Elije una opci&oacute;n</option>
+								<option value="id">VentaId</option>
+							</InputSelect>
+						</div>
+						<div class="col-auto miFlecha">
+							<p>→</p>
+						</div>
+						<div class="col-4">
+							<div class="input-group">
+								<InputText class="form-control" @bind-Value="valorFiltro" placeholder="Ingrese un dato para filtrar"></InputText>
+								<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search" /></button>
+							</div>
+						</div>
+						<div class="col-3">
+							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
+						</div>
+					</div>
+				</div>
+
+				<table class="table table-bordered miTabla">
+					<thead>
+						<tr>
+							<th>VentaId</th>
+							<th>Fecha</th>
+							<th>Devoluci&oacute;n</th>
+							<th>Pago</th>
+							<th>SubTotal</th>
+							<th>Ver</th>
+							<th>Editar</th>
+							<th>Eliminar</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var venta in ventas)
+						{
+							<tr>
+								<td>@venta.VentaId</td>
+								<td>@venta.Fecha.ToShortDateString()</td>
+								<td>@venta.Pago.ToString("N2")</td>
+								<td>@venta.Devolucion.ToString("N2")</td>
+								<td>@venta.SubTotal.ToString("N2")</td>
+								<td><button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(venta.VentaId)"><i class="bi bi-eye" /></button></td>
+								<td><button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(venta.VentaId)"><i class="bi bi-pencil-square" /></button></td>
+								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(venta.VentaId)"><i class="bi bi-trash3-fill" /></button></td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+		</div>
+		<div class="card-footer">
+			<p class="float-start"><strong>Total de Ventas:</strong> @ventas.Count</p>
+			<p class="float-end"><strong>Monto Total:</strong> @ventas.Count</p>
+		</div>
+	</div>
+</div>
+@mensaje
+
+@code {
+	public List<Ventas> ventas = new List<Ventas>();
+	public string filtro { get; set; }
+	public string valorFiltro { get; set; }
+	public string mensaje { get; set; }
+	public bool loading { get; set; } = true;
+	public DateTime desde { get; set; } = DateTime.Today;
+	public DateTime hasta { get; set; } = DateTime.Today;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+
+		ventas = await ventasService.Listar(v => v.Eliminado == false);
+
+		loading = false;
+
+		if (ventas.Count == 0)
+			StateHasChanged();
+	}
+
+	public async Task Buscar()
+	{
+		if (desde > hasta)
+		{
+			mensaje = "La fecha inicial no puede ser mayor a la fecha final";
+			StateHasChanged();
+			await Task.Delay(3000);
+			await LimpiarPantalla();
+			return;
+		}
+
+		else if (filtro == null)
+		{
+			mensaje = "Debe elegir un método parar filtrar";
+			StateHasChanged();
+			await Task.Delay(3000);
+			await LimpiarPantalla();
+			return;
+		}
+
+		else if (valorFiltro == null)
+		{
+			mensaje = "Debe ingresar un dato";
+			StateHasChanged();
+			await Task.Delay(3000);
+			await LimpiarPantalla();
+			return;
+		}
+
+		List<Ventas> listaFiltro = new List<Ventas>();
+
+		switch (filtro)
+		{
+			case "id":
+				if (int.TryParse(valorFiltro, out int id))
+				{
+					var resultadoId = ventas.FirstOrDefault(v => v.VentaId == id);
+					if (resultadoId != null &&
+						(resultadoId.Fecha >= desde && resultadoId.Fecha <= hasta))
+					{
+						ventas.Clear();
+						ventas.Add(resultadoId);
+					}
+					else
+						mensaje = "No se encontraron resultados";
+				}
+				else
+				{
+					mensaje = "El valor ingresado para VentaId no es válido";
+					await Task.Delay(3000);
+				}
+				break;
+		}
+		StateHasChanged();
+		await LimpiarPantalla();
+	}
+
+	public async Task Restablecer()
+	{
+		ventas = await ventasService.Listar(p => p.Eliminado == false);
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		await Task.Delay(2000);
+		mensaje = string.Empty;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/");
+	}
+
+	void IrACrear()
+	{
+		navigation.NavigateTo("/CreateVentas");
+	}
+
+	void IrADetalles(int id)
+	{
+		navigation.NavigateTo($"/ViewVentas/ventaId={id}");
+	}
+	void IrAEditar(int id)
+	{
+		navigation.NavigateTo($"/EditVentas/ventaId={id}");
+	}
+	void IrAEliminar(int id)
+	{
+		navigation.NavigateTo($"/DeleteVentas/ventaId={id}");
+	}
+}
