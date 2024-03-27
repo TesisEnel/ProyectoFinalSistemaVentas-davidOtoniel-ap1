@@ -2,8 +2,8 @@
 @page "/ViewProveedores/proveedorId={proveedorId:int}"
 @rendermode InteractiveAuto
 @inject NavigationManager navigation
-@* @inject ProveedoresService proveedorService
-@inject TiposContribuyenteService tipoContribuyenteService
+@inject ProveedoresService proveedorService
+@* @inject TiposContribuyenteService tipoContribuyenteService
 @inject ContactosService contactoService *@
 
 <PageTitle>Detalles de Proveedor</PageTitle>
@@ -109,7 +109,7 @@
 
 		// tiposContribuyente = await tipoContribuyenteService.GetTiposContribuyentes();
 		// contactos = await contactoService.GetContactos();
-		// proveedor = await proveedorService.GetProveedor(proveedorId);
+		proveedor = await proveedorService.BuscarId(proveedorId);
 	}
 
 	// public string ObtenerTipoContacto(int id)

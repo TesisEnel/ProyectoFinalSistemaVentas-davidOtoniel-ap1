@@ -1,7 +1,7 @@
 ﻿@page "/Proveedores"
-@* @rendermode InteractiveAuto *@
+@rendermode InteractiveServer
 @inject NavigationManager navigation
-@* @inject ProveedoresService proveedorService *@
+@inject ProveedoresService proveedorService
 
 <PageTitle>Proveedores</PageTitle>
 <div class="container">
@@ -135,7 +135,7 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		// proveedores = await proveedorService.GetProveedores();
+		proveedores = await proveedorService.Listar(p => p.Eliminado == false);
 
 		loading = false;
 
@@ -272,7 +272,7 @@
 
 	public async Task Restablecer()
 	{
-		// proveedores = await proveedorService.GetProveedores();
+		proveedores = await proveedorService.Listar(p => p.Eliminado == false);
 	}
 
 	public async Task LimpiarPantalla()
