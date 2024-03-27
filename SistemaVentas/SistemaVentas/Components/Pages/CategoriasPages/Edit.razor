@@ -58,32 +58,32 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		categoria = (await categoriasService.BuscarId(categoriaId))!;
+		// categoria = (await categoriasService.BuscarId(categoriaId))!;
 	}
 
 	public async Task Modificar()
 	{
-		if (!await Validar() && await categoriasService.Guardar(categoria))
-		{
-			mensaje = "Se modificó correctamente la categoría.";
-		}
-		else
-		{
-			mensaje = "No se pudo modificar la categoría.";
-		}
+		// if (!await Validar() && await categoriasService.Guardar(categoria))
+		// {
+		// 	mensaje = "Se modificó correctamente la categoría.";
+		// }
+		// else
+		// {
+		// 	mensaje = "No se pudo modificar la categoría.";
+		// }
 	}
 
-	public async Task<bool> Validar()
-	{
-		var descripcion = await categoriasService.BuscarDescripcion(categoria.Descripcion);
+	// public async Task<bool> Validar()
+	// {
+	// 	var descripcion = await categoriasService.BuscarDescripcion(categoria.Descripcion);
 
-		if (descripcion != null)
-		{
-			mensaje = "Ya existe una categoría con esta descripción.";
-			return true;
-		}
-		return false;
-	}
+	// 	if (descripcion != null)
+	// 	{
+	// 		mensaje = "Ya existe una categoría con esta descripción.";
+	// 		return true;
+	// 	}
+	// 	return false;
+	// }
 
 	void Volver()
 	{
