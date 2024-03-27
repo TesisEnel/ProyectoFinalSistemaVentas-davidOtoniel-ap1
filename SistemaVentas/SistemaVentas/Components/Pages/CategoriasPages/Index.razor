@@ -51,8 +51,8 @@
 						<div class="col-3">
 							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
 								<option>Elije una opci&oacute;n</option>
-								<option value="1">CategoriaId</option>
-								<option value="2">Descripci&oacute;n</option>
+								<option value="id">CategoriaId</option>
+								<option value="descripcion">Descripci&oacute;n</option>
 							</InputSelect>
 						</div>
 						<div class="col-auto miFlecha">
@@ -61,11 +61,11 @@
 						<div class="col-4">
 							<div class="input-group">
 								<InputText class="form-control" @bind-Value="valorFiltro" placeholder="Ingrese un dato para filtrar"></InputText>
-								<button type="button" class="btn btn-outline-primary" @onclick="Filtrar"><i class="bi bi-search" /></button>
+								<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search" /></button>
 							</div>
 						</div>
 						<div class="col-3">
-							<button type="button" class="btn btn-outline-secondary" @onclick="ReiniciarFiltro"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
+							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
 						</div>
 					</div>
 				</div>
@@ -117,21 +117,85 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		// categorias = categoriasService.Listar(c => c.CategoriaId > 0);
+		categorias = await categoriasService.Listar(c => c.Eliminado == false);
 		loading = false;
 
 		if (categorias.Count == 0)
 			StateHasChanged();
 	}
 
-	public async Task Filtrar()
+	public async Task Buscar()
 	{
-		
+		if (desde > hasta)
+		{
+			mensaje = "La fecha inicial no puede ser mayor a la fecha final";
+			StateHasChanged();
+			await Task.Delay(3000);
+			await LimpiarPantalla();
+			return;
+		}
+
+		else if (filtro == null)
+		{
+			mensaje = "Debe elegir un método parar filtrar";
+			StateHasChanged();
+			await Task.Delay(3000);
+			await LimpiarPantalla();
+			return;
+		}
+
+		else if (valorFiltro == null)
+		{
+			mensaje = "Debe ingresar un dato";
+			StateHasChanged();
+			await Task.Delay(3000);
+			await LimpiarPantalla();
+			return;
+		}
+
+		List<Categorias> listaFiltro = new List<Categorias>();
+
+		switch (filtro)
+		{
+			case "id":
+				if (int.TryParse(valorFiltro, out int id))
+				{
+					var resultadoId = categorias.FirstOrDefault(c => c.CategoriaId == id);
+					if (resultadoId != null &&
+						(resultadoId.FechaCreacion >= desde && resultadoId.FechaCreacion <= hasta))
+					{
+						categorias.Clear();
+						categorias.Add(resultadoId);
+					}
+					else
+						mensaje = "No se encontraron resultados";
+				}
+				else
+				{
+					mensaje = "El valor ingresado para CategoriaId no es válido";
+					await Task.Delay(3000);
+				}
+				break;
+			case "descripcion":
+				var resultadoDescripcion = categorias
+											.FirstOrDefault(c => c.Descripcion.ToLower()
+											.Contains(valorFiltro.ToLower()));
+
+				if (resultadoDescripcion != null &&
+					(resultadoDescripcion.FechaCreacion >= desde && resultadoDescripcion.FechaCreacion <= hasta))
+				{
+					categorias.Clear();
+					categorias.Add(resultadoDescripcion);
+				}
+				break;
+		}
+		StateHasChanged();
+		await LimpiarPantalla();
 	}
 
-	public async Task ReiniciarFiltro()
+	public async Task Restablecer()
 	{
-		
+		categorias = await categoriasService.Listar(p => p.Eliminado == false);
 	}
 
 	public async Task LimpiarPantalla()

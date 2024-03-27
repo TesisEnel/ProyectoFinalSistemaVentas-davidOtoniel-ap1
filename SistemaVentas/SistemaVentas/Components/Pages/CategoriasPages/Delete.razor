@@ -41,13 +41,13 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		// categoria = (await categoriasService.BuscarId(categoriaId))!;
+		categoria = (await categoriasService.BuscarId(categoriaId))!;
 	}
 
 	public async Task Eliminar()
 	{
 		categoria.Eliminado = true;
-		// await categoriasService.Modificar(categoria);
+		await categoriasService.Guardar(categoria);
 		Volver();
 	}
 
