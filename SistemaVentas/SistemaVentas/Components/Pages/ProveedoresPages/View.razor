@@ -37,7 +37,7 @@
 											<li><strong>Dirección:</strong> @proveedor.Direccion</li>
 											<li><strong>Email:</strong> @proveedor.Email</li>
 											<li><strong>TipoContribuyente:</strong> @proveedor.TipoContribuyente</li>
-											<li><strong>RNC:</strong> @proveedor.RNC</li>
+											<td>@FormatRNCNumber(proveedor.RNC)</td>
 											<li><strong>Nota:</strong> @proveedor.Nota</li>
 										</ul>
 									</div>
@@ -122,6 +122,11 @@
 	public string FormatPhoneNumber(string phoneNumber)
 	{
 		return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
+	}
+
+	public string FormatRNCNumber(string rnc)
+	{
+		return $"{rnc.Substring(0, 3)}-{rnc.Substring(3, 7)}-{rnc.Substring(10)}";
 	}
 
 	void Volver()
