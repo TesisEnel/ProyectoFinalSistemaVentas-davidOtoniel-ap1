@@ -3,6 +3,7 @@
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject ProductosService productosService
+@inject CategoriasService categoriasService
 
 <PageTitle>Editar Proveedor</PageTitle>
 <EditForm Model="producto" OnValidSubmit="Modificar" FormName="EditarProductos">
@@ -58,10 +59,10 @@
 						<label class="form-label" for="categoria"><strong>Categor&iacute;a:</strong></label>
 						<InputSelect id="categoria" class="form-select" @bind-Value="producto.Categoria">
 							<option>Elija una opci&oacute;n</option>
-							@* @foreach (var categoria in listaCategorias)
+							@foreach (var categoria in listaCategorias)
 							{
 							<option value="@categoria.Descripcion">@categoria.Descripcion</option>
-							} *@
+							}
 						</InputSelect>
 						<ValidationMessage For="@(() => producto.Descripcion)"></ValidationMessage>
 					</div>
@@ -92,11 +93,13 @@
 	public int productoId { get; set; }
 	public Productos producto { get; set; } = new Productos();
 	public string mensaje { get; set; } = string.Empty;
+	public List<Categorias> listaCategorias = new List<Categorias>();
 
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
 		producto = (await productosService.BuscarId(productoId))!;
+		listaCategorias = categoriasService.Listar(c => c.CategoriaId > 0);
 	}
 
 	public async Task Modificar()

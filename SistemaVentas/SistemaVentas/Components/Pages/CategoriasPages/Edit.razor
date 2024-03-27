@@ -1,0 +1,92 @@
+﻿@page "/EditCategorias"
+@page "/EditCategorias/categoriaId={categoriaId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject CategoriasService categoriasService
+
+<PageTitle>Editar Categoria</PageTitle>
+<EditForm Model="categoria" OnValidSubmit="Modificar" FormName="EditarCategorias">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			@*Header*@
+			<div class="card-header">
+				<h3 class="align-text-center"><strong>Editar Categoria</strong></h3>
+			</div>
+			@*Cuerpo*@
+			<div class="card-body">
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Categoria Id*@
+						<label class="form-label" for="categoriaId"><strong>CategoriaId:</strong></label>
+						<InputNumber id="categoriaId" class="form-control" @bind-Value="categoria.CategoriaId" readonly></InputNumber>
+					</div>
+					<div class="col-4">
+						@*FechaCreacion*@
+						<label class="form-label" for="fechaCreacion"><strong>Fecha Creaci&oacute;n:</strong></label>
+						<InputDate id="fechaCreacion" class="form-control" @bind-Value="categoria.FechaCreacion" readonly></InputDate>
+						<ValidationMessage For="@(() => categoria.FechaCreacion)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Descripcion*@
+						<label class="form-label" for="descripcion"><strong>Descripci&oacute;n:</strong></label>
+						<InputText id="descripcion" class="form-control" @bind-Value="categoria.Descripcion" placeholder="Ej: Jugos Naturales"></InputText>
+						<ValidationMessage For="@(() => categoria.Descripcion)"></ValidationMessage>
+					</div>
+				</div>
+			</div>
+			@*Footer*@
+			<div class="card-footer d-flex justify-content-center">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="submit" class="btn btn-outline-success">
+					<i class="bi bi-floppy-fill" /> Modificar
+				</button>
+			</div>
+		</div>
+	</div>
+</EditForm>
+@mensaje
+
+@code {
+	[Parameter]
+	public int categoriaId { get; set; }
+	public Categorias categoria { get; set; } = new Categorias();
+	public string mensaje { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		categoria = (await categoriasService.BuscarId(categoriaId))!;
+	}
+
+	public async Task Modificar()
+	{
+		if (!await Validar() && await categoriasService.Guardar(categoria))
+		{
+			mensaje = "Se modificó correctamente la categoría.";
+		}
+		else
+		{
+			mensaje = "No se pudo modificar la categoría.";
+		}
+	}
+
+	public async Task<bool> Validar()
+	{
+		var descripcion = await categoriasService.BuscarDescripcion(categoria.Descripcion);
+
+		if (descripcion != null)
+		{
+			mensaje = "Ya existe una categoría con esta descripción.";
+			return true;
+		}
+		return false;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Categorias");
+	}
+}

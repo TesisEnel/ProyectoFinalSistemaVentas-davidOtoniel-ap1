@@ -1,14 +1,14 @@
-﻿@page "/Productos"
+﻿@page "/Categorias"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
-@inject ProductosService productosService
+@inject CategoriasService categoriasService
 
-<PageTitle>Productos</PageTitle>
+<PageTitle>Categorias</PageTitle>
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Productos</strong></h3>
+			<h3><strong>Categorias</strong></h3>
 			<div class="d-flex align-items-start">
 				<div class="px-2">
 					<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
@@ -25,13 +25,12 @@
 					</div>
 				</div>
 			}
-			else if (productos.Count == 0)
+			else if (categorias.Count == 0)
 			{
-				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay productos creados</h1>
+				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay categorias creadas</h1>
 			}
 			else
 			{
-
 				@*Fechas*@
 				<div class="mb-3">
 					<div class="row">
@@ -45,7 +44,6 @@
 						</div>
 					</div>
 				</div>
-
 				@*Campos a Filtrar*@
 				<div class="mb-3">
 					<div class="row align-items-center">
@@ -53,8 +51,8 @@
 						<div class="col-3">
 							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
 								<option>Elije una opci&oacute;n</option>
-								<option value="id">ProductoId</option>
-								<option value="nombre">Nombre</option>
+								<option value="1">CategoriaId</option>
+								<option value="2">Descripci&oacute;n</option>
 							</InputSelect>
 						</div>
 						<div class="col-auto miFlecha">
@@ -63,11 +61,11 @@
 						<div class="col-4">
 							<div class="input-group">
 								<InputText class="form-control" @bind-Value="valorFiltro" placeholder="Ingrese un dato para filtrar"></InputText>
-								<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search" /></button>
+								<button type="button" class="btn btn-outline-primary" @onclick="Filtrar"><i class="bi bi-search" /></button>
 							</div>
 						</div>
 						<div class="col-3">
-							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
+							<button type="button" class="btn btn-outline-secondary" @onclick="ReiniciarFiltro"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
 						</div>
 					</div>
 				</div>
@@ -75,32 +73,24 @@
 				<table class="table table-bordered miTabla">
 					<thead>
 						<tr>
-							<th>ProductoId</th>
+							<th>CategoriaId</th>
 							<th>Fecha de Creaci&oacute;n</th>
-							<th>Nombre</th>
 							<th>Descripci&oacute;n</th>
-							<th>Categor&iacute;a</th>
-							<th>Precio</th>
-							<th>Existencia</th>
 							<th>Ver</th>
 							<th>Editar</th>
 							<th>Eliminar</th>
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var producto in productos)
+						@foreach (var categoria in categorias)
 						{
 							<tr>
-								<td>@producto.ProductoId</td>
-								<td>@producto.FechaCreacion.ToShortDateString()</td>
-								<td>@producto.Nombre</td>
-								<td>@producto.Descripcion</td>
-								<td>@producto.Categoria</td>
-								<td>@producto.Precio.ToString("N2")</td>
-								<td>@producto.Existencia</td>
-								<td><button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(producto.ProductoId)"><i class="bi bi-eye" /></button></td>
-								<td><button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(producto.ProductoId)"><i class="bi bi-pencil-square" /></button></td>
-								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(producto.ProductoId)"><i class="bi bi-trash3-fill" /></button></td>
+								<td>@categoria.CategoriaId</td>
+								<td>@categoria.FechaCreacion.ToShortDateString()</td>
+								<td>@categoria.Descripcion</td>
+								<td><button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(categoria.CategoriaId)"><i class="bi bi-eye" /></button></td>
+								<td><button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(categoria.CategoriaId)"><i class="bi bi-pencil-square" /></button></td>
+								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(categoria.CategoriaId)"><i class="bi bi-trash3-fill" /></button></td>
 							</tr>
 						}
 					</tbody>
@@ -108,14 +98,15 @@
 			}
 		</div>
 		<div class="card-footer">
-			<p><strong>Total de Productos:</strong> @productos.Count</p>
+			<p><strong>Total de Categorias:</strong> @categorias.Count</p>
 		</div>
 	</div>
 </div>
 @mensaje
 
 @code {
-	public List<Productos> productos = new List<Productos>();
+	public List<Categorias> categorias = new List<Categorias>();
+	public Categorias categoria = new Categorias();
 	public string filtro { get; set; }
 	public string valorFiltro { get; set; }
 	public string mensaje { get; set; }
@@ -126,45 +117,19 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		productos = productosService.Listar(p => p.ProductoId > 0);
+		categorias = categoriasService.Listar(c => c.CategoriaId > 0);
 		loading = false;
 
-		if (productos.Count == 0)
+		if (categorias.Count == 0)
 			StateHasChanged();
 	}
 
-	public async Task Buscar()
-	{
-		if (desde > hasta)
-		{
-			mensaje = "La fecha inicial no puede ser mayor a la fecha final";
-			await LimpiarPantalla();
-			return;
-		}
-
-		if (filtro == null)
-		{
-			mensaje = "Debe elegir un método parar filtrar";
-			await LimpiarPantalla();
-			return;
-		}
-
-		if (valorFiltro == null)
-		{
-			mensaje = "Debe ingresar un dato";
-			await LimpiarPantalla();
-			return;
-		}
-		StateHasChanged();
-		await LimpiarPantalla();
-	}
-
-	public async Task Restablecer()
+	public async Task Filtrar()
 	{
 		
 	}
 
-	public async Task Filtrar(int pos, List<Productos> filtrados, string dato)
+	public async Task ReiniciarFiltro()
 	{
 		
 	}
@@ -182,19 +147,19 @@
 
 	void IrACrear()
 	{
-		navigation.NavigateTo("/CreateProductos");
+		navigation.NavigateTo("/CreateCategorias");
 	}
 
 	void IrADetalles(int id)
 	{
-		navigation.NavigateTo($"/ViewProductos/productoId={id}");
+		navigation.NavigateTo($"/ViewCategorias/categoriaId={id}");
 	}
 	void IrAEditar(int id)
 	{
-		navigation.NavigateTo($"/EditProductos/productoId={id}");
+		navigation.NavigateTo($"/EditCategorias/categoriaId={id}");
 	}
 	void IrAEliminar(int id)
 	{
-		navigation.NavigateTo($"/DeleteProductos/productoId={id}");
+		navigation.NavigateTo($"/DeleteCategorias/categoriaId={id}");
 	}
 }
