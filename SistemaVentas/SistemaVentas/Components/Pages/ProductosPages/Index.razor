@@ -82,8 +82,6 @@
 							<th>Nombre</th>
 							<th>Descripci&oacute;n</th>
 							<th>Categor&iacute;a</th>
-							<th>Precio</th>
-							<th>Existencia</th>
 							<th>Ver</th>
 							<th>Editar</th>
 							<th>Eliminar</th>
@@ -98,8 +96,6 @@
 								<td>@producto.Nombre</td>
 								<td>@producto.Descripcion</td>
 								<td>@producto.Categoria</td>
-								<td>@producto.Precio.ToString("N2")</td>
-								<td>@producto.Existencia</td>
 								<td><button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(producto.ProductoId)"><i class="bi bi-eye" /></button></td>
 								<td><button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(producto.ProductoId)"><i class="bi bi-pencil-square" /></button></td>
 								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(producto.ProductoId)"><i class="bi bi-trash3-fill" /></button></td>
