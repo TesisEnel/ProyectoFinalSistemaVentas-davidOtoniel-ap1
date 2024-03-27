@@ -21,6 +21,9 @@ namespace Library.Models
 		public float Precio { get; set; }
 		[Required(ErrorMessage = "Este campo es obligatorio.")]
 		[Range(1, 100000, ErrorMessage = "El campo {0} debe ser mayor que 0 y menor que 100000.")]
+		public float Costo { get; set; }
+		[Required(ErrorMessage = "Este campo es obligatorio.")]
+		[Range(1, 100000, ErrorMessage = "El campo {0} debe ser mayor que 0 y menor que 100000.")]
 		public int Existencia { get; set; }
 		public bool Eliminado { get; set; } = false;
 		public string Nota { get; set; } = string.Empty;
