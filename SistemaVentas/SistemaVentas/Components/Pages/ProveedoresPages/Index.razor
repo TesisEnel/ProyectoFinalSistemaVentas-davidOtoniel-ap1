@@ -52,12 +52,11 @@
 						<label class="form-label" for="filtro"><strong>Campo a Filtrar:</strong></label>
 						<div class="col-3">
 							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
-								<option>Elije una opci&oacute;n</option>
+								<option>Elige una opci&oacute;n</option>
 								<option value="id">Id</option>
-								<option value="fecha">Fecha de Creaci&oacute;n</option>
 								<option value="nombre">Nombre</option>
 								<option value="direccion">Direcci&oacute;n</option>
-								<option value="email">Email</option>
+								<option value="ciudad">Ciudad</option>
 								<option value="rnc">RNC</option>
 								<option value="contribuyente">Tipo de Contribuyente</option>
 							</InputSelect>
@@ -84,7 +83,9 @@
 							<th>Fecha de Creaci&oacute;n</th>
 							<th>Nombre</th>
 							<th>Direcci&oacute;n</th>
+							<th>Ciudad</th>
 							<th>RNC</th>
+							<th>Tipo de Contribuyente</th>
 							<th>Acciones</th>
 						</tr>
 					</thead>
@@ -96,7 +97,9 @@
 								<td>@proveedor.FechaCreacion.ToShortDateString()</td>
 								<td>@proveedor.Nombre</td>
 								<td>@proveedor.Direccion</td>
+								<td>@proveedor.Ciudad</td>
 								<td>@proveedor.RNC</td>
+								<td>@proveedor.TipoContribuyente</td>
 								<td>
 									<div class="btn-group" role="group">
 										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(proveedor.ProveedorId)">
@@ -196,12 +199,10 @@
 				}
 				break;
 
-			case "fecha":
-
-				break;
-
 			case "nombre":
-				var resultadoNombre = proveedores.FirstOrDefault(p => p.Nombre.ToLower().Contains(valorFiltro.ToLower()));
+				var resultadoNombre = proveedores
+				.FirstOrDefault(p => p.Nombre.ToLower().Contains(valorFiltro.ToLower()));
+
 				if (resultadoNombre != null &&
 					(resultadoNombre.FechaCreacion >= desde && resultadoNombre.FechaCreacion <= hasta))
 				{
@@ -211,7 +212,9 @@
 				break;
 
 			case "direccion":
-				var resultadoDireccion = proveedores.Where(p => p.Direccion.ToLower().Contains(valorFiltro.ToLower())).ToList();
+				var resultadoDireccion = proveedores
+				.Where(p => p.Direccion.ToLower().Contains(valorFiltro.ToLower())).ToList();
+
 				if (resultadoDireccion != null)
 				{
 					foreach (var result in resultadoDireccion)
@@ -225,18 +228,26 @@
 				}
 				break;
 
-			case "email":
-				var resultadoEmail = proveedores.FirstOrDefault(p => p.Email == valorFiltro);
-				if (resultadoEmail != null &&
-					(resultadoEmail.FechaCreacion >= desde && resultadoEmail.FechaCreacion <= hasta))
+			case "ciudad":
+				var resultadoCiudad = proveedores
+				.Where(p => p.Ciudad.ToLower().Contains(valorFiltro.ToLower())).ToList();
+
+				if (resultadoCiudad != null)
 				{
-					proveedores.Clear();
-					proveedores.Add(resultadoEmail);
+					foreach (var result in resultadoCiudad)
+					{
+						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+							listaFiltro.Add(result);
+					}
+
+					if (listaFiltro.Count > 0)
+						proveedores = listaFiltro;
 				}
 				break;
 
 			case "rnc":
 				var resultadoRNC = proveedores.Where(p => p.RNC.Contains(valorFiltro)).ToList();
+
 				if (resultadoRNC != null)
 				{
 					foreach (var result in resultadoRNC)
@@ -251,7 +262,9 @@
 				break;
 
 			case "contribuyente":
-				var resultadoContribuyente = proveedores.Where(p => p.TipoContribuyente == valorFiltro).ToList();
+				var resultadoContribuyente = proveedores
+				.Where(p => p.TipoContribuyente.ToLower().Contains(valorFiltro.ToLower())).ToList();
+
 				if (resultadoContribuyente != null)
 				{
 					foreach (var result in resultadoContribuyente)
