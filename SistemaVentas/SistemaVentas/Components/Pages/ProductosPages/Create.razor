@@ -83,7 +83,7 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		listaCategorias = await categoriasService.Listar(c => c.CategoriaId > 0);
+		listaCategorias = await categoriasService.Listar(c => c.Eliminado == false);
 	}
 
 	public async Task Crear()

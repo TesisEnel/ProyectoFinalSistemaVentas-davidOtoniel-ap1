@@ -1,14 +1,14 @@
-﻿@page "/Productos"
+﻿@page "/Ventas"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
-@inject ProductosService productosService
+@inject VentasService ventasService
 
-<PageTitle>Productos</PageTitle>
+<PageTitle>Ventas</PageTitle>
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Productos</strong></h3>
+			<h3><strong>Ventas</strong></h3>
 			<div class="d-flex align-items-start">
 				<div class="px-2">
 					<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
@@ -25,13 +25,12 @@
 					</div>
 				</div>
 			}
-			else if (productos.Count == 0)
+			else if (ventas.Count == 0)
 			{
-				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay productos creados</h1>
+				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay ventas creadas</h1>
 			}
 			else
 			{
-
 				@*Fechas*@
 				<div class="mb-3">
 					<div class="row">
@@ -53,10 +52,7 @@
 						<div class="col-3">
 							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
 								<option>Elije una opci&oacute;n</option>
-								<option value="id">ProductoId</option>
-								<option value="nombre">Nombre</option>
-								<option value="descripcion">Descripci&oacute;n</option>
-								<option value="categoria">Categor&iacute;a</option>
+								<option value="id">VentaId</option>
 							</InputSelect>
 						</div>
 						<div class="col-auto miFlecha">
@@ -77,28 +73,28 @@
 				<table class="table table-bordered miTabla">
 					<thead>
 						<tr>
-							<th>ProductoId</th>
-							<th>Fecha de Creaci&oacute;n</th>
-							<th>Nombre</th>
-							<th>Descripci&oacute;n</th>
-							<th>Categor&iacute;a</th>
+							<th>VentaId</th>
+							<th>Fecha</th>
+							<th>Devoluci&oacute;n</th>
+							<th>Pago</th>
+							<th>SubTotal</th>
 							<th>Ver</th>
 							<th>Editar</th>
 							<th>Eliminar</th>
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var producto in productos)
+						@foreach (var venta in ventas)
 						{
 							<tr>
-								<td>@producto.ProductoId</td>
-								<td>@producto.FechaCreacion.ToShortDateString()</td>
-								<td>@producto.Nombre</td>
-								<td>@producto.Descripcion</td>
-								<td>@producto.Categoria</td>
-								<td><button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(producto.ProductoId)"><i class="bi bi-eye" /></button></td>
-								<td><button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(producto.ProductoId)"><i class="bi bi-pencil-square" /></button></td>
-								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(producto.ProductoId)"><i class="bi bi-trash3-fill" /></button></td>
+								<td>@venta.VentaId</td>
+								<td>@venta.Fecha.ToShortDateString()</td>
+								<td>@venta.Pago.ToString("N2")</td>
+								<td>@venta.Devolucion.ToString("N2")</td>
+								<td>@venta.SubTotal.ToString("N2")</td>
+								<td><button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(venta.VentaId)"><i class="bi bi-eye" /></button></td>
+								<td><button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(venta.VentaId)"><i class="bi bi-pencil-square" /></button></td>
+								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(venta.VentaId)"><i class="bi bi-trash3-fill" /></button></td>
 							</tr>
 						}
 					</tbody>
@@ -106,14 +102,15 @@
 			}
 		</div>
 		<div class="card-footer">
-			<p><strong>Total de Productos:</strong> @productos.Count</p>
+			<p class="float-start"><strong>Total de Ventas:</strong> @ventas.Count</p>
+			<p class="float-end"><strong>Monto Total:</strong> @ventas.Count</p>
 		</div>
 	</div>
 </div>
 @mensaje
 
 @code {
-	public List<Productos> productos = new List<Productos>();
+	public List<Ventas> ventas = new List<Ventas>();
 	public string filtro { get; set; }
 	public string valorFiltro { get; set; }
 	public string mensaje { get; set; }
@@ -124,10 +121,12 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		productos = await productosService.Listar(p => p.Eliminado == false);
+
+		ventas = await ventasService.Listar(v => v.Eliminado == false);
+
 		loading = false;
 
-		if (productos.Count == 0)
+		if (ventas.Count == 0)
 			StateHasChanged();
 	}
 
@@ -160,62 +159,27 @@
 			return;
 		}
 
-		List<Categorias> listaFiltro = new List<Categorias>();
+		List<Ventas> listaFiltro = new List<Ventas>();
 
 		switch (filtro)
 		{
 			case "id":
 				if (int.TryParse(valorFiltro, out int id))
 				{
-					var resultadoId = productos.FirstOrDefault(p => p.ProductoId == id);
+					var resultadoId = ventas.FirstOrDefault(v => v.VentaId == id);
 					if (resultadoId != null &&
-						(resultadoId.FechaCreacion >= desde && resultadoId.FechaCreacion <= hasta))
+						(resultadoId.Fecha >= desde && resultadoId.Fecha <= hasta))
 					{
-						productos.Clear();
-						productos.Add(resultadoId);
+						ventas.Clear();
+						ventas.Add(resultadoId);
 					}
 					else
 						mensaje = "No se encontraron resultados";
 				}
 				else
 				{
-					mensaje = "El valor ingresado para ProductoId no es válido";
+					mensaje = "El valor ingresado para VentaId no es válido";
 					await Task.Delay(3000);
-				}
-				break;
-			case "nombre":
-				var resultadoNombre = productos
-				.FirstOrDefault(p => p.Nombre.ToLower().Contains(valorFiltro.ToLower()));
-
-				if (resultadoNombre != null &&
-					(resultadoNombre.FechaCreacion >= desde && resultadoNombre.FechaCreacion <= hasta))
-				{
-					productos.Clear();
-					productos.Add(resultadoNombre);
-				}
-				break;
-			case "descripcion":
-				var resultadoDescripcion = productos
-											.FirstOrDefault(c => c.Descripcion.ToLower()
-											.Contains(valorFiltro.ToLower()));
-
-				if (resultadoDescripcion != null &&
-					(resultadoDescripcion.FechaCreacion >= desde && resultadoDescripcion.FechaCreacion <= hasta))
-				{
-					productos.Clear();
-					productos.Add(resultadoDescripcion);
-				}
-				break;
-			case "categoria":
-				var resultadoCategoria = productos
-											.FirstOrDefault(c => c.Categoria.ToLower()
-											.Contains(valorFiltro.ToLower()));
-
-				if (resultadoCategoria != null &&
-					(resultadoCategoria.FechaCreacion >= desde && resultadoCategoria.FechaCreacion <= hasta))
-				{
-					productos.Clear();
-					productos.Add(resultadoCategoria);
 				}
 				break;
 		}
@@ -225,7 +189,7 @@
 
 	public async Task Restablecer()
 	{
-		productos = await productosService.Listar(p => p.Eliminado == false);
+		ventas = await ventasService.Listar(p => p.Eliminado == false);
 	}
 
 	public async Task LimpiarPantalla()
@@ -241,19 +205,19 @@
 
 	void IrACrear()
 	{
-		navigation.NavigateTo("/CreateProductos");
+		navigation.NavigateTo("/CreateVentas");
 	}
 
 	void IrADetalles(int id)
 	{
-		navigation.NavigateTo($"/ViewProductos/productoId={id}");
+		navigation.NavigateTo($"/ViewVentas/ventaId={id}");
 	}
 	void IrAEditar(int id)
 	{
-		navigation.NavigateTo($"/EditProductos/productoId={id}");
+		navigation.NavigateTo($"/EditVentas/ventaId={id}");
 	}
 	void IrAEliminar(int id)
 	{
-		navigation.NavigateTo($"/DeleteProductos/productoId={id}");
+		navigation.NavigateTo($"/DeleteVentas/ventaId={id}");
 	}
 }

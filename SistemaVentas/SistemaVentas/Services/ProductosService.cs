@@ -30,9 +30,11 @@ public class ProductosService
 
 	public async Task<bool> Modificar(Productos producto)
 	{
-		_contexto.Update(producto);
-		return await _contexto.SaveChangesAsync() > 0;
-	}
+        _contexto.Update(producto);
+        var modifico = await _contexto.SaveChangesAsync() > 0;
+        _contexto.Entry(producto).State = EntityState.Detached;
+        return modifico;
+    }
 
 	public async Task<bool> Existe(int id)
 	{

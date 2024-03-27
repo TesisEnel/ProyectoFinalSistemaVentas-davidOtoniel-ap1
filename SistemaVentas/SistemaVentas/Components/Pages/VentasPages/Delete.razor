@@ -1,40 +1,39 @@
-﻿@page "/DeleteProductos"
-@page "/DeleteProductos/productoId={productoId:int}"
+﻿@page "/DeleteVentas"
+@page "/DeleteVentas/ventaId={ventaId:int}"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
-@inject ProductosService productosService
+@inject VentasService ventasService
 
-<PageTitle>Eliminar Producto</PageTitle>
+<PageTitle>Eliminar Venta</PageTitle>
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Detalles de Producto</strong></h3>
+			<h3><strong>Detalles de Venta</strong></h3>
 		</div>
 		@*Cuerpo*@
 		<div class="card-body">
 			<div class="row">
 				<div class="col-8">
 					<div class="col-md-11">
-						<h3 class="text-center"><strong>Datos del Producto</strong></h3>
+						<h3 class="text-center"><strong>Datos de la Venta</strong></h3>
 						<div class="border-primmary border border-2 borde">
 							<div class="card-body">
 								<div class="row">
 									@*Imagen*@
 									<div class="col-2">
 										<div class="text-center">
-											<img src="Imagenes/productos-lacteos.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+											<img src="Imagenes/bolsa-de-valores.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
 										</div>
 									</div>
-									@*Datos del producto*@
+									@*Datos de la venta*@
 									<div class="col-9">
 										<ul class="list-unstyled" style="margin-top: 20px; margin-bottom: 20px;">
-											<li><strong>ProductoId:</strong> @producto.ProductoId</li>
-											<li><strong>FechaCreacion:</strong> @producto.FechaCreacion.ToShortDateString()</li>
-											<li><strong>Nombre:</strong> @producto.Nombre</li>
-											<li><strong>Descripci&oacute;n:</strong> @producto.Descripcion</li>
-											<li><strong>Categor&iacute;a:</strong> @producto.Categoria</li>
-											<li><strong>Nota:</strong> @producto.Nota</li>
+											<li><strong>VentaId:</strong> @venta.VentaId</li>
+											<li><strong>Fecha:</strong> @venta.Fecha.ToShortDateString()</li>
+											<li><strong>Devoluci&oacute;n:</strong> @venta.Devolucion.ToString("N2")</li>
+											<li><strong>Pago:</strong> @venta.Pago.ToString("N2")</li>
+											<li><strong>SubTotal:</strong> @venta.SubTotal.ToString("N2")</li>
 										</ul>
 									</div>
 								</div>
@@ -57,25 +56,25 @@
 
 @code {
 	[Parameter]
-	public int productoId { get; set; }
-	public Productos producto { get; set; } = new Productos();
+	public int ventaId { get; set; }
+	public Ventas venta { get; set; } = new Ventas();
 	public string mensaje { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		producto = (await productosService.BuscarId(productoId))!;
+		venta = (await ventasService.BuscarId(ventaId))!;
 	}
 
 	public async Task Eliminar()
 	{
-		producto.Eliminado = true;
-		await productosService.Guardar(producto);
+		venta.Eliminado = true;
+		await ventasService.Guardar(venta);
 		Volver();
 	}
 
 	void Volver()
 	{
-		navigation.NavigateTo("/Productos");
+		navigation.NavigateTo("/Ventas");
 	}
 }

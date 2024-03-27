@@ -1,0 +1,65 @@
+﻿@page "/ViewVentas"
+@page "/ViewVentas/ventaId={ventaId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject VentasService ventasService
+
+<PageTitle>Ver Venta</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header">
+            <h3><strong>Detalles de Venta</strong></h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-8">
+                    <div class="col-md-11">
+                        <h3 class="text-center"><strong>Datos de la Venta</strong></h3>
+                        <div class="border-primmary border border-2 borde">
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Columna para la imagen -->
+                                    <div class="col-2">
+                                        <div class="text-center">
+                                            <img src="Imagenes/bolsa-de-valores.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+                                        </div>
+                                    </div>
+                                    <!-- Columna para los datos de la Venta -->
+                                    <div class="col-9">
+                                        <ul class="list-unstyled" style="margin-top: 20px; margin-bottom: 20px;">
+                                            <li><strong>VentaId:</strong> @venta.VentaId</li>
+                                            <li><strong>Fecha:</strong> @venta.Fecha.ToShortDateString()</li>
+                                            <li><strong>Devoluci&oacute;n:</strong> @venta.Devolucion.ToString("N2")</li>
+                                            <li><strong>Pago:</strong> @venta.Pago.ToString("N2")</li>
+                                            <li><strong>SubTotal:</strong> @venta.SubTotal.ToString("N2")</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int ventaId { get; set; }
+    public Ventas venta { get; set; } = new Ventas();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
+        venta = (await ventasService.BuscarId(ventaId))!;
+    }
+
+    void Volver()
+    {
+        navigation.NavigateTo("/Ventas");
+    }
+}
