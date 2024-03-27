@@ -72,7 +72,7 @@
 	public async Task Eliminar()
 	{
 		producto.Eliminado = true;
-		await productosService.Modificar(producto);
+		await productosService.Guardar(producto);
 		Volver();
 	}
 
