@@ -8,6 +8,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
 	public DbSet<Productos> Productos { get; set; }
 	public DbSet<Categorias> Categorias { get; set; }
-
 	public DbSet<TiposContribuyente> TiposContribuyente { get; set; }
+	public DbSet<Contactos> Contactos { get; set; }
 }
