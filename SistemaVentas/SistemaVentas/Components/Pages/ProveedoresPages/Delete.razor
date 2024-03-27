@@ -30,16 +30,42 @@
 									</div>
 									@*Datos del proveedor*@
 									<div class="col-9">
-										<ul class="list-unstyled" style="margin-top: 20px; margin-bottom: 20px;">
-											<li><strong>ProveedorId:</strong> @proveedor.ProveedorId</li>
-											<li><strong>FechaCreacion:</strong> @proveedor.FechaCreacion.ToShortDateString()</li>
-											<li><strong>Nombre:</strong> @proveedor.Nombre</li>
-											<li><strong>Dirección:</strong> @proveedor.Direccion</li>
-											<li><strong>Email:</strong> @proveedor.Email</li>
-											<li><strong>TipoContribuyente:</strong> @proveedor.TipoContribuyente</li>
-											<td>@FormatRNCNumber(proveedor.RNC)</td>
-											<li><strong>Nota:</strong> @proveedor.Nota</li>
-										</ul>
+										<table class="table table-bordered">
+											<tbody>
+												<tr>
+													<th>ProveedorId</th>
+													<td>@proveedor.ProveedorId</td>
+												</tr>
+												<tr>
+													<th>Fecha Creación</th>
+													<td>@proveedor.FechaCreacion.ToShortDateString()</td>
+												</tr>
+												<tr>
+													<th>Nombre</th>
+													<td>@proveedor.Nombre</td>
+												</tr>
+												<tr>
+													<th>Dirección</th>
+													<td>@proveedor.Direccion</td>
+												</tr>
+												<tr>
+													<th>Email</th>
+													<td>@proveedor.Email</td>
+												</tr>
+												<tr>
+													<th>TipoContribuyente</th>
+													<td>@proveedor.TipoContribuyente</td>
+												</tr>
+												<tr>
+													<th>RNC</th>
+													<td>@FormatRNCNumber(proveedor.RNC)</td>
+												</tr>
+												<tr>
+													<th>Nota</th>
+													<td>@proveedor.Nota</td>
+												</tr>
+											</tbody>
+										</table>
 									</div>
 								</div>
 							</div>
@@ -135,7 +161,10 @@
 
 	public string FormatRNCNumber(string rnc)
 	{
-		return $"{rnc.Substring(0, 3)}-{rnc.Substring(3, 7)}-{rnc.Substring(10)}";
+		if (!string.IsNullOrEmpty(rnc))
+			return $"{rnc.Substring(0, 3)}-{rnc.Substring(3, 7)}-{rnc.Substring(10)}";
+
+		return rnc;
 	}
 
 	public async Task EliminarDetalle(ProveedoresDetalle detalle)
