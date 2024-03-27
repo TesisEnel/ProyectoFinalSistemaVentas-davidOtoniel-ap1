@@ -3,8 +3,8 @@
 @rendermode InteractiveAuto
 @inject NavigationManager navigation
 @inject ProveedoresService proveedorService
-@* @inject TiposContribuyenteService tipoContribuyenteService
-@inject ContactosService contactoService *@
+@inject TiposContribuyenteService tipoContribuyenteService
+@inject ContactosService contactoService
 
 <PageTitle>Eliminar Proveedor</PageTitle>
 <div class="container">
@@ -58,20 +58,20 @@
 										<thead>
 											<tr>
 												<th>Tipo de Contacto</th>
-												<th>Contacto</th>
+												<th>N&uacute;mero de Contacto</th>
 											</tr>
 										</thead>
 										<tbody>
 											@foreach (var detalle in proveedor.ProveedoresDetalle)
 											{
-												@* <tr>
+												<tr>
 													<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
-													<td>@detalle.Contacto</td>
-												</tr> *@
+													<td>@FormatPhoneNumber(detalle.Contacto)</td>
+												</tr>
 											}
 										</tbody>
 									</table>
-									<p><strong>Total de Detalles: </strong>@proveedor.ProveedoresDetalle.Count</p>
+									<p><strong>Total N&uacute;meros de Contactos: </strong>@proveedor.ProveedoresDetalle.Count</p>
 								}
 								else
 								{
@@ -99,8 +99,8 @@
 	public int proveedorId { get; set; }
 
 	public Proveedores proveedor { get; set; } = new Proveedores();
-	// public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
-	// public List<Contactos> contactos = new List<Contactos>();
+	public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
+	public List<Contactos> contactos = new List<Contactos>();
 	public int tipo { get; set; }
 	public string contacto { get; set; } = string.Empty;
 	public string mensaje { get; set; } = string.Empty;
@@ -109,8 +109,8 @@
 	{
 		await Task.Delay(500);
 
-		// tiposContribuyente = await tipoContribuyenteService.GetTiposContribuyentes();
-		// contactos = await contactoService.GetContactos();
+		tiposContribuyente = await tipoContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
+		contactos = await contactoService.Listar(c => c.ContactoId > 0);
 		proveedor = await proveedorService.BuscarId(proveedorId);
 	}
 
@@ -121,12 +121,17 @@
 		await proveedorService.Crear(proveedor); 
 	}
 
-	// public string ObtenerTipoContacto(int id)
-	// {
-	// 	var dato = contactos.FirstOrDefault(c => c.ContactoId == id);
+	public string ObtenerTipoContacto(int id)
+	{
+		var dato = contactos.FirstOrDefault(c => c.ContactoId == id);
 
-	// 	return dato.Descripcion;
-	// }
+		return dato.Descripcion;
+	}
+
+	public string FormatPhoneNumber(string phoneNumber)
+	{
+		return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
+	}
 
 	public async Task EliminarDetalle(ProveedoresDetalle detalle)
 	{

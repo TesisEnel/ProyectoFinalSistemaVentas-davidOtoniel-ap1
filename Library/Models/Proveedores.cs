@@ -17,7 +17,7 @@ public class Proveedores
 	public DateTime FechaCreacion { get; set; } = DateTime.Today;
 
 	[Required(ErrorMessage = "Debe ingresar un nombre.")]
-	[RegularExpression(@"^[a-zA-ZñÑ\s]+$", ErrorMessage = "Este campo no acepta números ni caracteres especiales.")]
+	[RegularExpression(@"^[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+$", ErrorMessage = "Este campo no acepta números ni caracteres especiales.")]
 	[StringLength(25, ErrorMessage = "El límite es de 25 caracteres.")]
 	public string Nombre { get; set; }
 
@@ -26,11 +26,13 @@ public class Proveedores
 	public string Direccion { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar una ciudad.")]
+	[RegularExpression(@"^[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+$", ErrorMessage = "Este campo no acepta números ni caracteres especiales.")]
 	[StringLength(30, ErrorMessage = "El límite es de 30 caracteres.")]
 	public string Ciudad { get; set; }
 
-	[Required(ErrorMessage = "Debe ingresar un email")]
+	[Required(ErrorMessage = "Debe ingresar un email.")]
 	[EmailAddress(ErrorMessage = "El formato para el email no es válido.")]
+	[RegularExpression(@"^[^\s]+@[^\s]+\.[^\s]+$", ErrorMessage = "El email no puede contener espacios.")]
 	[StringLength(40, ErrorMessage = "El límite es de 40 caracteres.")]
 	public string Email { get; set; }
 

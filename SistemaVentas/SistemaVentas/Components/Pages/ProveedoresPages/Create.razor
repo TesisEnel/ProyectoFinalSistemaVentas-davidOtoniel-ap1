@@ -2,8 +2,8 @@
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject ProveedoresService proveedorService
-@* @inject TiposContribuyenteService tipoContribuyenteService
-@inject ContactosService contactoService *@
+@inject TiposContribuyenteService tipoContribuyenteService
+@inject ContactosService contactoService
 
 <PageTitle>Crear Nuevo Proveedor</PageTitle>
 <EditForm Model="proveedor" OnValidSubmit="Crear" FormName="RegistroProveedores">
@@ -98,7 +98,7 @@
 								<div class="col-4">
 									<label class="form-label" for="Tipocontacto"><strong>Tipo de Contacto:</strong></label>
 									<InputSelect id="Tipocontacto" class="form-select" @bind-Value="tipo">
-										<option>Elija una opci&oacute;n</option>
+										<option>Elige una opci&oacute;n</option>
 										@foreach (var contacto in contactos)
 										{
 											<option value="@contacto.ContactoId">@contacto.Descripcion</option>
@@ -135,7 +135,7 @@
 										{
 											<tr>
 												<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
-												<td>@detalle.Contacto</td>
+												<td>@FormatPhoneNumber(detalle.Contacto)</td>
 												<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
 											</tr>
 										}
@@ -177,8 +177,8 @@
 	{
 		await Task.Delay(500);
 
-		// tiposContribuyente = await tipoContribuyenteService.GetTiposContribuyentes();
-		// contactos = await contactoService.GetContactos();
+		tiposContribuyente = await tipoContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
+		contactos = await contactoService.Listar(c => c.ContactoId > 0);
 	}
 
 	public async void Crear()
@@ -203,7 +203,7 @@
 			mensaje = "Algunos datos ya existen en la base de datos.";
 
 		StateHasChanged();
-		await Task.Delay(2000);
+		await Task.Delay(4000);
 		await LimpiarPantalla();
 	}
 
@@ -247,6 +247,7 @@
 			{
 				var nuevoDetalle = new ProveedoresDetalle { ContactoId = tipo, Contacto = contacto };
 				proveedor.ProveedoresDetalle.Add(nuevoDetalle);
+				await LimpiarPantalla();
 			}
 			else
 				mensaje = "La longitud del contacto debe ser de 10 digitos";
@@ -285,6 +286,11 @@
 		return dato.Descripcion;
 	}
 
+	public string FormatPhoneNumber(string phoneNumber)
+	{
+		return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
+	}
+
 	public async Task EliminarDetalle(ProveedoresDetalle detalle)
 	{
 		proveedor.ProveedoresDetalle.Remove(detalle);
@@ -296,6 +302,8 @@
 		mensajeNombre = string.Empty;
 		mensajeEmail = string.Empty;
 		mensajeRNC = string.Empty;
+		tipo = 0;
+		contacto = string.Empty;
 		StateHasChanged();
 	}
 

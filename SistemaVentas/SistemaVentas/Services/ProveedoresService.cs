@@ -31,8 +31,10 @@ public class ProveedoresService
 
 	public async Task<bool> Modificar(Proveedores proveedor)
 	{
-		_contexto.Proveedores.Update(proveedor);
-		return await _contexto.SaveChangesAsync() > 0;
+		_contexto.Update(proveedor);
+		var modifico = await _contexto.SaveChangesAsync() > 0;
+		_contexto.Entry(proveedor).State = EntityState.Detached;
+		return modifico;
 	}
 
 	public async Task<bool> Existe(int id)
@@ -53,6 +55,7 @@ public class ProveedoresService
 	public async Task<Proveedores?> BuscarId(int id)
 	{
 		return await _contexto.Proveedores
+			.Include(p => p.ProveedoresDetalle.Where(d => d.Eliminado == false))
 			.AsNoTracking()
 			.FirstOrDefaultAsync(p => p.ProveedorId == id);
 	}
@@ -78,7 +81,7 @@ public class ProveedoresService
 	public async Task<List<Proveedores>>? Listar(Expression<Func<Proveedores, bool>> criterio)
 	{
 		return _contexto.Proveedores
-			.Include(p => p.ProveedoresDetalle)
+			.Include(p => p.ProveedoresDetalle.Where(d => d.Eliminado == false))
 			.AsNoTracking()
 			.Where(criterio)
 			.ToList();
