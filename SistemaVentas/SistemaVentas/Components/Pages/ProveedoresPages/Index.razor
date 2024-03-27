@@ -98,7 +98,7 @@
 								<td>@proveedor.Nombre</td>
 								<td>@proveedor.Direccion</td>
 								<td>@proveedor.Ciudad</td>
-								<td>@proveedor.RNC</td>
+								<td>@FormatRNCNumber(proveedor.RNC)</td>
 								<td>@proveedor.TipoContribuyente</td>
 								<td>
 									<div class="btn-group" role="group">
@@ -281,6 +281,11 @@
 
 		StateHasChanged();
 		await LimpiarPantalla();
+	}
+
+	public string FormatRNCNumber(string rnc)
+	{
+		return $"{rnc.Substring(0, 3)}-{rnc.Substring(3, 7)}-{rnc.Substring(10)}";
 	}
 
 	public async Task Restablecer()
