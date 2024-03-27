@@ -85,7 +85,7 @@
 	{
 		await Task.Delay(500);
 		producto = (await productosService.BuscarId(productoId))!;
-		listaCategorias = await categoriasService.Listar(c => c.CategoriaId > 0);
+		listaCategorias = await categoriasService.Listar(c => c.Eliminado == false);
 	}
 
 	public async Task Modificar()
