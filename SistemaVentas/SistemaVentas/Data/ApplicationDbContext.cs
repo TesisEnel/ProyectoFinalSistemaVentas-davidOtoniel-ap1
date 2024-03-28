@@ -31,6 +31,31 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 			new TiposContribuyente { TipoContribuyenteId = 2, Descripcion = "Persona Jurídica"}
 		});
 
+		modelBuilder.Entity<Compras>()
+	.Property(c => c.SubTotal)
+	.HasPrecision(18, 2);
+
+		modelBuilder.Entity<Compras>()
+			.Property(c => c.TotalITIBS)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<Compras>()
+			.Property(c => c.Total)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<ComprasDetalle>()
+			.Property(cd => cd.Itbis)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<ComprasDetalle>()
+			.Property(cd => cd.Precio)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<ComprasDetalle>()
+			.Property(cd => cd.Valor)
+			.HasPrecision(18, 2);
+
+
 		modelBuilder.Entity<MetodosPago>().HasData(new List<MetodosPago>
 		{
 			new MetodosPago { MetodoPagoId = 1, MetodoPago = "Efectivo"},

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaVentas.Data;
 
@@ -11,9 +12,11 @@ using SistemaVentas.Data;
 namespace SistemaVentas.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240328070746_MetodosPago")]
+    partial class MetodosPago
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -364,50 +367,6 @@ namespace SistemaVentas.Migrations
                         {
                             TipoContribuyenteId = 2,
                             Descripcion = "Persona Jurídica"
-                        });
-                });
-
-            modelBuilder.Entity("Library.Models.UnidadesMedida", b =>
-                {
-                    b.Property<int>("UnidadMedidaId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UnidadMedidaId"));
-
-                    b.Property<string>("UnidadMedida")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("UnidadMedidaId");
-
-                    b.ToTable("UnidadesMedida");
-
-                    b.HasData(
-                        new
-                        {
-                            UnidadMedidaId = 1,
-                            UnidadMedida = "Caja"
-                        },
-                        new
-                        {
-                            UnidadMedidaId = 2,
-                            UnidadMedida = "Pieza"
-                        },
-                        new
-                        {
-                            UnidadMedidaId = 3,
-                            UnidadMedida = "Gramo"
-                        },
-                        new
-                        {
-                            UnidadMedidaId = 4,
-                            UnidadMedida = "Metro"
-                        },
-                        new
-                        {
-                            UnidadMedidaId = 5,
-                            UnidadMedida = "Libra"
                         });
                 });
 
