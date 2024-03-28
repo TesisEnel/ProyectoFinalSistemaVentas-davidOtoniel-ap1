@@ -1,0 +1,378 @@
+﻿@page "/CreateCompras"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ProveedoresService proveedorService
+@inject ComprasService comprasService
+@inject ProductosService productosService
+
+<PageTitle>Crear Nueva Compra</PageTitle>
+<EditForm Model="compra" OnValidSubmit="Crear" FormName="RegistroCompras">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			@*Header*@
+			<div class="card-header">
+				<h3><strong>Crear Nueva Compra</strong></h3>
+			</div>
+			@*Cuerpo*@
+			<div class="card-body">
+				<div class="row mb-3">
+					<div class="col-4">
+						@*FechaCreacion*@
+						<label class="form-label" for="fecha"><strong>Fecha Creaci&oacute;n:</strong></label>
+						<InputDate id="fecha" class="form-control" @bind-Value="compra.FechaCreacion" readonly></InputDate>
+					</div>
+					<div class="col-4">
+						@*Responsable*@
+						<label class="form-label" for="responsable"><strong>Usuario Responsable:</strong></label>
+						<InputText id="responsable" class="form-control" @bind-Value="compra.UsuarioResponsable" placeholder="Ej: Juan Pérez"></InputText>
+						<ValidationMessage For="@(() => compra.UsuarioResponsable)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Nombre*@
+						<label class="form-label" for="nombre"><strong>Proveedor:</strong></label>
+						<InputSelect id="nombre" class="form-select" @bind-Value="compra.NombreProveedor">
+							<option value="">Elige una opción</option>
+							@foreach (var proveedor in proveedores)
+							{
+								<option value="@proveedor.Nombre">@proveedor.Nombre</option>
+							}
+						</InputSelect>
+						<ValidationMessage For="@(() => compra.NombreProveedor)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Direccion*@
+						<label class="form-label" for="direccion"><strong>Direcci&oacute;n:</strong></label>
+						<InputText id="direccion" class="form-control" @bind-Value="compra.DireccionProveedor" placeholder="Ej: Ave. Libertad #23" readonly></InputText>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-4">
+						@*TipoContribuyente*@
+						<label class="form-label" for="ipoContribuyente"><strong>Tipo de Contribuyente:</strong></label>
+						<InputText id="tipoContribuyente" class="form-control" @bind-Value="compra.TipoContribuyente" placeholder="Persona Física" readonly></InputText>
+					</div>
+					<div class="col-4">
+						@*RNC*@
+						<label class="form-label" for="rnc"><strong>RNC:</strong></label>
+						<InputText id="rnc" class="form-control" @bind-Value="compra.RNC" placeholder="40234573653" readonly></InputText>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-12">
+						@*Nota*@
+						<label class="form-label" for="nota"><strong>Nota:</strong></label>
+						<label>(Opcional)</label>
+						<InputTextArea id="nota" class="form-control" @bind-Value="compra.Nota" placeholder="Ingrese una nota"></InputTextArea>
+						<ValidationMessage For="@(() => compra.Nota)"></ValidationMessage>
+					</div>
+				</div>
+				@*ProveedoresDetalles*@
+				<fieldset class="border-primmary border border-2 mb-3">
+					@*Body*@
+					<div class="card-body">
+						<section class="row mb-4">
+							<h3><strong>Detalles</strong></h3>
+							<div class="row align-content-center">
+								@*Productos*@
+								<div class="col-3">
+									<label class="form-label" for="producto"><strong>Producto:</strong></label>
+									<InputSelect id="producto" class="form-select" @bind-Value="producto">
+										<option>Elige una opci&oacute;n</option>
+										@foreach (var product in productos)
+										{
+											<option value="@product.ProductoId">@product.Nombre</option>
+										}
+									</InputSelect>
+								</div>
+								@*Unidades de Medida*@
+								<div class="col-2">
+									<label class="form-label" for="unidades"><strong>Unidades de Medida:</strong></label>
+									<InputSelect id="unidades" class="form-select" @bind-Value="unidades">
+										<option>Elige una opci&oacute;n</option>
+										<opotion></opotion>
+									</InputSelect>
+								</div>
+								@*Costo*@
+								<div class="col-2">
+									<label class="form-label" for="costo"><strong>Costo:</strong></label>
+									<InputNumber id="costo" class="form-control" @bind-Value="costo"></InputNumber>
+									<spam class="mensajeError">@mensaje</spam>
+								</div>
+								@*Precio*@
+								<div class="col-2">
+									<label class="form-label" for="precio"><strong>Precio:</strong></label>
+									<InputNumber id="precio" class="form-control" @bind-Value="precio"></InputNumber>
+									<spam class="mensajeError">@mensaje</spam>
+								</div>
+								@*Cantidad*@
+								<div class="col-1">
+									<label class="form-label" for="cantidad"><strong>Cantidad:</strong></label>
+									<InputNumber id="cantidad" class="form-control" @bind-Value="cantidad"></InputNumber>
+									<spam class="mensajeError">@mensaje</spam>
+								</div>
+								@*Boton*@
+								<div class="col-auto d-flex align-items-end">
+									<button type="button" class="btn btn-outline-success" @onclick="AgregarDetalle"><i class="bi bi-plus-circle" /> Agregar</button>
+								</div>
+							</div>
+						</section>
+						<section>
+							@if (compra.ComprasDetalle.Count > 0)
+							{
+								@*Table Detalles*@
+								<table class="table table-bordered miTabla">
+									<thead>
+										<tr>
+											<th>Tipo de Contacto</th>
+											<th>Contacto</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										@foreach (var detalle in compra.ComprasDetalle)
+										{
+											@* <tr>
+												<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
+												<td>@FormatPhoneNumber(detalle.Contacto)</td>
+												<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
+											</tr> *@
+										}
+									</tbody>
+								</table>
+								<p><strong>Total Números de Contactos: </strong>@proveedor.ProveedoresDetalle.Count</p>
+							}
+						</section>
+						</div>
+				</fieldset>
+				<div class="mb-3">
+					<h3 class="text-center"><strong>Totales</strong></h3>
+				</div>
+				<div class="row justify-content-center">
+					<div class="col-12 col-md-6">
+						<div class="card mb-3">
+							<div class="card-body">
+								<!-- Subtotal -->
+								<div class="row mb-3 justify-content-center">
+									<div class="col-6">
+										<label class="form-label text-center"><strong>Subtotal</strong></label>
+										<div class="input-group">
+											<span class="input-group-text">$</span>
+											<InputNumber id="subtotal" class="form-control" @bind-Value="compra.SubTotal" readonly style="width: 80%;"></InputNumber>
+										</div>
+									</div>
+								</div>
+
+								<!-- Total ITBIS -->
+								<div class="row mb-3 justify-content-center">
+									<div class="col-6">
+										<label class="form-label"><strong>Total ITBIS</strong></label>
+										<div class="input-group">
+											<span class="input-group-text">$</span>
+											<InputNumber id="totalItbis" class="form-control" @bind-Value="compra.TotalITIBS" readonly style="width: 80%;"></InputNumber>
+										</div>
+									</div>
+								</div>
+
+								<!-- Total -->
+								<div class="row mb-3 justify-content-center">
+									<div class="col-6">
+										<label class="form-label"><strong>Total</strong></label>
+										<div class="input-group">
+											<span class="input-group-text">$</span>
+											<InputNumber id="total" class="form-control" @bind-Value="compra.Total" readonly style="width: 80%;"></InputNumber>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			@*Footer*@
+			<div class="card-footer d-flex justify-content-center">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="submit" class="btn btn-outline-success"><i class="bi bi-floppy-fill" /> Crear</button>
+			</div>
+		</div>
+	</div>
+</EditForm>
+@mensaje
+@otro
+
+@code {
+	public Proveedores proveedor { get; set; } = new Proveedores();
+	public Compras compra { get; set; } = new Compras();
+
+	public List<Proveedores> proveedores = new List<Proveedores>();
+	public List<Productos> productos = new List<Productos>();
+
+	public int cantidad { get; set; }
+	public string producto { get; set; } = string.Empty;
+	public string unidades { get; set; } = string.Empty;
+	public decimal precio { get; set; }
+	public decimal costo { get; set; }
+
+
+	public string mensaje { get; set; } = string.Empty;
+	public string mensajeNombre { get; set; } = string.Empty;
+	public string mensajeEmail { get; set; } = string.Empty;
+	public string mensajeRNC { get; set; } = string.Empty;
+	public string otro { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+
+		proveedores = await proveedorService.Listar(p => p.Eliminado == false);
+		productos = await productosService.Listar(p => p.Eliminado == false);
+	}
+
+	public async void Crear()
+	{
+		if (await ValidarProveedor())
+		{
+			if (String.IsNullOrEmpty(proveedor.Nota))
+				proveedor.Nota = "----";
+
+			var response = await proveedorService.Crear(proveedor);
+
+			// if (response.IsSuccessStatusCode)
+			// {
+			// 	mensaje = "La solicitud fue exitosa.";
+			// }
+			// else
+			// {
+			// 	mensaje = "La solicitud falló con el siguiente estado: " + response.ToString();
+			// }
+		}
+		else
+			mensaje = "Algunos datos ya existen en la base de datos.";
+
+		StateHasChanged();
+		await Task.Delay(4000);
+		await LimpiarPantalla();
+	}
+
+	public async Task<bool> ValidarProveedor()
+	{
+		var validar = await proveedorService.Listar(p => p.Eliminado == false);
+		var nombre = validar.FirstOrDefault(p => p.Nombre == proveedor.Nombre);
+		var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
+		var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
+
+		bool nombreValido = true;
+		bool emailValido = true;
+		bool rncValido = true;
+
+		if (nombre != null)
+		{
+			nombreValido = false;
+			mensajeNombre = "Ya existe un proveedor con este nombre";
+		}
+
+		if (email != null)
+		{
+			emailValido = false;
+			mensajeEmail = "Ya existe un proveedor con este email";
+		}
+
+		if (rnc != null)
+		{
+			rncValido = false;
+			mensajeRNC = "Ya existe un proveedor con este número de RNC";
+		}
+
+		return nombreValido && emailValido && rncValido;
+	}
+
+	public async Task AgregarDetalle()
+	{
+		if (!String.IsNullOrEmpty(producto) && !String.IsNullOrEmpty(unidades) && precio != 0 && cantidad != 0)
+		{
+			if(costo >= precio)
+			{
+				//costo no puede ser mayor que precio
+			}
+
+			if (await ValidarDetalle())
+			{
+				// var nuevoDetalle = new ProveedoresDetalle { ContactoId = tipo, Contacto = contacto };
+				// proveedor.ProveedoresDetalle.Add(nuevoDetalle);
+				// await LimpiarPantalla();
+			}
+			else
+				mensaje = "La longitud del contacto debe ser de 10 digitos";
+		}
+	}
+
+	public async Task<bool> ValidarDetalle()
+	{
+		// foreach (var detalle in compra.ComprasDetalle)
+		// {
+		// 	if (detalle.No == contacto)
+		// 		return false;
+		// }
+
+		return true;
+	}
+
+	// public string ObtenerTipoContacto(int id)
+	// {
+	// 	var dato = contactos.FirstOrDefault(c => c.ContactoId == id);
+
+	// 	return dato.Descripcion;
+	// }
+
+	// public string FormatPhoneNumber(string phoneNumber)
+	// {
+	// 	return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
+	// }
+
+	private void ActualizarDatosProveedor(string nombreProveedorSeleccionado)
+	{
+		var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.Nombre == nombreProveedorSeleccionado);
+		if (proveedorSeleccionado != null)
+		{
+			compra.DireccionProveedor = proveedorSeleccionado.Direccion;
+			compra.TipoContribuyente = proveedorSeleccionado.TipoContribuyente;
+			compra.RNC = proveedorSeleccionado.RNC;
+		}
+		else
+		{
+			// Limpiar los campos si no se selecciona un proveedor válido
+			compra.DireccionProveedor = string.Empty;
+			compra.TipoContribuyente = string.Empty;
+			compra.RNC = string.Empty;
+		}
+	}
+
+	public async Task EliminarDetalle(ProveedoresDetalle detalle)
+	{
+		proveedor.ProveedoresDetalle.Remove(detalle);
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		mensaje = string.Empty;
+		mensajeNombre = string.Empty;
+		mensajeEmail = string.Empty;
+		mensajeRNC = string.Empty;
+
+		cantidad = 0;
+		precio = 0;
+		producto = string.Empty;
+		unidades = string.Empty;
+		StateHasChanged();
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Proveedores");
+	}
+}
