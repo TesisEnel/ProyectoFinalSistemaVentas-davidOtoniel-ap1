@@ -13,6 +13,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	public DbSet<Proveedores> Proveedores { get; set; }
 	public DbSet<Ventas> Ventas { get; set; }
 	public DbSet<Compras> Compras { get; set; }
+	public DbSet<MetodosPago> MetodosPago { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -27,6 +28,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 		{
 			new TiposContribuyente { TipoContribuyenteId = 1, Descripcion = "Persona Física"},
 			new TiposContribuyente { TipoContribuyenteId = 2, Descripcion = "Persona Jurídica"}
+		});
+
+		modelBuilder.Entity<MetodosPago>().HasData(new List<MetodosPago>
+		{
+			new MetodosPago { MetodoPagoId = 1, MetodoPago = "Efectivo"},
+			new MetodosPago { MetodoPagoId = 2, MetodoPago = "Crédito"},
+			new MetodosPago { MetodoPagoId = 3, MetodoPago = "Transferencia"}
 		});
 	}
 }
