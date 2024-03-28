@@ -47,6 +47,7 @@ builder.Services.AddScoped<ContactosService>();
 builder.Services.AddScoped<VentasService>();
 builder.Services.AddScoped<ComprasService>();
 builder.Services.AddScoped<MetodosPagoService>();
+builder.Services.AddScoped<UnidadesMedidaService>();
 
 var app = builder.Build();
 
