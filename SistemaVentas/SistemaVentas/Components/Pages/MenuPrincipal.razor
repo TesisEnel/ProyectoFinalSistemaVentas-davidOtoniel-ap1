@@ -80,11 +80,11 @@
                             <img src="Imagenes/acerca-de.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
                         </button>
                     </div>
-                    @*Vacio*@
+                    @*Compras*@
                     <div class="col-md-3 text-center">
-                        <button type="button" class="d-block mx-auto borde" @onclick="Anyways">
-                            <h6><strong>Vacio</strong></h6>
-                            <img src="Imagenes/advertencia.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        <button type="button" class="d-block mx-auto borde" @onclick="IrACompras">
+                            <h6><strong>Compras</strong></h6>
+                            <img src="Imagenes/carrito-de-supermercado.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
                         </button>
                     </div>
                 </div>
@@ -116,9 +116,9 @@
     {
         navigation.NavigateTo("/AcercaDe");
     }
-    private void Anyways()
+    private void IrACompras()
     {
-        navigation.NavigateTo("/Probar");
+        navigation.NavigateTo("/Compras");
     }
     private void IrACategorias()
     {

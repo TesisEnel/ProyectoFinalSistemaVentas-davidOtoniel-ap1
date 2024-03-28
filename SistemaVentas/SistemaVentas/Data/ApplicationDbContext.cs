@@ -12,6 +12,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	public DbSet<Contactos> Contactos { get; set; }
 	public DbSet<Proveedores> Proveedores { get; set; }
 	public DbSet<Ventas> Ventas { get; set; }
+	public DbSet<Compras> Compras { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{

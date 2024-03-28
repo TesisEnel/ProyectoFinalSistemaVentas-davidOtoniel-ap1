@@ -45,6 +45,7 @@ builder.Services.AddScoped<ProveedoresService>();
 builder.Services.AddScoped<TiposContribuyenteService>();
 builder.Services.AddScoped<ContactosService>();
 builder.Services.AddScoped<VentasService>();
+builder.Services.AddScoped<ComprasService>();
 
 var app = builder.Build();
 
