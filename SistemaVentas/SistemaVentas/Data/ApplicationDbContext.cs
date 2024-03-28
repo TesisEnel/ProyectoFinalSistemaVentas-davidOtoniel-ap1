@@ -14,6 +14,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	public DbSet<Ventas> Ventas { get; set; }
 	public DbSet<Compras> Compras { get; set; }
 	public DbSet<MetodosPago> MetodosPago { get; set; }
+	public DbSet<UnidadesMedida> UnidadesMedida { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -35,6 +36,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 			new MetodosPago { MetodoPagoId = 1, MetodoPago = "Efectivo"},
 			new MetodosPago { MetodoPagoId = 2, MetodoPago = "Crédito"},
 			new MetodosPago { MetodoPagoId = 3, MetodoPago = "Transferencia"}
+		});
+
+		modelBuilder.Entity<UnidadesMedida>().HasData(new List<UnidadesMedida>
+		{
+			new UnidadesMedida { UnidadMedidaId = 1, UnidadMedida = "Caja"},
+			new UnidadesMedida { UnidadMedidaId = 2, UnidadMedida = "Pieza"},
+			new UnidadesMedida { UnidadMedidaId = 3, UnidadMedida = "Gramo"},
+			new UnidadesMedida { UnidadMedidaId = 4, UnidadMedida = "Metro"},
+			new UnidadesMedida { UnidadMedidaId = 5, UnidadMedida = "Libra"}
 		});
 	}
 }
