@@ -1,6 +1,7 @@
 using Library.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace SistemaVentas.Data;
 
@@ -16,6 +17,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	public DbSet<MetodosPago> MetodosPago { get; set; }
 	public DbSet<UnidadesMedida> UnidadesMedida { get; set; }
 	public DbSet<Banco> Banco { get; set; }
+	public DbSet<Capital> Capital { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -80,5 +82,27 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 		modelBuilder.Entity<Banco>()
 			.Property(cd => cd.Monto)
 			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<Banco>().HasData(new List<Banco>
+		{
+			new Banco 
+				{ 
+					BancoId = 1, 
+					Usuario = "Admin", 
+					NumeroTarjeta = "1122334455667788",
+					FechaVencimiento = DateTime.ParseExact("2/05/2026", "d/MM/yyyy", CultureInfo.InvariantCulture),
+					CodigoSeguridad = 123,
+					Monto = 500000000,
+				}
+		});
+
+		modelBuilder.Entity<Capital>()
+			.Property(cd => cd.Efectivo)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<Capital>().HasData(new List<Capital>
+		{
+			new Capital { CapitalId = 1, Efectivo = 500000000}
+		});
 	}
 }
