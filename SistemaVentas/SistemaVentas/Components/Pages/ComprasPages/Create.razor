@@ -4,6 +4,8 @@
 @inject ProveedoresService proveedorService
 @inject ComprasService comprasService
 @inject ProductosService productosService
+@inject UnidadesMedidaService unidadesMedidaService
+@inject MetodosPagoService metodosPagoService
 
 <PageTitle>Crear Nueva Compra</PageTitle>
 <EditForm Model="compra" OnValidSubmit="Crear" FormName="RegistroCompras">
@@ -17,47 +19,59 @@
 			@*Cuerpo*@
 			<div class="card-body">
 				<div class="row mb-3">
-					<div class="col-4">
+					<div class="col-2">
 						@*FechaCreacion*@
-						<label class="form-label" for="fecha"><strong>Fecha Creaci&oacute;n:</strong></label>
+						<label class="form-label" for="fecha"><strong>Fecha Creaci&oacute;n</strong></label>
 						<InputDate id="fecha" class="form-control" @bind-Value="compra.FechaCreacion" readonly></InputDate>
 					</div>
-					<div class="col-4">
+					<div class="col-3">
 						@*Responsable*@
-						<label class="form-label" for="responsable"><strong>Usuario Responsable:</strong></label>
+						<label class="form-label" for="responsable"><strong>Usuario Responsable</strong></label>
 						<InputText id="responsable" class="form-control" @bind-Value="compra.UsuarioResponsable" placeholder="Ej: Juan Pérez"></InputText>
 						<ValidationMessage For="@(() => compra.UsuarioResponsable)"></ValidationMessage>
 					</div>
 				</div>
 				<div class="row mb-3">
-					<div class="col-4">
+					<div class="col-3">
 						@*Nombre*@
-						<label class="form-label" for="nombre"><strong>Proveedor:</strong></label>
-						<InputSelect id="nombre" class="form-select" @bind-Value="compra.NombreProveedor">
+						<label class="form-label" for="nombre"><strong>Proveedor</strong></label>
+						<InputSelect id="nombre" class="form-select" @bind-Value="compra.ProveedorId" @oninput="()=>ActualizarDatosProveedor(compra.ProveedorId)">
 							<option value="">Elige una opción</option>
 							@foreach (var proveedor in proveedores)
 							{
-								<option value="@proveedor.Nombre">@proveedor.Nombre</option>
+								<option value="@proveedor.ProveedorId">@proveedor.Nombre</option>
 							}
 						</InputSelect>
-						<ValidationMessage For="@(() => compra.NombreProveedor)"></ValidationMessage>
+						<ValidationMessage For="@(() => compra.ProveedorId)"></ValidationMessage>
 					</div>
-					<div class="col-4">
+					<div class="col-6">
 						@*Direccion*@
-						<label class="form-label" for="direccion"><strong>Direcci&oacute;n:</strong></label>
-						<InputText id="direccion" class="form-control" @bind-Value="compra.DireccionProveedor" placeholder="Ej: Ave. Libertad #23" readonly></InputText>
+						<label class="form-label" for="direccion"><strong>Direcci&oacute;n</strong></label>
+						<InputText id="direccion" class="form-control" @bind-Value="direccion" placeholder="Ej: Ave. Libertad #23" readonly></InputText>
 					</div>
 				</div>
 				<div class="row mb-3">
-					<div class="col-4">
+					<div class="col-2">
 						@*TipoContribuyente*@
-						<label class="form-label" for="ipoContribuyente"><strong>Tipo de Contribuyente:</strong></label>
-						<InputText id="tipoContribuyente" class="form-control" @bind-Value="compra.TipoContribuyente" placeholder="Persona Física" readonly></InputText>
+						<label class="form-label" for="ipoContribuyente"><strong>Tipo de Contribuyente</strong></label>
+						<InputText id="tipoContribuyente" class="form-control" @bind-Value="contribuyente" placeholder="Persona Física" readonly></InputText>
 					</div>
-					<div class="col-4">
+					<div class="col-2">
 						@*RNC*@
-						<label class="form-label" for="rnc"><strong>RNC:</strong></label>
-						<InputText id="rnc" class="form-control" @bind-Value="compra.RNC" placeholder="40234573653" readonly></InputText>
+						<label class="form-label" for="rnc"><strong>RNC</strong></label>
+						<InputText id="rnc" class="form-control" @bind-Value="rnc" placeholder="40234573653" readonly></InputText>
+					</div>
+					<div class="col-2">
+						@*Metodos de Pago*@
+						<label class="form-label" for="pago"><strong>M&eacute;todo de Pago:</strong></label>
+						<InputSelect id="pago" class="form-select" @bind-Value="compra.MetodoPagoId">
+							<option value="">Elige una opción</option>
+							@foreach (var metodoPago in metodosPagos)
+							{
+								<option value="@metodoPago.MetodoPagoId">@metodoPago.MetodoPago</option>
+							}
+						</InputSelect>
+						<ValidationMessage For="@(() => compra.ProveedorId)"></ValidationMessage>
 					</div>
 				</div>
 				<div class="row mb-3">
@@ -78,7 +92,7 @@
 							<div class="row align-content-center">
 								@*Productos*@
 								<div class="col-3">
-									<label class="form-label" for="producto"><strong>Producto:</strong></label>
+									<label class="form-label" for="producto"><strong>Producto</strong></label>
 									<InputSelect id="producto" class="form-select" @bind-Value="producto">
 										<option>Elige una opci&oacute;n</option>
 										@foreach (var product in productos)
@@ -87,29 +101,30 @@
 										}
 									</InputSelect>
 								</div>
-								@*Unidades de Medida*@
+								@* Unidades de Medida *@
 								<div class="col-2">
-									<label class="form-label" for="unidades"><strong>Unidades de Medida:</strong></label>
-									<InputSelect id="unidades" class="form-select" @bind-Value="unidades">
-										<option>Elige una opci&oacute;n</option>
-										<opotion></opotion>
+									<label class="form-label"><strong>Uni. Medida</strong></label>
+									<InputSelect class="form-select" @bind-Value="unidadesMedida" @oninput="VerificarUnidades">
+										<option>Elige una opción</option>
+										@foreach (var unidadMedida in unidadesMedidas)
+										{
+											<option value="@unidadMedida.UnidadMedidaId">@unidadMedida.UnidadMedida</option>
+										}
 									</InputSelect>
 								</div>
-								@*Costo*@
+								@* Unidades *@
 								<div class="col-2">
-									<label class="form-label" for="costo"><strong>Costo:</strong></label>
-									<InputNumber id="costo" class="form-control" @bind-Value="costo"></InputNumber>
-									<spam class="mensajeError">@mensaje</spam>
+									<label class="form-label"><strong>Cant. por Empaque</strong></label>
+									<InputNumber class="form-control" @bind-Value="unidades" @attributes="UnidadesAttributes"></InputNumber>
 								</div>
-								@*Precio*@
+								@* Costo *@
 								<div class="col-2">
-									<label class="form-label" for="precio"><strong>Precio:</strong></label>
-									<InputNumber id="precio" class="form-control" @bind-Value="precio"></InputNumber>
-									<spam class="mensajeError">@mensaje</spam>
+									<label class="form-label"><strong>Costo</strong></label>
+									<InputNumber class="form-control" @bind-Value="costoTotal"></InputNumber>
 								</div>
 								@*Cantidad*@
 								<div class="col-1">
-									<label class="form-label" for="cantidad"><strong>Cantidad:</strong></label>
+									<label class="form-label" for="cantidad"><strong>Cantidad</strong></label>
 									<InputNumber id="cantidad" class="form-control" @bind-Value="cantidad"></InputNumber>
 									<spam class="mensajeError">@mensaje</spam>
 								</div>
@@ -126,23 +141,35 @@
 								<table class="table table-bordered miTabla">
 									<thead>
 										<tr>
-											<th>Tipo de Contacto</th>
-											<th>Contacto</th>
+											<th>Cantidad</th>
+											<th>Descripci&oacute;n</th>
+											<th>Uni. Medida</th>
+											<th>Cant. por Empaque</th>
+											<th>Costo</th>
+											<th>C/U</th>
+											<th>ITBIS</th>
+											<th>Valor</th>
 											<th></th>
 										</tr>
 									</thead>
 									<tbody>
 										@foreach (var detalle in compra.ComprasDetalle)
 										{
-											@* <tr>
-												<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
-												<td>@FormatPhoneNumber(detalle.Contacto)</td>
+											<tr>
+												<td>@detalle.CantidadProducto</td>
+												<td>@BuscarProducto(detalle.ProductoId)</td>
+												<td>@BuscarUnidadMedida(detalle.UnidadMedidaId)</td>
+												<td>@detalle.CantidadUnidadProducto</td>
+												<td>@detalle.CostoTotal.ToString("N2")</td>
+												<td>@detalle.CostoUnidad.ToString("N2")</td>
+												<td>@detalle.Itbis.ToString("N2")</td>
+												<td>@detalle.Valor.ToString("N2")</td>
 												<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
-											</tr> *@
+											</tr>
 										}
 									</tbody>
 								</table>
-								<p><strong>Total Números de Contactos: </strong>@proveedor.ProveedoresDetalle.Count</p>
+								<p><strong>Total de Productos: </strong>@compra.ComprasDetalle.Count</p>
 							}
 						</section>
 						</div>
@@ -160,7 +187,7 @@
 										<label class="form-label text-center"><strong>Subtotal</strong></label>
 										<div class="input-group">
 											<span class="input-group-text">$</span>
-											<InputNumber id="subtotal" class="form-control" @bind-Value="compra.SubTotal" readonly style="width: 80%;"></InputNumber>
+											<span id="subtotal" class="form-control">@compra.SubTotal.ToString("N2")</span>
 										</div>
 									</div>
 								</div>
@@ -171,7 +198,7 @@
 										<label class="form-label"><strong>Total ITBIS</strong></label>
 										<div class="input-group">
 											<span class="input-group-text">$</span>
-											<InputNumber id="totalItbis" class="form-control" @bind-Value="compra.TotalITIBS" readonly style="width: 80%;"></InputNumber>
+											<span id="totalItbis" class="form-control">@compra.TotalITIBS.ToString("N2")</span>
 										</div>
 									</div>
 								</div>
@@ -182,7 +209,7 @@
 										<label class="form-label"><strong>Total</strong></label>
 										<div class="input-group">
 											<span class="input-group-text">$</span>
-											<InputNumber id="total" class="form-control" @bind-Value="compra.Total" readonly style="width: 80%;"></InputNumber>
+											<span id="total" class="form-control">@compra.Total.ToString("N2")</span>
 										</div>
 									</div>
 								</div>
@@ -211,13 +238,19 @@
 
 	public List<Proveedores> proveedores = new List<Proveedores>();
 	public List<Productos> productos = new List<Productos>();
+	public List<UnidadesMedida> unidadesMedidas = new List<UnidadesMedida>();
+	public List<MetodosPago> metodosPagos = new List<MetodosPago>();
 
 	public int cantidad { get; set; }
-	public string producto { get; set; } = string.Empty;
-	public string unidades { get; set; } = string.Empty;
+	public int producto { get; set; }
+	public int unidadesMedida { get; set; }
+	public int unidades { get; set; }
 	public decimal precio { get; set; }
-	public decimal costo { get; set; }
+	public decimal costoTotal { get; set; }
 
+	public string contribuyente { get; set; }
+	public string rnc { get; set; }
+	public string direccion { get; set; }
 
 	public string mensaje { get; set; } = string.Empty;
 	public string mensajeNombre { get; set; } = string.Empty;
@@ -231,6 +264,8 @@
 
 		proveedores = await proveedorService.Listar(p => p.Eliminado == false);
 		productos = await productosService.Listar(p => p.Eliminado == false);
+		unidadesMedidas = await unidadesMedidaService.Listar(um => um.UnidadMedidaId > 0);
+		metodosPagos = await metodosPagoService.Listar(um => um.MetodoPagoId > 0);
 	}
 
 	public async void Crear()
@@ -293,12 +328,36 @@
 
 	public async Task AgregarDetalle()
 	{
-		if (!String.IsNullOrEmpty(producto) && !String.IsNullOrEmpty(unidades) && precio != 0 && cantidad != 0)
+		var costoUnidad = costoTotal / unidades;
+		var costo = costoTotal * cantidad;
+		var itbis = (decimal)((double)costo * 0.18);
+
+		var nuevoDetalle = new ComprasDetalle
+			{
+				ProductoId = producto,
+				CantidadProducto = cantidad,
+				UnidadMedidaId = unidadesMedida,
+				CantidadUnidadProducto = unidades,
+				CostoTotal = costo,
+				CostoUnidad = costoUnidad,
+				Itbis = itbis,
+				Valor = costo + itbis
+			};
+
+		compra.ComprasDetalle.Add(nuevoDetalle);
+
+		compra.SubTotal += costo + itbis;
+		compra.TotalITIBS += itbis;
+		compra.Total = compra.SubTotal + compra.TotalITIBS;
+
+		if (producto != 0 && unidadesMedida != 0 && precio != 0 && cantidad != 0)
 		{
-			if(costo >= precio)
+			if(costoTotal >= precio)
 			{
 				//costo no puede ser mayor que precio
 			}
+
+			
 
 			if (await ValidarDetalle())
 			{
@@ -334,27 +393,62 @@
 	// 	return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
 	// }
 
-	private void ActualizarDatosProveedor(string nombreProveedorSeleccionado)
+	private void ActualizarDatosProveedor(int proveedorId)
 	{
-		var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.Nombre == nombreProveedorSeleccionado);
+		var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.ProveedorId == proveedorId);
 		if (proveedorSeleccionado != null)
 		{
-			compra.DireccionProveedor = proveedorSeleccionado.Direccion;
-			compra.TipoContribuyente = proveedorSeleccionado.TipoContribuyente;
-			compra.RNC = proveedorSeleccionado.RNC;
+			direccion = proveedorSeleccionado.Ciudad + ", " + proveedorSeleccionado.Direccion;
+			contribuyente = proveedorSeleccionado.TipoContribuyente;
+			rnc = proveedorSeleccionado.RNC;
 		}
 		else
 		{
 			// Limpiar los campos si no se selecciona un proveedor válido
-			compra.DireccionProveedor = string.Empty;
-			compra.TipoContribuyente = string.Empty;
-			compra.RNC = string.Empty;
+			direccion = string.Empty;
+			contribuyente = string.Empty;
+			rnc = string.Empty;
 		}
 	}
 
-	public async Task EliminarDetalle(ProveedoresDetalle detalle)
+	bool unidadesDisabled = true;
+
+	void VerificarUnidades(ChangeEventArgs e)
 	{
-		proveedor.ProveedoresDetalle.Remove(detalle);
+		var unidadesMedidaSeleccionada = (string)e.Value;
+
+		unidadesDisabled = unidadesMedidaSeleccionada == "2" || unidadesMedidaSeleccionada == "0";
+
+		if (unidadesMedidaSeleccionada == "2")
+			unidades = 1;
+		else
+			unidades = 0;
+	}
+
+	Dictionary<string, object> UnidadesAttributes => new Dictionary<string, object>
+	{
+		{ "class", "form-control" },
+		{ "bind-Value", "@unidades" },
+		{ "disabled", unidadesDisabled }
+	};
+
+	public string BuscarProducto(int id)
+	{
+		var valor = productos.FirstOrDefault(p => p.ProductoId == id);
+
+		return valor.Nombre;
+	}
+
+	public string BuscarUnidadMedida(int id)
+	{
+		var valor = unidadesMedidas.FirstOrDefault(u => u.UnidadMedidaId == id);
+
+		return valor.UnidadMedida;
+	}
+
+	public async Task EliminarDetalle(ComprasDetalle detalle)
+	{
+		compra.ComprasDetalle.Remove(detalle);
 	}
 
 	public async Task LimpiarPantalla()
@@ -366,8 +460,8 @@
 
 		cantidad = 0;
 		precio = 0;
-		producto = string.Empty;
-		unidades = string.Empty;
+		producto = 0;
+		unidadesMedida = 0;
 		StateHasChanged();
 	}
 

@@ -24,15 +24,17 @@ public class Compras
 
     [ForeignKey("Proveedores")]
 	[Required(ErrorMessage = "Debe elegir un proveedor para la compra.")]
-	public string NombreProveedor { get; set; }
+	public int ProveedorId { get; set; }
 
-	public string DireccionProveedor { get; set; }
+	//public string DireccionProveedor { get; set; }
 
-	public string TipoContribuyente { get; set; }
+	//public string TipoContribuyente { get; set; }
 
-	public string RNC { get; set; }
+	//public string RNC { get; set; }
 
-	public string MetodoPago { get; set; }
+	[ForeignKey("MetodosPago")]
+	[Required(ErrorMessage = "Debe elegir un tipo de contribuyente.")]
+	public int MetodoPagoId { get; set; }
 
 	public decimal SubTotal { get; set; }
     public decimal TotalITIBS { get; set; }

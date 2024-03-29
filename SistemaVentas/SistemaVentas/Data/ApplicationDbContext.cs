@@ -52,6 +52,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 			.HasPrecision(18, 2);
 
 		modelBuilder.Entity<ComprasDetalle>()
+			.Property(cd => cd.CostoTotal)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<ComprasDetalle>()
+			.Property(cd => cd.CostoUnidad)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<ComprasDetalle>()
 			.Property(cd => cd.Valor)
 			.HasPrecision(18, 2);
 
