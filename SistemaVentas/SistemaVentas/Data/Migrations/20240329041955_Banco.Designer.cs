@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaVentas.Data;
 
@@ -11,9 +12,11 @@ using SistemaVentas.Data;
 namespace SistemaVentas.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240329041955_Banco")]
+    partial class Banco
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,30 +64,6 @@ namespace SistemaVentas.Migrations
                             Monto = 500000000m,
                             NumeroTarjeta = "1122334455667788",
                             Usuario = "Admin"
-                        });
-                });
-
-            modelBuilder.Entity("Library.Models.Capital", b =>
-                {
-                    b.Property<int>("CapitalId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CapitalId"));
-
-                    b.Property<decimal>("Efectivo")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("CapitalId");
-
-                    b.ToTable("Capital");
-
-                    b.HasData(
-                        new
-                        {
-                            CapitalId = 1,
-                            Efectivo = 500000000m
                         });
                 });
 
