@@ -39,12 +39,16 @@ public class Compras
 	public decimal SubTotal { get; set; }
     public decimal TotalITIBS { get; set; }
     public decimal Total { get; set; }
+    public decimal MontoPagado { get; set; }
+    public decimal Devuelta { get; set; }
+    public decimal Debo { get; set; }
 
 
     [StringLength(250, ErrorMessage = "El límite es de 250 caracteres.")]
 	public string Nota { get; set; }
 
 	public bool Eliminado { get; set; } = false;
+	public string Estado { get; set; }
 
     [ForeignKey("CompraId")]
     public ICollection<ComprasDetalle> ComprasDetalle { get; set; } = new List<ComprasDetalle>();
