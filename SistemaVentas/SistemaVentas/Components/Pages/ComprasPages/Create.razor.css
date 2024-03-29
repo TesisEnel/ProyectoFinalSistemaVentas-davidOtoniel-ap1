@@ -14,3 +14,12 @@
 .mensajeError {
     color: red;
 }
+
+.mensajeCorrecto {
+    color: green;
+}
+
+.miImagen {
+    width: 50px;
+    height: auto;
+}

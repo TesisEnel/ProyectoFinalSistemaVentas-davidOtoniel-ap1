@@ -46,6 +46,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 			.Property(c => c.Total)
 			.HasPrecision(18, 2);
 
+		modelBuilder.Entity<Compras>()
+			.Property(cd => cd.MontoPagado)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<Compras>()
+			.Property(cd => cd.Devuelta)
+			.HasPrecision(18, 2);
+
 		modelBuilder.Entity<ComprasDetalle>()
 			.Property(cd => cd.Itbis)
 			.HasPrecision(18, 2);
