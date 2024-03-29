@@ -1,5 +1,365 @@
-﻿<h3>Delete</h3>
+﻿@page "/DeleteCompras"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ProveedoresService proveedorService
+@inject ComprasService comprasService
+@inject ProductosService productosService
+@inject UnidadesMedidaService unidadesMedidaService
+@inject MetodosPagoService metodosPagoService
+
+<PageTitle>Eliminar Compra</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Eliminar Compra</strong></h3>
+		</div>
+		@*Cuerpo*@
+		<div class="card-body">
+			<div class="row">
+				<div class="col-8">
+					<div class="col-md-11">
+						<h3 class="text-center"><strong>Datos de la Compra</strong></h3>
+						<div class="border-primmary border border-2 borde">
+							<div class="card-body">
+								<div class="row">
+									@*Imagen*@
+									<div class="col-2">
+										<div class="text-center">
+											<img src="Imagenes/banca-en-linea.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+										</div>
+									</div>
+									@*Datos de la Compra*@
+									<div class="col-9">
+										<table class="table table-bordered">
+											<tbody>
+												<tr>
+													<th>CompraId</th>
+													<td>@compra.CompraId</td>
+												</tr>
+												<tr>
+													<th>Fecha Creación</th>
+													<td>@compra.FechaCreacion.ToShortDateString()</td>
+												</tr>
+												<tr>
+													<th>Usuario Responsable</th>
+													<td>@compra.UsuarioResponsable</td>
+												</tr>
+												<tr>
+													<th>Proveedor</th>
+													<td>@compra.ProveedorId</td>
+												</tr>
+												<tr>
+													<th>M&eacute;todo de Pago</th>
+													<td>@compra.MetodoPagoId</td>
+												</tr>
+												<tr>
+													<th>SubTotal</th>
+													<td>@compra.SubTotal</td>
+												</tr>
+												<tr>
+													<th>Total ITBIS</th>
+													<td>@compra.TotalITIBS</td>
+												</tr>
+												<tr>
+													<th>Total</th>
+													<td>@compra.Total</td>
+												</tr>
+												<tr>
+													<th>Nota</th>
+													<td>@compra.Nota</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				@*Detalles de la proveedor*@
+				<div class="col-4">
+					<h3 class="text-center"><strong>Contactos</strong></h3>
+					<fieldset class="border-primmary border border-2 borde">
+						<div class="card-body">
+							<section>
+								@if (proveedor.ProveedoresDetalle.Count > 0)
+								{
+									<table class="table table-bordered miTabla">
+										<thead>
+											<tr>
+												<th>Tipo de Contacto</th>
+												<th>N&uacute;mero de Contacto</th>
+											</tr>
+										</thead>
+										<tbody>
+											@foreach (var detalle in proveedor.ProveedoresDetalle)
+											{
+												@*< tr>
+													<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
+													<td>@FormatPhoneNumber(detalle.Contacto)</td>
+												</tr> *@
+											}
+										</tbody>
+									</table>
+									<p><strong>Total N&uacute;meros de Contactos: </strong>@proveedor.ProveedoresDetalle.Count</p>
+								}
+								else
+								{
+									<h4>Este proveedor no tiene contactos agregados</h4>
+								}
+							</section>
+						</div>
+					</fieldset>
+				</div>
+			</div>
+		</div>
+		@*Footer*@
+		<div class="card-footer d-flex justify-content-center">
+			<div class="px-2">
+				<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+			</div>
+			<button type="submit" class="btn btn-outline-success"><i class="bi bi-floppy-fill" /> Crear</button>
+		</div>
+	</div>
+</div>
+@mensaje
+@otro
 
 @code {
+	public Proveedores proveedor { get; set; } = new Proveedores();
+	public Compras compra { get; set; } = new Compras();
 
+	public List<Proveedores> proveedores = new List<Proveedores>();
+	public List<Productos> productos = new List<Productos>();
+	public List<UnidadesMedida> unidadesMedidas = new List<UnidadesMedida>();
+	public List<MetodosPago> metodosPagos = new List<MetodosPago>();
+
+	public int cantidad { get; set; }
+	public int producto { get; set; }
+	public int unidadesMedida { get; set; }
+	public int unidades { get; set; }
+	public decimal precio { get; set; }
+	public decimal costoTotal { get; set; }
+
+	public string contribuyente { get; set; }
+	public string rnc { get; set; }
+	public string direccion { get; set; }
+
+	public string mensaje { get; set; } = string.Empty;
+	public string mensajeNombre { get; set; } = string.Empty;
+	public string mensajeEmail { get; set; } = string.Empty;
+	public string mensajeRNC { get; set; } = string.Empty;
+	public string otro { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+
+		proveedores = await proveedorService.Listar(p => p.Eliminado == false);
+		productos = await productosService.Listar(p => p.Eliminado == false);
+		unidadesMedidas = await unidadesMedidaService.Listar(um => um.UnidadMedidaId > 0);
+		metodosPagos = await metodosPagoService.Listar(um => um.MetodoPagoId > 0);
+	}
+
+	public async void Modificar()
+	{
+		if (await ValidarProveedor())
+		{
+			if (String.IsNullOrEmpty(proveedor.Nota))
+				proveedor.Nota = "----";
+
+			var response = await proveedorService.Crear(proveedor);
+
+			// if (response.IsSuccessStatusCode)
+			// {
+			// 	mensaje = "La solicitud fue exitosa.";
+			// }
+			// else
+			// {
+			// 	mensaje = "La solicitud falló con el siguiente estado: " + response.ToString();
+			// }
+		}
+		else
+			mensaje = "Algunos datos ya existen en la base de datos.";
+
+		StateHasChanged();
+		await Task.Delay(4000);
+		await LimpiarPantalla();
+	}
+
+	public async Task<bool> ValidarProveedor()
+	{
+		var validar = await proveedorService.Listar(p => p.Eliminado == false);
+		var nombre = validar.FirstOrDefault(p => p.Nombre == proveedor.Nombre);
+		var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
+		var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
+
+		bool nombreValido = true;
+		bool emailValido = true;
+		bool rncValido = true;
+
+		if (nombre != null)
+		{
+			nombreValido = false;
+			mensajeNombre = "Ya existe un proveedor con este nombre";
+		}
+
+		if (email != null)
+		{
+			emailValido = false;
+			mensajeEmail = "Ya existe un proveedor con este email";
+		}
+
+		if (rnc != null)
+		{
+			rncValido = false;
+			mensajeRNC = "Ya existe un proveedor con este número de RNC";
+		}
+
+		return nombreValido && emailValido && rncValido;
+	}
+
+	public async Task AgregarDetalle()
+	{
+		var costoUnidad = costoTotal / unidades;
+		var costo = costoTotal * cantidad;
+		var itbis = (decimal)((double)costo * 0.18);
+
+		var nuevoDetalle = new ComprasDetalle
+			{
+				CantidadProducto = cantidad,
+				ProductoId = producto,
+				UnidadMedidaId = unidadesMedida,
+				CostoTotal = costo,
+				CostoUnidad = costoUnidad,
+				Itbis = itbis,
+				Valor = costo + itbis
+			};
+
+		compra.ComprasDetalle.Add(nuevoDetalle);
+
+		compra.SubTotal += costo + itbis;
+		compra.TotalITIBS += itbis;
+		compra.Total = compra.SubTotal + compra.TotalITIBS;
+
+		if (producto != 0 && unidadesMedida != 0 && precio != 0 && cantidad != 0)
+		{
+			if (costoTotal >= precio)
+			{
+				//costo no puede ser mayor que precio
+			}
+
+
+
+			if (await ValidarDetalle())
+			{
+				// var nuevoDetalle = new ProveedoresDetalle { ContactoId = tipo, Contacto = contacto };
+				// proveedor.ProveedoresDetalle.Add(nuevoDetalle);
+				// await LimpiarPantalla();
+			}
+			else
+				mensaje = "La longitud del contacto debe ser de 10 digitos";
+		}
+	}
+
+	public async Task<bool> ValidarDetalle()
+	{
+		// foreach (var detalle in compra.ComprasDetalle)
+		// {
+		// 	if (detalle.No == contacto)
+		// 		return false;
+		// }
+
+		return true;
+	}
+
+	// public string ObtenerTipoContacto(int id)
+	// {
+	// 	var dato = contactos.FirstOrDefault(c => c.ContactoId == id);
+
+	// 	return dato.Descripcion;
+	// }
+
+	// public string FormatPhoneNumber(string phoneNumber)
+	// {
+	// 	return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
+	// }
+
+	private void ActualizarDatosProveedor(int proveedorId)
+	{
+		var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.ProveedorId == proveedorId);
+		if (proveedorSeleccionado != null)
+		{
+			direccion = proveedorSeleccionado.Ciudad + ", " + proveedorSeleccionado.Direccion;
+			contribuyente = proveedorSeleccionado.TipoContribuyente;
+			rnc = proveedorSeleccionado.RNC;
+		}
+		else
+		{
+			// Limpiar los campos si no se selecciona un proveedor válido
+			direccion = string.Empty;
+			contribuyente = string.Empty;
+			rnc = string.Empty;
+		}
+	}
+
+	bool unidadesDisabled = true;
+
+	void VerificarUnidades(ChangeEventArgs e)
+	{
+		var unidadesMedidaSeleccionada = (string)e.Value;
+
+		unidadesDisabled = unidadesMedidaSeleccionada == "2" || unidadesMedidaSeleccionada == "0";
+
+		if (unidadesMedidaSeleccionada == "2")
+			unidades = 1;
+		else
+			unidades = 0;
+	}
+
+	Dictionary<string, object> UnidadesAttributes => new Dictionary<string, object>
+	{
+		{ "class", "form-control" },
+		{ "bind-Value", "@unidades" },
+		{ "disabled", unidadesDisabled }
+	};
+
+	public string BuscarProducto(int id)
+	{
+		var valor = productos.FirstOrDefault(p => p.ProductoId == id);
+
+		return valor.Nombre;
+	}
+
+	public string BuscarUnidadMedida(int id)
+	{
+		var valor = unidadesMedidas.FirstOrDefault(u => u.UnidadMedidaId == id);
+
+		return valor.UnidadMedida;
+	}
+
+	public async Task EliminarDetalle(ComprasDetalle detalle)
+	{
+		compra.ComprasDetalle.Remove(detalle);
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		mensaje = string.Empty;
+		mensajeNombre = string.Empty;
+		mensajeEmail = string.Empty;
+		mensajeRNC = string.Empty;
+
+		cantidad = 0;
+		precio = 0;
+		producto = 0;
+		unidadesMedida = 0;
+		StateHasChanged();
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Proveedores");
+	}
 }

@@ -94,10 +94,10 @@
 							<tr>
 								<td>@compra.CompraId</td>
 								<td>@compra.FechaCreacion.ToShortDateString()</td>
-								<td>@compra.NombreProveedor</td>
-								<td>@compra.DireccionProveedor</td>
+								<td>@compra.ProveedorId</td>
+								@* <td>@compra.DireccionProveedor</td>
 								<td>@FormatRNCNumber(compra.RNC)</td>
-								<td>@compra.TipoContribuyente</td>
+								<td>@compra.TipoContribuyente</td> *@
 								<td>
 									<div class="btn-group" role="group">
 										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(compra.CompraId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
@@ -198,67 +198,67 @@
 				}
 				break;
 
-			case "proveedor":
-				var resultadoNombre = compras
-				.FirstOrDefault(c => c.NombreProveedor.ToLower().Contains(valorFiltro.ToLower()));
+			// case "proveedor":
+			// 	var resultadoNombre = compras
+			// 	.FirstOrDefault(c => c.NombreProveedor.ToLower().Contains(valorFiltro.ToLower()));
 
-				if (resultadoNombre != null &&
-					(resultadoNombre.FechaCreacion >= desde && resultadoNombre.FechaCreacion <= hasta))
-				{
-					compras.Clear();
-					compras.Add(resultadoNombre);
-				}
-				break;
+			// 	if (resultadoNombre != null &&
+			// 		(resultadoNombre.FechaCreacion >= desde && resultadoNombre.FechaCreacion <= hasta))
+			// 	{
+			// 		compras.Clear();
+			// 		compras.Add(resultadoNombre);
+			// 	}
+			// 	break;
 
-			case "direccion":
-				var resultadoDireccion = compras
-				.Where(c => c.DireccionProveedor.ToLower().Contains(valorFiltro.ToLower())).ToList();
+			// case "direccion":
+			// 	var resultadoDireccion = compras
+			// 	.Where(c => c.DireccionProveedor.ToLower().Contains(valorFiltro.ToLower())).ToList();
 
-				if (resultadoDireccion != null)
-				{
-					foreach (var result in resultadoDireccion)
-					{
-						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
-							listaFiltro.Add(result);
-					}
+			// 	if (resultadoDireccion != null)
+			// 	{
+			// 		foreach (var result in resultadoDireccion)
+			// 		{
+			// 			if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+			// 				listaFiltro.Add(result);
+			// 		}
 
-					if (listaFiltro.Count > 0)
-						compras = listaFiltro;
-				}
-				break;
+			// 		if (listaFiltro.Count > 0)
+			// 			compras = listaFiltro;
+			// 	}
+			// 	break;
 
-			case "rnc":
-				var resultadoRNC = compras.Where(c => c.RNC.Contains(valorFiltro)).ToList();
+			// case "rnc":
+			// 	var resultadoRNC = compras.Where(c => c.RNC.Contains(valorFiltro)).ToList();
 
-				if (resultadoRNC != null)
-				{
-					foreach (var result in resultadoRNC)
-					{
-						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
-							listaFiltro.Add(result);
-					}
+			// 	if (resultadoRNC != null)
+			// 	{
+			// 		foreach (var result in resultadoRNC)
+			// 		{
+			// 			if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+			// 				listaFiltro.Add(result);
+			// 		}
 
-					if (listaFiltro.Count > 0)
-						compras = listaFiltro;
-				}
-				break;
+			// 		if (listaFiltro.Count > 0)
+			// 			compras = listaFiltro;
+			// 	}
+			// 	break;
 
-			case "contribuyente":
-				var resultadoContribuyente = compras
-				.Where(c => c.TipoContribuyente.ToLower().Contains(valorFiltro.ToLower())).ToList();
+			// case "contribuyente":
+			// 	var resultadoContribuyente = compras
+			// 	.Where(c => c.TipoContribuyente.ToLower().Contains(valorFiltro.ToLower())).ToList();
 
-				if (resultadoContribuyente != null)
-				{
-					foreach (var result in resultadoContribuyente)
-					{
-						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
-							listaFiltro.Add(result);
-					}
+			// 	if (resultadoContribuyente != null)
+			// 	{
+			// 		foreach (var result in resultadoContribuyente)
+			// 		{
+			// 			if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+			// 				listaFiltro.Add(result);
+			// 		}
 
-					if (listaFiltro.Count > 0)
-						compras = listaFiltro;
-				}
-				break;
+			// 		if (listaFiltro.Count > 0)
+			// 			compras = listaFiltro;
+			// 	}
+			// 	break;
 		}
 
 		StateHasChanged();
