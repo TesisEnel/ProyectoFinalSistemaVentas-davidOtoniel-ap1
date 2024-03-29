@@ -19,9 +19,6 @@ public class ComprasDetalle
 
     public int CantidadUnidadProducto { get; set; }
 
-    //borrar precio mas tarde
-    public decimal Precio { get; set; }
-
     public decimal CostoTotal { get; set; }
     public decimal CostoUnidad { get; set; }
 
