@@ -52,4 +52,7 @@ public class Compras
 
     [ForeignKey("CompraId")]
     public ICollection<ComprasDetalle> ComprasDetalle { get; set; } = new List<ComprasDetalle>();
+
+	[ForeignKey("CompraId")]
+	public ICollection<CuentasPorPagar> CuentasPorPagar { get; set; } = new List<CuentasPorPagar>();
 }
