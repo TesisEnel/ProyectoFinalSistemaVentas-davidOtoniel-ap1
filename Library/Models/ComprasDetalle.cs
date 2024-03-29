@@ -12,11 +12,18 @@ public class ComprasDetalle
     [Key]
     public int DetalleId { get; set; }
 
-    public int Cantidad { get; set; }
+	public int ProductoId { get; set; }
+	public int CantidadProducto { get; set; }
 
-    public string UnidadMedida { get; set; }
+    public int UnidadMedidaId { get; set; }
 
+    public int CantidadUnidadProducto { get; set; }
+
+    //borrar precio mas tarde
     public decimal Precio { get; set; }
+
+    public decimal CostoTotal { get; set; }
+    public decimal CostoUnidad { get; set; }
 
     public decimal Itbis { get; set; }
 
