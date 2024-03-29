@@ -20,6 +20,6 @@ public class Banco
 
     public int CodigoSeguridad { get; set; }
 
-    public decimal Monto { get;}
+    public decimal Monto { get; set; }
 
 }
