@@ -1,0 +1,146 @@
+﻿@page "/AbonarCuentasPorPagar"
+@page "/AbonarCuentasPorPagar/compraId={compraId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ComprasService comprasService
+@inject ProveedoresService proveedoresService
+
+<PageTitle>Abonar Cuenta por Pagar</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Abonar Cuenta por Pagar</strong></h3>
+			<div class="d-flex align-items-start">
+				@* <div class="px-2">
+				<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div> *@
+				@* <button type="button" class="btn btn-outline-primary" @onclick="IrACrear"><i class="bi bi-plus-circle" /> Crear</button> *@
+			</div>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			<div class="row mb-3">
+				<div class="col-4">
+					@*Fecha de Compra*@
+					<label class="form-label" for="fechaCompra"><strong>Fecha de Compra</strong></label>
+					<InputDate id="fechaCompra" class="form-control" @bind-Value="compra.FechaCreacion" readonly></InputDate>
+				</div>
+				<div class="col-4">
+					@*Usuario Responsable*@
+					<label class="form-label" for="responsable"><strong>Usuario Responsable</strong></label>
+					<InputText id="responsable" class="form-control" @bind-Value="compra.UsuarioResponsable" readonly></InputText>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-3">
+					@*Proveedor*@
+					<label class="form-label" for="proveedor"><strong>Proveedor</strong></label
+					<InputText id="Proveedor" class="form-control" @bind-Value="proveedor" readonly></InputText>
+				</div>
+				<div class="col-3">
+					@*Deuda Inicial*@
+					<label class="form-label" for="inicial"><strong>Deuda Inicial</strong></label>
+					<InputNumber id="inicial" class="form-control" @bind-Value="compra.Total" readonly></InputNumber>
+				</div>
+				<div class="col-3">
+					@*Deuda Pendiente*@
+					<label class="form-label" for="pendiente"><strong>Deuda Pendiente</strong></label>
+					<InputNumber id="pendiente" class="form-control" @bind-Value="deuda" readonly></InputNumber>
+				</div>
+				<div class="col-3">
+					@*Cantidad Producto*@
+					<label class="form-label" for="cantidad"><strong>Cantidad Productos</strong></label>
+					<InputNumber id="cantidad" class="form-control" @bind-Value="cantidad" readonly></InputNumber>
+				</div>
+			</div>
+		</div>
+		<div class="card-footer">
+			<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+		</div>
+	</div>
+</div>
+@mensaje
+
+@code {
+	[Parameter]
+	public int compraId { get; set; }
+	public List<Compras> compras = new List<Compras>();
+	public List<Proveedores> proveedores = new List<Proveedores>();
+	public Compras compra { get; set; } = new Compras();
+	public string filtro { get; set; }
+	public string valorFiltro { get; set; }
+	public string mensaje { get; set; }
+	public bool loading { get; set; } = true;
+
+	public string proveedor { get; set; }
+	public decimal deuda { get; set; }
+	public int cantidad { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		compras = await comprasService.Listar(c => c.Eliminado == false);
+		proveedores = await proveedoresService.Listar(p => p.Eliminado == false);
+		compra = await comprasService.BuscarId(compraId);
+
+		if (compra != null)
+		{
+			proveedor = BuscarProveedor(compra.ProveedorId);
+			deuda = CalcularDeudaPendiente(compra);
+			cantidad = compra.ComprasDetalle.Count;
+		}
+
+		loading = false;
+
+		if (compras.Count == 0)
+			StateHasChanged();
+	}
+
+	public string BuscarProveedor(int id)
+	{
+		var proveedor = proveedores.FirstOrDefault(c => c.ProveedorId == id);
+		return proveedor.Nombre;
+	}
+
+	public decimal CalcularDeudaPendiente(Compras compra)
+	{
+		var deudaTotal = compra.Total;
+		var sumaAbonos = compra.CuentasPorPagar.Sum(c => c.Abono);
+		return deudaTotal - sumaAbonos;
+	}
+
+	public async Task Restablecer()
+	{
+		proveedores = await proveedoresService.Listar(p => p.Eliminado == false);
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		await Task.Delay(2000);
+		mensaje = string.Empty;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/");
+	}
+
+	void IrACrear()
+	{
+		navigation.NavigateTo("/CreateProveedores");
+	}
+
+	void IrADetalles(int id)
+	{
+		navigation.NavigateTo($"/ViewProveedores/proveedorId={id}");
+	}
+	void IrAEditar(int id)
+	{
+		navigation.NavigateTo($"/EditProveedores/proveedorId={id}");
+	}
+	void IrAEliminar(int id)
+	{
+		navigation.NavigateTo($"/DeleteProveedores/proveedorId={id}");
+	}
+}
