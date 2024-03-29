@@ -15,6 +15,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	public DbSet<Compras> Compras { get; set; }
 	public DbSet<MetodosPago> MetodosPago { get; set; }
 	public DbSet<UnidadesMedida> UnidadesMedida { get; set; }
+	public DbSet<Banco> Banco { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -75,5 +76,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 			new UnidadesMedida { UnidadMedidaId = 4, UnidadMedida = "Metro"},
 			new UnidadesMedida { UnidadMedidaId = 5, UnidadMedida = "Libra"}
 		});
+
+		modelBuilder.Entity<Banco>()
+			.Property(cd => cd.Monto)
+			.HasPrecision(18, 2);
 	}
 }
