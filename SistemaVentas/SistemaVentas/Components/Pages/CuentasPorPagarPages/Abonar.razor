@@ -4,8 +4,10 @@
 @inject NavigationManager navigation
 @inject ComprasService comprasService
 @inject ProveedoresService proveedoresService
+@inject NotificationService notificationService
 
 <PageTitle>Abonar Cuenta por Pagar</PageTitle>
+<RadzenNotification/>
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
@@ -95,6 +97,24 @@
 
 		if (compras.Count == 0)
 			StateHasChanged();
+
+		// var Mensaje = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Error,
+		// 		Summary = "Error al guardar",
+		// 		Detail = "Ha ocurrido un error",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Mensaje);
+
+		// var Otro = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Success,
+		// 		Summary = "Guardo",
+		// 		Detail = "Guardo correctamente",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Otro);
 	}
 
 	public string BuscarProveedor(int id)
