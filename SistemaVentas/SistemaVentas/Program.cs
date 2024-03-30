@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Radzen;
 using SistemaVentas.Client.Pages;
 using SistemaVentas.Components;
 using SistemaVentas.Components.Account;
@@ -51,6 +52,11 @@ builder.Services.AddScoped<UnidadesMedidaService>();
 builder.Services.AddScoped<BancoService>();
 builder.Services.AddScoped<CapitalService>();
 builder.Services.AddScoped<DevolucionesService>();
+
+
+
+//Radzen
+builder.Services.AddScoped<NotificationService>();
 
 var app = builder.Build();
 
