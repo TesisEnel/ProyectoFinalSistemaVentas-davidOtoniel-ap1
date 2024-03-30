@@ -14,10 +14,15 @@ public class Devoluciones
 	public int DevolucionId { get; set; }
 
 	[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+	
 	public DateTime FechaDevolucion { get; set; } = DateTime.Today;
+	
 	public decimal MontoDevolucion { get; set; }
+	
 	public string Observacion { get; set; }
 
-	[ForeignKey("DevolucionId")]
+	public bool Eliminado { get; set; } = false;
+
+    [ForeignKey("DevolucionId")]
 	public ICollection<DevolucionesDetalle> DevolucionesDetalle { get; set; } = new List<DevolucionesDetalle>();
 }

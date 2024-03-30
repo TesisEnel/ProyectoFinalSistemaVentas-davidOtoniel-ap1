@@ -11,7 +11,7 @@ namespace Library.Models;
 public class DevolucionesDetalle
 {
 	[Key]
-	public int DetalleId { get; set; }
+	public int DevolucionDetalleId { get; set; }
 
     public int DevolucionId { get; set; }
 
@@ -21,8 +21,8 @@ public class DevolucionesDetalle
     public int CantidadDevuelta { get; set; }
 
     public decimal PrecioTotal { get; set; }
+
     public decimal PrecioUnidad { get; set; }
-    public decimal Valor { get; set; }
 
     public string Motivo { get; set; }
 

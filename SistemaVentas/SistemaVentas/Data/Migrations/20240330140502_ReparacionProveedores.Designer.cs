@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaVentas.Data;
 
@@ -11,9 +12,11 @@ using SistemaVentas.Data;
 namespace SistemaVentas.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240330140502_ReparacionProveedores")]
+    partial class ReparacionProveedores
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -111,114 +114,6 @@ namespace SistemaVentas.Migrations
                     b.ToTable("Categorias");
                 });
 
-            modelBuilder.Entity("Library.Models.Compras", b =>
-                {
-                    b.Property<int>("CompraId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CompraId"));
-
-                    b.Property<decimal>("Deuda")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Devuelta")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("MetodoPagoId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("MontoPagado")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Nota")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<int>("ProveedorId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("SubTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalItbis")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalNeto")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("UsuarioResponsable")
-                        .IsRequired()
-                        .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
-
-                    b.HasKey("CompraId");
-
-                    b.ToTable("Compras");
-                });
-
-            modelBuilder.Entity("Library.Models.ComprasDetalle", b =>
-                {
-                    b.Property<int>("CompraDetalleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CompraDetalleId"));
-
-                    b.Property<int>("CantidadProducto")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CantidadUnidadProducto")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CompraId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("CostoTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("CostoTotalNeto")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("CostoUnidad")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal>("Itbis")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UnidadMedidaId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CompraDetalleId");
-
-                    b.HasIndex("CompraId");
-
-                    b.ToTable("ComprasDetalle");
-                });
-
             modelBuilder.Entity("Library.Models.Contactos", b =>
                 {
                     b.Property<int>("ContactoId")
@@ -246,132 +141,6 @@ namespace SistemaVentas.Migrations
                             ContactoId = 2,
                             Descripcion = "Fax"
                         });
-                });
-
-            modelBuilder.Entity("Library.Models.CuentasPorPagar", b =>
-                {
-                    b.Property<int>("CuentaPorPagarId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CuentaPorPagarId"));
-
-                    b.Property<int>("CompraId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("DeudaInicial")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("DeudaRestante")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("CuentaPorPagarId");
-
-                    b.HasIndex("CompraId")
-                        .IsUnique();
-
-                    b.ToTable("CuentasPorPagar");
-                });
-
-            modelBuilder.Entity("Library.Models.CuentasPorPagarDetalle", b =>
-                {
-                    b.Property<int>("CuentaPorPagarDetalleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CuentaPorPagarDetalleId"));
-
-                    b.Property<decimal>("Abono")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Concepto")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("CuentaPorPagarId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("FechaPago")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("CuentaPorPagarDetalleId");
-
-                    b.HasIndex("CuentaPorPagarId");
-
-                    b.ToTable("CuentasPorPagarDetalle");
-                });
-
-            modelBuilder.Entity("Library.Models.Devoluciones", b =>
-                {
-                    b.Property<int>("DevolucionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DevolucionId"));
-
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("FechaDevolucion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("MontoDevolucion")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Observacion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("DevolucionId");
-
-                    b.ToTable("Devoluciones");
-                });
-
-            modelBuilder.Entity("Library.Models.DevolucionesDetalle", b =>
-                {
-                    b.Property<int>("DevolucionDetalleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DevolucionDetalleId"));
-
-                    b.Property<int>("CantidadDevuelta")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DevolucionId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Motivo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("PrecioTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("PrecioUnidad")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DevolucionDetalleId");
-
-                    b.HasIndex("DevolucionId");
-
-                    b.ToTable("DevolucionesDetalle");
                 });
 
             modelBuilder.Entity("Library.Models.MetodosPago", b =>
@@ -871,44 +640,6 @@ namespace SistemaVentas.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Library.Models.ComprasDetalle", b =>
-                {
-                    b.HasOne("Library.Models.Compras", null)
-                        .WithMany("ComprasDetalle")
-                        .HasForeignKey("CompraId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Library.Models.CuentasPorPagar", b =>
-                {
-                    b.HasOne("Library.Models.Compras", "Compra")
-                        .WithOne("CuentaPorPagar")
-                        .HasForeignKey("Library.Models.CuentasPorPagar", "CompraId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Compra");
-                });
-
-            modelBuilder.Entity("Library.Models.CuentasPorPagarDetalle", b =>
-                {
-                    b.HasOne("Library.Models.CuentasPorPagar", null)
-                        .WithMany("CuentasPorPagarDetalle")
-                        .HasForeignKey("CuentaPorPagarId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Library.Models.DevolucionesDetalle", b =>
-                {
-                    b.HasOne("Library.Models.Devoluciones", null)
-                        .WithMany("DevolucionesDetalle")
-                        .HasForeignKey("DevolucionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Library.Models.Productos", b =>
                 {
                     b.HasOne("Library.Models.Categorias", null)
@@ -988,24 +719,6 @@ namespace SistemaVentas.Migrations
             modelBuilder.Entity("Library.Models.Categorias", b =>
                 {
                     b.Navigation("Productos");
-                });
-
-            modelBuilder.Entity("Library.Models.Compras", b =>
-                {
-                    b.Navigation("ComprasDetalle");
-
-                    b.Navigation("CuentaPorPagar")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Library.Models.CuentasPorPagar", b =>
-                {
-                    b.Navigation("CuentasPorPagarDetalle");
-                });
-
-            modelBuilder.Entity("Library.Models.Devoluciones", b =>
-                {
-                    b.Navigation("DevolucionesDetalle");
                 });
 
             modelBuilder.Entity("Library.Models.Proveedores", b =>
