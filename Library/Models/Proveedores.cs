@@ -35,9 +35,19 @@ public class Proveedores
 	[RegularExpression(@"^[^\s]+@[^\s]+\.[^\s]+$", ErrorMessage = "El email no puede contener espacios.")]
 	[StringLength(40, ErrorMessage = "El límite es de 40 caracteres.")]
 	public string Email { get; set; }
+	
+	[Required(ErrorMessage = "Debe ingresar un número de cuenta bancaria")]
+	[RegularExpression(@"^[0-9]{10}$",ErrorMessage = "Ingrese 10 dígitos númericos")]
+	public string NumeroCuenta { get; set; }
 
-	[Required(ErrorMessage = "Debe elegir un tipo de contribuyente.")]
-	public string TipoContribuyente { get; set; }
+	[Required(ErrorMessage = "Debe ingresar el nombre de un banco")]
+	[RegularExpression(@"^[a-zA-Z\s]*$", ErrorMessage = "El campo Banco solo puede contener letras y espacios.")]
+	[StringLength(25, ErrorMessage = "El límite es de 25 caracteres.")]
+	public string Banco { get; set; }
+
+	[ForeignKey("TiposContribuyente")]
+	[Range(0,int.MaxValue,ErrorMessage = "Debe elegir un tipo de contribuyente.")]
+	public int TipoContribuyenteId { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar un número de RNC")]
 	[RegularExpression(@"^[0-9]{11}$", ErrorMessage = "El RNC debe tener exactamente 11 dígitos numéricos.")]
@@ -47,8 +57,6 @@ public class Proveedores
 	public string Nota { get; set; }
 
 	public bool Eliminado { get; set; } = false;
-
-
 
 	[ForeignKey("ProveedorId")]
 	public ICollection<ProveedoresDetalle> ProveedoresDetalle { get; set; } = new List<ProveedoresDetalle>();
