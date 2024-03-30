@@ -32,8 +32,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
 		modelBuilder.Entity<TiposContribuyente>().HasData(new List<TiposContribuyente>
 		{
-			new TiposContribuyente { TipoContribuyenteId = 1, Descripcion = "Persona Física"},
-			new TiposContribuyente { TipoContribuyenteId = 2, Descripcion = "Persona Jurídica"}
+			new TiposContribuyente { TipoContribuyenteId = 1, Descripcion = "Persona Fisica"},
+			new TiposContribuyente { TipoContribuyenteId = 2, Descripcion = "Persona Juridica"}
 		});
 
 		modelBuilder.Entity<Compras>()

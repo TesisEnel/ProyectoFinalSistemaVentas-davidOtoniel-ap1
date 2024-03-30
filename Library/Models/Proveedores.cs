@@ -46,7 +46,7 @@ public class Proveedores
 	public string Banco { get; set; }
 
 	[ForeignKey("TiposContribuyente")]
-	[Range(0,int.MaxValue,ErrorMessage = "Debe elegir un tipo de contribuyente.")]
+	[Range(1,int.MaxValue,ErrorMessage = "Debe elegir un tipo de contribuyente.")]
 	public int TipoContribuyenteId { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar un número de RNC")]

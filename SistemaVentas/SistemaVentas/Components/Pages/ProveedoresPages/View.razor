@@ -51,12 +51,24 @@
 													<td>@proveedor.Direccion</td>
 												</tr>
 												<tr>
+													<th>Ciudad</th>
+													<td>@proveedor.Ciudad</td>
+												</tr>
+												<tr>
 													<th>Email</th>
 													<td>@proveedor.Email</td>
 												</tr>
 												<tr>
+													<th>N&uacute;mero de Cuenta</th>
+													<td>@proveedor.NumeroCuenta</td>
+												</tr>
+												<tr>
+													<th>Banco</th>
+													<td>@proveedor.Banco</td>
+												</tr>
+												<tr>
 													<th>TipoContribuyente</th>
-													@* <td>@proveedor.TipoContribuyente</td> *@
+													<td>@BuscarTipoContribuyente(proveedor.TipoContribuyenteId)</td>
 												</tr>
 												<tr>
 													<th>RNC</th>
@@ -138,36 +150,43 @@
 		tiposContribuyente = await tipoContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
 		contactos = await contactoService.Listar(c => c.ContactoId > 0);
 		proveedor = await proveedorService.BuscarId(proveedorId);
-
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
-
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
+		int parar = 0;
 	}
 
 	public string ObtenerTipoContacto(int id)
 	{
-		var dato = contactos.FirstOrDefault(c => c.ContactoId == id);
+		var contribuyente = tiposContribuyente.FirstOrDefault(p => p.TipoContribuyenteId == id);
 
-		return dato.Descripcion;
+		if (contribuyente != null)
+		{
+			return contribuyente.Descripcion;
+		}
+		else
+		{
+			return "Tipo de contribuyente no encontrado";
+		}
+	}
+
+	public string BuscarTipoContribuyente(int id)
+	{
+		var contribuyente = tiposContribuyente.FirstOrDefault(p => p.TipoContribuyenteId == id);
+
+		if (contribuyente != null)
+		{
+			return contribuyente.Descripcion;
+		}
+		else
+		{
+			return "Tipo de contribuyente no encontrado";
+		}
 	}
 
 	public string FormatPhoneNumber(string phoneNumber)
 	{
-		return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
+		if (!string.IsNullOrEmpty(phoneNumber))
+			return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
+
+		return phoneNumber;
 	}
 
 	public string FormatRNCNumber(string rnc)
