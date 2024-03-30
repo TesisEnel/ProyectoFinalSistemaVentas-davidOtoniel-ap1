@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject ProveedoresService proveedorService
+@inject TiposContribuyenteService tiposContribuyenteService
 @inject NotificationService notificationService
 
 <PageTitle>Proveedores</PageTitle>
@@ -101,7 +102,7 @@
 								<td>@proveedor.Direccion</td>
 								<td>@proveedor.Ciudad</td>
 								<td>@FormatRNCNumber(proveedor.RNC)</td>
-								@* <td>@proveedor.TipoContribuyente</td> *@
+								<td>@BuscarTipoContribuyente(proveedor.TipoContribuyenteId)</td>
 								<td>
 									<div class="btn-group" role="group">
 										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(proveedor.ProveedorId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
@@ -131,6 +132,8 @@
 
 @code {
 	public List<Proveedores> proveedores = new List<Proveedores>();
+	public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
+
 	public string filtro { get; set; }
 	public string valorFiltro { get; set; }
 	public string mensaje { get; set; }
@@ -140,59 +143,57 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		await Task.Delay(500);
+		// await Task.Delay(500);
 		proveedores = await proveedorService.Listar(p => p.Eliminado == false);
+		tiposContribuyente = await tiposContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
 
 		loading = false;
 
 		if (proveedores.Count == 0)
 			StateHasChanged();
-
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
-
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
 	}
 
 	public async Task Buscar()
 	{
 		if (desde > hasta)
 		{
-			mensaje = "La fecha inicial no puede ser mayor a la fecha final";
-			StateHasChanged();
-			await Task.Delay(3000);
-			await LimpiarPantalla();
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al filtrar",
+					Detail = "La fecha inicial no puede ser mayor a la fecha final",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+
 			return;
 		}
 
 		else if (filtro == null)
 		{
-			mensaje = "Debe elegir un método parar filtrar";
-			StateHasChanged();
-			await Task.Delay(3000);
-			await LimpiarPantalla();
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al filtrar",
+					Detail = "Debe elegir un método parar filtrar",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+
 			return;
 		}
 
 		else if (valorFiltro == null)
 		{
-			mensaje = "Debe ingresar un dato";
-			StateHasChanged();
-			await Task.Delay(3000);
-			await LimpiarPantalla();
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al filtrar",
+					Detail = "Debe ingresar un dato",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+
 			return;
 		}
 
@@ -209,14 +210,22 @@
 					{
 						proveedores.Clear();
 						proveedores.Add(resultadoId);
+						VerificarMensajeFiltro(true);
 					}
 					else
-						mensaje = "No se encontraron resultados";
+						VerificarMensajeFiltro(false);
 				}
 				else
 				{
-					mensaje = "El valor ingresado para TicketId no es válido";
-					await Task.Delay(3000);
+					var Mensaje = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Error,
+						Summary = "Error al filtrar",
+							Detail = "El valor ingresado para ProveedorId no es válido",
+						Duration = 5_000
+					};
+					notificationService.Notify(Mensaje);
+					return;
 				}
 				break;
 
@@ -229,7 +238,10 @@
 				{
 					proveedores.Clear();
 					proveedores.Add(resultadoNombre);
+					VerificarMensajeFiltro(true);
 				}
+				else
+					VerificarMensajeFiltro(false);
 				break;
 
 			case "direccion":
@@ -245,7 +257,12 @@
 					}
 
 					if (listaFiltro.Count > 0)
+					{
 						proveedores = listaFiltro;
+						VerificarMensajeFiltro(true);
+					}
+					else
+						VerificarMensajeFiltro(false);
 				}
 				break;
 
@@ -262,7 +279,12 @@
 					}
 
 					if (listaFiltro.Count > 0)
+					{
 						proveedores = listaFiltro;
+						VerificarMensajeFiltro(true);
+					}
+					else
+						VerificarMensajeFiltro(false);
 				}
 				break;
 
@@ -278,30 +300,71 @@
 					}
 
 					if (listaFiltro.Count > 0)
+					{
 						proveedores = listaFiltro;
+						VerificarMensajeFiltro(true);
+					}
+					else
+						VerificarMensajeFiltro(false);
 				}
 				break;
 
-			// case "contribuyente":
-			// 	var resultadoContribuyente = proveedores
-			// 	.Where(p => p.TipoContribuyente.ToLower().Contains(valorFiltro.ToLower())).ToList();
+			case "contribuyente":
+				var contribuyentes = tiposContribuyente
+				.FirstOrDefault(tc => tc.Descripcion.ToLower().Contains(valorFiltro.ToLower()));
 
-			// 	if (resultadoContribuyente != null)
-			// 	{
-			// 		foreach (var result in resultadoContribuyente)
-			// 		{
-			// 			if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
-			// 				listaFiltro.Add(result);
-			// 		}
+				if(contribuyentes != null)
+				{
+					var resultadoProveedor = 
+					proveedores.Where
+					(p => p.TipoContribuyenteId == contribuyentes.TipoContribuyenteId)
+					.ToList();
 
-			// 		if (listaFiltro.Count > 0)
-			// 			proveedores = listaFiltro;
-			// 	}
-			// 	break;
+					foreach(var result in resultadoProveedor)
+					{
+						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+							listaFiltro.Add(result);
+					}
+
+					if (listaFiltro.Count > 0)
+					{
+						proveedores = listaFiltro;
+						VerificarMensajeFiltro(true);
+					}
+					else
+						VerificarMensajeFiltro(false);
+				}
+				else
+					VerificarMensajeFiltro(false);
+
+				break;
 		}
+	}
 
-		StateHasChanged();
-		await LimpiarPantalla();
+	public void VerificarMensajeFiltro(bool valor)
+	{
+		if (valor)
+		{
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Success,
+				Summary = "Éxito al filtrar",
+				Detail = "Se encontraron resultados",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+		}
+		else
+		{
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al filtrar",
+				Detail = "No se encontraron resultados",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+		}
 	}
 
 	public string FormatRNCNumber(string rnc)
@@ -309,9 +372,24 @@
 		return $"{rnc.Substring(0, 3)}-{rnc.Substring(3, 7)}-{rnc.Substring(10)}";
 	}
 
+	public string BuscarTipoContribuyente(int id)
+	{
+		var contribuyente = tiposContribuyente.FirstOrDefault(p => p.TipoContribuyenteId == id);
+		return contribuyente.Descripcion;
+	}
+
 	public async Task Restablecer()
 	{
 		proveedores = await proveedorService.Listar(p => p.Eliminado == false);
+
+		var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Success,
+				Summary = "Éxito al restablecer",
+				Detail = "Los datos fueron restablecidos con éxito",
+				Duration = 5_000
+			};
+		notificationService.Notify(Mensaje);
 	}
 
 	public async Task LimpiarPantalla()
