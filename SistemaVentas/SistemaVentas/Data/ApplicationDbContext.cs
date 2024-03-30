@@ -18,6 +18,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	public DbSet<UnidadesMedida> UnidadesMedida { get; set; }
 	public DbSet<Banco> Banco { get; set; }
 	public DbSet<Capital> Capital { get; set; }
+	public DbSet<Devoluciones> Devoluciones { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -112,5 +113,17 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 		{
 			new Capital { CapitalId = 1, Efectivo = 500000000}
 		});
+
+		modelBuilder.Entity<DevolucionesDetalle>()
+			.Property(cd => cd.PrecioTotal)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<DevolucionesDetalle>()
+			.Property(cd => cd.PrecioUnidad)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<DevolucionesDetalle>()
+			.Property(cd => cd.Valor)
+			.HasPrecision(18, 2);
 	}
 }
