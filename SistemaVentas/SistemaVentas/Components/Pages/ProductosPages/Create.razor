@@ -60,6 +60,9 @@
 						<label class="form-label" for="nota"><strong>Nota: </strong>(Opcional)</label>
 						<InputTextArea id="nota" class="form-control" @bind-Value="producto.Nota" placeholder="Ingrese una nota"></InputTextArea>
 						<ValidationMessage For="@(() => producto.Nota)"></ValidationMessage>
+						<ValidationMessage For="@(() => producto.Precio)"></ValidationMessage>
+						<ValidationMessage For="@(() => producto.Costo)"></ValidationMessage>
+						<ValidationMessage For="@(() => producto.Existencia)"></ValidationMessage>
 					</div>
 				</div>
 			</div>
@@ -86,6 +89,9 @@
 	{
 		await Task.Delay(500);
 		listaCategorias = await categoriasService.Listar(c => c.Eliminado == false);
+		producto.Precio = 1;
+		producto.Costo = 1;
+		producto.Existencia = 1;
 	}
 
 	public async Task Crear()
@@ -107,14 +113,17 @@
 		// 		Duration = 5_000
 		// 	};
 		// notificationService.Notify(Otro);
-
 		if (!await Validar() && await productosService.Guardar(producto))
 		{
 			mensaje = "Se guardó correctamente el producto.";
+			await Task.Delay(1000);
+			Volver();
 		}
 		else
 		{
 			mensaje = "No se pudo guardar el producto.";
+			await Task.Delay(1000);
+			Volver();
 		}
 	}
 

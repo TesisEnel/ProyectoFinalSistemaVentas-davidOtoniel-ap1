@@ -57,7 +57,6 @@
 								<option>Elije una opci&oacute;n</option>
 								<option value="id">ProductoId</option>
 								<option value="nombre">Nombre</option>
-								<option value="descripcion">Descripci&oacute;n</option>
 								<option value="categoria">Categor&iacute;a</option>
 							</InputSelect>
 						</div>
@@ -82,7 +81,6 @@
 							<th>ProductoId</th>
 							<th>Fecha de Creaci&oacute;n</th>
 							<th>Nombre</th>
-							<th>Descripci&oacute;n</th>
 							<th>Categor&iacute;a</th>
 							<th>Ver</th>
 							<th>Editar</th>
@@ -96,7 +94,6 @@
 								<td>@producto.ProductoId</td>
 								<td>@producto.FechaCreacion.ToShortDateString()</td>
 								<td>@producto.Nombre</td>
-								<td>@producto.Descripcion</td>
 								<td>@producto.Categoria</td>
 								<td><button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(producto.ProductoId)"><i class="bi bi-eye" /></button></td>
 								<td><button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(producto.ProductoId)"><i class="bi bi-pencil-square" /></button></td>
@@ -180,7 +177,7 @@
 			return;
 		}
 
-		List<Categorias> listaFiltro = new List<Categorias>();
+		List<Productos> listaFiltro = new List<Productos>();
 
 		switch (filtro)
 		{
@@ -205,39 +202,37 @@
 				break;
 			case "nombre":
 				var resultadoNombre = productos
-				.FirstOrDefault(p => p.Nombre.ToLower().Contains(valorFiltro.ToLower()));
+				.Where(p => p.Nombre.ToLower().Contains(valorFiltro.ToLower())).ToList();
 
-				if (resultadoNombre != null &&
-					(resultadoNombre.FechaCreacion >= desde && resultadoNombre.FechaCreacion <= hasta))
+				if (resultadoNombre != null)
 				{
-					productos.Clear();
-					productos.Add(resultadoNombre);
-				}
-				break;
-			case "descripcion":
-				var resultadoDescripcion = productos
-											.FirstOrDefault(c => c.Descripcion.ToLower()
-											.Contains(valorFiltro.ToLower()));
+					foreach (var result in resultadoNombre)
+					{
+						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+							listaFiltro.Add(result);
+					}
 
-				if (resultadoDescripcion != null &&
-					(resultadoDescripcion.FechaCreacion >= desde && resultadoDescripcion.FechaCreacion <= hasta))
-				{
-					productos.Clear();
-					productos.Add(resultadoDescripcion);
+					if (listaFiltro.Count > 0)
+						productos = listaFiltro;
 				}
 				break;
 			case "categoria":
 				var resultadoCategoria = productos
-											.FirstOrDefault(c => c.Categoria.ToLower()
-											.Contains(valorFiltro.ToLower()));
+				.Where(p => p.Categoria.ToLower().Contains(valorFiltro.ToLower())).ToList();
 
-				if (resultadoCategoria != null &&
-					(resultadoCategoria.FechaCreacion >= desde && resultadoCategoria.FechaCreacion <= hasta))
+				if (resultadoCategoria != null)
 				{
-					productos.Clear();
-					productos.Add(resultadoCategoria);
+					foreach (var result in resultadoCategoria)
+					{
+						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+							listaFiltro.Add(result);
+					}
+
+					if (listaFiltro.Count > 0)
+						productos = listaFiltro;
 				}
 				break;
+
 		}
 		StateHasChanged();
 		await LimpiarPantalla();

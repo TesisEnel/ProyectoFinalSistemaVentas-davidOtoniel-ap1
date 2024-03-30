@@ -66,7 +66,7 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		producto = (await productosService.BuscarId(productoId))!;
+		producto = await productosService.BuscarId(productoId);
 	}
 
 	public async Task Eliminar()
