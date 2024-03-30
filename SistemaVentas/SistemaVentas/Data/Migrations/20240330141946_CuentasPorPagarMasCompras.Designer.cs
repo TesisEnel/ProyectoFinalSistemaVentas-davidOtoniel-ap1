@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SistemaVentas.Data;
 
@@ -11,9 +12,11 @@ using SistemaVentas.Data;
 namespace SistemaVentas.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240330141946_CuentasPorPagarMasCompras")]
+    partial class CuentasPorPagarMasCompras
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -306,72 +309,6 @@ namespace SistemaVentas.Migrations
                     b.HasIndex("CuentaPorPagarId");
 
                     b.ToTable("CuentasPorPagarDetalle");
-                });
-
-            modelBuilder.Entity("Library.Models.Devoluciones", b =>
-                {
-                    b.Property<int>("DevolucionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DevolucionId"));
-
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("FechaDevolucion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("MontoDevolucion")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Observacion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("DevolucionId");
-
-                    b.ToTable("Devoluciones");
-                });
-
-            modelBuilder.Entity("Library.Models.DevolucionesDetalle", b =>
-                {
-                    b.Property<int>("DevolucionDetalleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DevolucionDetalleId"));
-
-                    b.Property<int>("CantidadDevuelta")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DevolucionId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Eliminado")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Motivo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("PrecioTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("PrecioUnidad")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DevolucionDetalleId");
-
-                    b.HasIndex("DevolucionId");
-
-                    b.ToTable("DevolucionesDetalle");
                 });
 
             modelBuilder.Entity("Library.Models.MetodosPago", b =>
@@ -900,15 +837,6 @@ namespace SistemaVentas.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Library.Models.DevolucionesDetalle", b =>
-                {
-                    b.HasOne("Library.Models.Devoluciones", null)
-                        .WithMany("DevolucionesDetalle")
-                        .HasForeignKey("DevolucionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Library.Models.Productos", b =>
                 {
                     b.HasOne("Library.Models.Categorias", null)
@@ -1001,11 +929,6 @@ namespace SistemaVentas.Migrations
             modelBuilder.Entity("Library.Models.CuentasPorPagar", b =>
                 {
                     b.Navigation("CuentasPorPagarDetalle");
-                });
-
-            modelBuilder.Entity("Library.Models.Devoluciones", b =>
-                {
-                    b.Navigation("DevolucionesDetalle");
                 });
 
             modelBuilder.Entity("Library.Models.Proveedores", b =>

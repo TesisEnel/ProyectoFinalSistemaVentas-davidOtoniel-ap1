@@ -18,6 +18,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	public DbSet<UnidadesMedida> UnidadesMedida { get; set; }
 	public DbSet<Banco> Banco { get; set; }
 	public DbSet<Capital> Capital { get; set; }
+	public DbSet<CuentasPorPagar> CuentasPorPagar { get; set; }
 	public DbSet<Devoluciones> Devoluciones { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -36,8 +37,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 		});
 
 		modelBuilder.Entity<Compras>()
-	.Property(c => c.SubTotal)
-	.HasPrecision(18, 2);
+			.Property(c => c.SubTotal)
+			.HasPrecision(18, 2);
 
 		modelBuilder.Entity<Compras>()
 			.Property(c => c.TotalItbis)
@@ -53,6 +54,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
 		modelBuilder.Entity<Compras>()
 			.Property(cd => cd.Devuelta)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<Compras>()
+			.Property(cd => cd.Deuda)
 			.HasPrecision(18, 2);
 
 		modelBuilder.Entity<ComprasDetalle>()
@@ -114,6 +119,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 			new Capital { CapitalId = 1, Efectivo = 500000000}
 		});
 
+		modelBuilder.Entity<Devoluciones>()
+			.Property(cd => cd.MontoDevolucion)
+			.HasPrecision(18, 2);
+
 		modelBuilder.Entity<DevolucionesDetalle>()
 			.Property(cd => cd.PrecioTotal)
 			.HasPrecision(18, 2);
@@ -122,8 +131,17 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 			.Property(cd => cd.PrecioUnidad)
 			.HasPrecision(18, 2);
 
-		modelBuilder.Entity<DevolucionesDetalle>()
-			.Property(cd => cd.Valor)
+
+		modelBuilder.Entity<CuentasPorPagar>()
+			.Property(cd => cd.DeudaRestante)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<CuentasPorPagar>()
+			.Property(cd => cd.DeudaInicial)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<CuentasPorPagarDetalle>()
+			.Property(cd => cd.Abono)
 			.HasPrecision(18, 2);
 	}
 }
