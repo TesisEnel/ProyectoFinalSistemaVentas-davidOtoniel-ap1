@@ -163,7 +163,7 @@
 												<td>@detalle.CostoTotal.ToString("N2")</td>
 												<td>@detalle.CostoUnidad.ToString("N2")</td>
 												<td>@detalle.Itbis.ToString("N2")</td>
-												<td>@detalle.Valor.ToString("N2")</td>
+												<td>@detalle.CostoTotalNeto.ToString("N2")</td>
 												<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
 											</tr>
 										}
@@ -198,7 +198,7 @@
 										<label class="form-label"><strong>Total ITBIS</strong></label>
 										<div class="input-group">
 											<span class="input-group-text">$</span>
-											<InputNumber id="totalItbis" class="form-control" @bind-Value="compra.TotalITIBS" readonly style="width: 80%;"></InputNumber>
+											<InputNumber id="totalItbis" class="form-control" @bind-Value="compra.TotalItbis" readonly style="width: 80%;"></InputNumber>
 										</div>
 									</div>
 								</div>
@@ -209,7 +209,7 @@
 										<label class="form-label"><strong>Total</strong></label>
 										<div class="input-group">
 											<span class="input-group-text">$</span>
-											<InputNumber id="total" class="form-control" @bind-Value="compra.Total" readonly style="width: 80%;"></InputNumber>
+											<InputNumber id="total" class="form-control" @bind-Value="compra.TotalNeto" readonly style="width: 80%;"></InputNumber>
 										</div>
 									</div>
 								</div>
@@ -340,14 +340,14 @@
 				CostoTotal = costo,
 				CostoUnidad = costoUnidad,
 				Itbis = itbis,
-				Valor = costo + itbis
+				CostoTotalNeto = costo + itbis
 			};
 
 		compra.ComprasDetalle.Add(nuevoDetalle);
 
 		compra.SubTotal += costo + itbis;
-		compra.TotalITIBS += itbis;
-		compra.Total = compra.SubTotal + compra.TotalITIBS;
+		compra.TotalItbis += itbis;
+		compra.TotalNeto = compra.SubTotal + compra.TotalItbis;
 
 		if (producto != 0 && unidadesMedida != 0 && precio != 0 && cantidad != 0)
 		{
@@ -394,20 +394,20 @@
 
 	private void ActualizarDatosProveedor(int proveedorId)
 	{
-		var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.ProveedorId == proveedorId);
-		if (proveedorSeleccionado != null)
-		{
-			direccion = proveedorSeleccionado.Ciudad + ", " + proveedorSeleccionado.Direccion;
-			contribuyente = proveedorSeleccionado.TipoContribuyente;
-			rnc = proveedorSeleccionado.RNC;
-		}
-		else
-		{
-			// Limpiar los campos si no se selecciona un proveedor válido
-			direccion = string.Empty;
-			contribuyente = string.Empty;
-			rnc = string.Empty;
-		}
+		// var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.ProveedorId == proveedorId);
+		// if (proveedorSeleccionado != null)
+		// {
+		// 	direccion = proveedorSeleccionado.Ciudad + ", " + proveedorSeleccionado.Direccion;
+		// 	contribuyente = proveedorSeleccionado.TipoContribuyente;
+		// 	rnc = proveedorSeleccionado.RNC;
+		// }
+		// else
+		// {
+		// 	// Limpiar los campos si no se selecciona un proveedor válido
+		// 	direccion = string.Empty;
+		// 	contribuyente = string.Empty;
+		// 	rnc = string.Empty;
+		// }
 	}
 
 	bool unidadesDisabled = true;
