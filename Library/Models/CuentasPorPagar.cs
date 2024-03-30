@@ -12,6 +12,7 @@ public class CuentasPorPagar
 	[Key]
 	public int CuentaPorPagarId { get; set; }
 
+	[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
 	public DateTime FechaPago { get; set; } = DateTime.Today;
 
     public decimal Deuda { get; set; }

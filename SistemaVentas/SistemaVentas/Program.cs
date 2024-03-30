@@ -50,6 +50,7 @@ builder.Services.AddScoped<MetodosPagoService>();
 builder.Services.AddScoped<UnidadesMedidaService>();
 builder.Services.AddScoped<BancoService>();
 builder.Services.AddScoped<CapitalService>();
+builder.Services.AddScoped<DevolucionesService>();
 
 var app = builder.Build();
 
