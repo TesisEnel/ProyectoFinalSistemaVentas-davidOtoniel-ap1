@@ -41,7 +41,7 @@
 				<div class="col-3">
 					@*Deuda Inicial*@
 					<label class="form-label" for="inicial"><strong>Deuda Inicial</strong></label>
-					<InputNumber id="inicial" class="form-control" @bind-Value="compra.Total" readonly></InputNumber>
+					<InputNumber id="inicial" class="form-control" @bind-Value="compra.TotalNeto" readonly></InputNumber>
 				</div>
 				<div class="col-3">
 					@*Deuda Pendiente*@
@@ -105,9 +105,10 @@
 
 	public decimal CalcularDeudaPendiente(Compras compra)
 	{
-		var deudaTotal = compra.Total;
-		var sumaAbonos = compra.CuentasPorPagar.Sum(c => c.Abono);
-		return deudaTotal - sumaAbonos;
+		// var deudaTotal = compra.TotalNeto;
+		// var sumaAbonos = compra.CuentasPorPagar.Sum(c => c.Abono);
+		// return deudaTotal - sumaAbonos;
+		return 0;
 	}
 
 	public async Task Restablecer()

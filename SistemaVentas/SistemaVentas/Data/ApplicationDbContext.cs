@@ -40,11 +40,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	.HasPrecision(18, 2);
 
 		modelBuilder.Entity<Compras>()
-			.Property(c => c.TotalITIBS)
+			.Property(c => c.TotalItbis)
 			.HasPrecision(18, 2);
 
 		modelBuilder.Entity<Compras>()
-			.Property(c => c.Total)
+			.Property(c => c.TotalNeto)
 			.HasPrecision(18, 2);
 
 		modelBuilder.Entity<Compras>()
@@ -68,7 +68,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 			.HasPrecision(18, 2);
 
 		modelBuilder.Entity<ComprasDetalle>()
-			.Property(cd => cd.Valor)
+			.Property(cd => cd.CostoTotalNeto)
 			.HasPrecision(18, 2);
 
 

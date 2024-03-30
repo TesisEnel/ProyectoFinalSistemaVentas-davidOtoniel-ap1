@@ -26,33 +26,25 @@ public class Compras
 	[Required(ErrorMessage = "Debe elegir un proveedor para la compra.")]
 	public int ProveedorId { get; set; }
 
-	//public string DireccionProveedor { get; set; }
-
-	//public string TipoContribuyente { get; set; }
-
-	//public string RNC { get; set; }
-
 	[ForeignKey("MetodosPago")]
 	[Required(ErrorMessage = "Debe elegir un tipo de contribuyente.")]
 	public int MetodoPagoId { get; set; }
 
 	public decimal SubTotal { get; set; }
-    public decimal TotalITIBS { get; set; }
-    public decimal Total { get; set; }
+    public decimal TotalItbis { get; set; }
+    public decimal TotalNeto { get; set; }
     public decimal MontoPagado { get; set; }
     public decimal Devuelta { get; set; }
-    public decimal Debo { get; set; }
+    public decimal Deuda { get; set; }
 
 
     [StringLength(250, ErrorMessage = "El límite es de 250 caracteres.")]
 	public string Nota { get; set; }
 
 	public bool Eliminado { get; set; } = false;
-	public string Estado { get; set; }
 
     [ForeignKey("CompraId")]
     public ICollection<ComprasDetalle> ComprasDetalle { get; set; } = new List<ComprasDetalle>();
 
-	[ForeignKey("CompraId")]
-	public ICollection<CuentasPorPagar> CuentasPorPagar { get; set; } = new List<CuentasPorPagar>();
+    public CuentasPorPagar CuentaPorPagar { get; set; }
 }

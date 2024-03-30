@@ -61,14 +61,14 @@
 					<div class="col-4">
 						@*TipoContribuyente*@
 						<label class="form-label" for="ipoContribuyente"><strong>Tipo de Contribuyente:</strong></label>
-						<InputSelect id="tipoContribuyente" class="form-select" @bind-Value="proveedor.TipoContribuyente">
+						@* <InputSelect id="tipoContribuyente" class="form-select" @bind-Value="proveedor.TipoContribuyente">
 							<option value="0">Elija una opci&oacute;n</option>
 							@foreach (var tipo in tiposContribuyente)
 							{
 								<option value="@tipo.Descripcion">@tipo.Descripcion</option>
 							}
 						</InputSelect>
-						<ValidationMessage For="@(() => proveedor.TipoContribuyente)"></ValidationMessage>
+						<ValidationMessage For="@(() => proveedor.TipoContribuyente)"></ValidationMessage> *@
 					</div>
 					<div class="col-4">
 						@*RNC*@

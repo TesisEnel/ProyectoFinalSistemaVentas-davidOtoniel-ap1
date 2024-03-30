@@ -98,7 +98,7 @@
 								<td>@compra.UsuarioResponsable</td>
 								<td>@BuscarProveedor(compra.ProveedorId)</td>
 								<td>@compra.ComprasDetalle.Count</td>
-								<td>@compra.Total</td>
+								<td>@compra.TotalNeto</td>
 								<td>@CalcularDeudaPendiente(compra)</td>
 								<td>
 									<div class="btn-group" role="group">
@@ -231,7 +231,7 @@
 			case "deuda inicial":
 				if (decimal.TryParse(valorFiltro, out decimal deudaTotal))
 				{
-					var resultadoDeuda = compras.Where(c => c.Total >= deudaTotal).ToList();
+					var resultadoDeuda = compras.Where(c => c.TotalNeto >= deudaTotal).ToList();
 
 					foreach (var result in resultadoDeuda)
 					{
@@ -260,9 +260,10 @@
 
 	public decimal CalcularDeudaPendiente(Compras compra)
 	{
-		var deudaTotal = compra.Total;
-		var sumaAbonos = compra.CuentasPorPagar.Sum(c => c.Abono);
-		return deudaTotal - sumaAbonos;
+		// var deudaTotal = compra.TotalNeto;
+		// var sumaAbonos = compra.CuentasPorPagar.Sum(c => c.Abono);
+		// return deudaTotal - sumaAbonos;
+		return 0;
 	}
 
 	public async Task Restablecer()

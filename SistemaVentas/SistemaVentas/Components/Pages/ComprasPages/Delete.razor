@@ -59,11 +59,11 @@
 												</tr>
 												<tr>
 													<th>Total ITBIS</th>
-													<td>@compra.TotalITIBS</td>
+													<td>@compra.TotalItbis</td>
 												</tr>
 												<tr>
 													<th>Total</th>
-													<td>@compra.Total</td>
+													<td>@compra.TotalNeto</td>
 												</tr>
 												<tr>
 													<th>Nota</th>
@@ -234,14 +234,14 @@
 				CostoTotal = costo,
 				CostoUnidad = costoUnidad,
 				Itbis = itbis,
-				Valor = costo + itbis
+				CostoTotalNeto = costo + itbis
 			};
 
 		compra.ComprasDetalle.Add(nuevoDetalle);
 
 		compra.SubTotal += costo + itbis;
-		compra.TotalITIBS += itbis;
-		compra.Total = compra.SubTotal + compra.TotalITIBS;
+		compra.TotalItbis += itbis;
+		compra.TotalNeto = compra.SubTotal + compra.TotalItbis;
 
 		if (producto != 0 && unidadesMedida != 0 && precio != 0 && cantidad != 0)
 		{
@@ -288,20 +288,20 @@
 
 	private void ActualizarDatosProveedor(int proveedorId)
 	{
-		var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.ProveedorId == proveedorId);
-		if (proveedorSeleccionado != null)
-		{
-			direccion = proveedorSeleccionado.Ciudad + ", " + proveedorSeleccionado.Direccion;
-			contribuyente = proveedorSeleccionado.TipoContribuyente;
-			rnc = proveedorSeleccionado.RNC;
-		}
-		else
-		{
-			// Limpiar los campos si no se selecciona un proveedor válido
-			direccion = string.Empty;
-			contribuyente = string.Empty;
-			rnc = string.Empty;
-		}
+		// var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.ProveedorId == proveedorId);
+		// if (proveedorSeleccionado != null)
+		// {
+		// 	direccion = proveedorSeleccionado.Ciudad + ", " + proveedorSeleccionado.Direccion;
+		// 	contribuyente = proveedorSeleccionado.TipoContribuyente;
+		// 	rnc = proveedorSeleccionado.RNC;
+		// }
+		// else
+		// {
+		// 	// Limpiar los campos si no se selecciona un proveedor válido
+		// 	direccion = string.Empty;
+		// 	contribuyente = string.Empty;
+		// 	rnc = string.Empty;
+		// }
 	}
 
 	bool unidadesDisabled = true;

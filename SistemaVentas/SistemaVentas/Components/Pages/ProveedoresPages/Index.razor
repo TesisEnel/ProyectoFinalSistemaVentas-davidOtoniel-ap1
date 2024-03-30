@@ -99,7 +99,7 @@
 								<td>@proveedor.Direccion</td>
 								<td>@proveedor.Ciudad</td>
 								<td>@FormatRNCNumber(proveedor.RNC)</td>
-								<td>@proveedor.TipoContribuyente</td>
+								@* <td>@proveedor.TipoContribuyente</td> *@
 								<td>
 									<div class="btn-group" role="group">
 										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(proveedor.ProveedorId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
@@ -262,22 +262,22 @@
 				}
 				break;
 
-			case "contribuyente":
-				var resultadoContribuyente = proveedores
-				.Where(p => p.TipoContribuyente.ToLower().Contains(valorFiltro.ToLower())).ToList();
+			// case "contribuyente":
+			// 	var resultadoContribuyente = proveedores
+			// 	.Where(p => p.TipoContribuyente.ToLower().Contains(valorFiltro.ToLower())).ToList();
 
-				if (resultadoContribuyente != null)
-				{
-					foreach (var result in resultadoContribuyente)
-					{
-						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
-							listaFiltro.Add(result);
-					}
+			// 	if (resultadoContribuyente != null)
+			// 	{
+			// 		foreach (var result in resultadoContribuyente)
+			// 		{
+			// 			if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+			// 				listaFiltro.Add(result);
+			// 		}
 
-					if (listaFiltro.Count > 0)
-						proveedores = listaFiltro;
-				}
-				break;
+			// 		if (listaFiltro.Count > 0)
+			// 			proveedores = listaFiltro;
+			// 	}
+			// 	break;
 		}
 
 		StateHasChanged();
