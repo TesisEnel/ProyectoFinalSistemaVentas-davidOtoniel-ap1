@@ -3,8 +3,10 @@
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject VentasService ventasService
+@inject NotificationService notificationService
 
 <PageTitle>Ver Venta</PageTitle>
+<RadzenNotification/>
 <div class="container">
     <div class="card shadow-lg">
         <div class="card-header">
@@ -56,6 +58,24 @@
     {
         await Task.Delay(500);
         venta = (await ventasService.BuscarId(ventaId))!;
+
+        // var Mensaje = new NotificationMessage
+        // 	{
+        // 		Severity = NotificationSeverity.Error,
+        // 		Summary = "Error al guardar",
+        // 		Detail = "Ha ocurrido un error",
+        // 		Duration = 5_000
+        // 	};
+        // notificationService.Notify(Mensaje);
+
+        // var Otro = new NotificationMessage
+        // 	{
+        // 		Severity = NotificationSeverity.Success,
+        // 		Summary = "Guardo",
+        // 		Detail = "Guardo correctamente",
+        // 		Duration = 5_000
+        // 	};
+        // notificationService.Notify(Otro);
     }
 
     void Volver()

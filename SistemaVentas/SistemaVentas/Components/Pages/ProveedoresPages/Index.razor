@@ -2,8 +2,10 @@
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject ProveedoresService proveedorService
+@inject NotificationService notificationService
 
 <PageTitle>Proveedores</PageTitle>
+<RadzenNotification/>
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
@@ -145,6 +147,24 @@
 
 		if (proveedores.Count == 0)
 			StateHasChanged();
+
+		// var Mensaje = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Error,
+		// 		Summary = "Error al guardar",
+		// 		Detail = "Ha ocurrido un error",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Mensaje);
+
+		// var Otro = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Success,
+		// 		Summary = "Guardo",
+		// 		Detail = "Guardo correctamente",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Otro);
 	}
 
 	public async Task Buscar()

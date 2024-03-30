@@ -2,8 +2,10 @@
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject CategoriasService categoriasService
+@inject NotificationService notificationService
 
 <PageTitle>Categorias</PageTitle>
+<RadzenNotification/>
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
@@ -126,6 +128,24 @@
 
 	public async Task Buscar()
 	{
+		// var Mensaje = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Error,
+		// 		Summary = "Error al guardar",
+		// 		Detail = "Ha ocurrido un error",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Mensaje);
+
+		// var Otro = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Success,
+		// 		Summary = "Guardo",
+		// 		Detail = "Guardo correctamente",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Otro);
+
 		if (desde > hasta)
 		{
 			mensaje = "La fecha inicial no puede ser mayor a la fecha final";

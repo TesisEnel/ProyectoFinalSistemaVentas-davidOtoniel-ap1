@@ -4,8 +4,10 @@
 @inject NavigationManager navigation
 @inject VentasService ventasService
 @inject ProductosService productosService
+@inject NotificationService notificationService
 
 <PageTitle>Editar Proveedor</PageTitle>
+<RadzenNotification/>
 <EditForm Model="venta" OnValidSubmit="Modificar" FormName="EditarVentas">
 	<DataAnnotationsValidator />
 	<div class="container">
@@ -137,6 +139,24 @@
 
 	public async Task Modificar()
 	{
+		// var Mensaje = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Error,
+		// 		Summary = "Error al guardar",
+		// 		Detail = "Ha ocurrido un error",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Mensaje);
+
+		// var Otro = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Success,
+		// 		Summary = "Guardo",
+		// 		Detail = "Guardo correctamente",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Otro);
+
 		if (await ventasService.Guardar(venta))
 		{
 			mensaje = "Se guardó correctamente la venta.";

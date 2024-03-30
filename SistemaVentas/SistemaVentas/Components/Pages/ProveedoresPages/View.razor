@@ -5,8 +5,10 @@
 @inject ProveedoresService proveedorService
 @inject TiposContribuyenteService tipoContribuyenteService
 @inject ContactosService contactoService
+@inject NotificationService notificationService
 
 <PageTitle>Detalles de Proveedor</PageTitle>
+<RadzenNotification/>
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
@@ -136,6 +138,24 @@
 		tiposContribuyente = await tipoContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
 		contactos = await contactoService.Listar(c => c.ContactoId > 0);
 		proveedor = await proveedorService.BuscarId(proveedorId);
+
+		// var Mensaje = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Error,
+		// 		Summary = "Error al guardar",
+		// 		Detail = "Ha ocurrido un error",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Mensaje);
+
+		// var Otro = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Success,
+		// 		Summary = "Guardo",
+		// 		Detail = "Guardo correctamente",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Otro);
 	}
 
 	public string ObtenerTipoContacto(int id)

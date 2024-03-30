@@ -6,8 +6,10 @@
 @inject ProductosService productosService
 @inject UnidadesMedidaService unidadesMedidaService
 @inject MetodosPagoService metodosPagoService
+@inject NotificationService notificationService
 
 <PageTitle>Detalles de Compra</PageTitle>
+<RadzenNotification/>
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
@@ -164,6 +166,24 @@
 
 	public async void Modificar()
 	{
+		// var Mensaje = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Error,
+		// 		Summary = "Error al guardar",
+		// 		Detail = "Ha ocurrido un error",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Mensaje);
+
+		// var Otro = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Success,
+		// 		Summary = "Guardo",
+		// 		Detail = "Guardo correctamente",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Otro);
+
 		if (await ValidarProveedor())
 		{
 			if (String.IsNullOrEmpty(proveedor.Nota))
