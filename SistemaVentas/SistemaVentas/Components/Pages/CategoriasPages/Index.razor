@@ -198,14 +198,18 @@
 				break;
 			case "descripcion":
 				var resultadoDescripcion = categorias
-											.FirstOrDefault(c => c.Descripcion.ToLower()
-											.Contains(valorFiltro.ToLower()));
+				.Where(c => c.Descripcion.ToLower().Contains(valorFiltro.ToLower())).ToList();
 
-				if (resultadoDescripcion != null &&
-					(resultadoDescripcion.FechaCreacion >= desde && resultadoDescripcion.FechaCreacion <= hasta))
+				if (resultadoDescripcion != null)
 				{
-					categorias.Clear();
-					categorias.Add(resultadoDescripcion);
+					foreach (var result in resultadoDescripcion)
+					{
+						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+							listaFiltro.Add(result);
+					}
+
+					if (listaFiltro.Count > 0)
+						categorias = listaFiltro;
 				}
 				break;
 		}
