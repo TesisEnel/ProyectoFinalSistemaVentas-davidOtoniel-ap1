@@ -257,7 +257,7 @@
 							<div class="col-4 mb-3">
 								<label class="form-label" for="codigo"><strong>Monto de Transferencia</strong></label>
 								<div class="d-flex align-items-center">
-									<InputNumber id="codigo" class="form-control me-2" @bind-Value="compra.TotalNeto" readonly />
+									<InputNumber id="codigo" class="form-control me-2" @bind-Value="compra.MontoPagado" readonly />
 									<img class="miImagen" src="/Imagenes/transferencia-movil.png" alt="imagen-tarjeta-codigo" />
 								</div>
 							</div>
@@ -334,6 +334,7 @@
 	public Compras compra { get; set; } = new Compras();
 	public Capital capital { get; set; } = new Capital();
 	public Banco banco { get; set; } = new Banco();
+	public CuentasPorPagar cuentasPorPagar { get; set; } = new CuentasPorPagar();
 
 	public List<Proveedores> proveedores = new List<Proveedores>();
 	public List<Productos> productos = new List<Productos>();
@@ -407,13 +408,26 @@
 		if (String.IsNullOrEmpty(compra.Nota))
 			compra.Nota = "----";
 
+		if (compra.Estado == "Deuda")
+		{
+			cuentasPorPagar = new CuentasPorPagar
+				{
+					CompraId = compra.CompraId,
+					DeudaInicial = compra.Deuda,
+					DeudaRestante = compra.Deuda,
+					Estado = "Pendiente"
+				};
+
+			compra.CuentaPorPagar = cuentasPorPagar;
+		}
+
 		var response = await comprasService.Crear(compra);
 		if (response)
 		{
-			if (compra.MetodoPagoId != 2)
-				await Pagar();
-
+			await Pagar();
 			await SumarExistenciaProducto();
+			await Task.Delay(3000);
+			Volver();
 		}
 		else
 		{
@@ -430,31 +444,58 @@
 
 	public async Task Pagar()
 	{
-		if (compra.MetodoPagoId == 1)
+		switch(compra.MetodoPagoId)
 		{
-			await capitalService.Modificar(capital);
-
-			var Mensaje = new NotificationMessage
+			case 1:
+				if(compra.MontoPagado >= compra.TotalNeto)
 				{
-					Severity = NotificationSeverity.Success,
-					Summary = "Éxito al pagar con efectivo",
-					Detail = $"Pago realizado con éxito $RD{compra.MontoPagado.ToString("N2")}",
-					Duration = 5_000
-				};
-			notificationService.Notify(Mensaje);
-		}
-		else
-		{
-			await bancoService.Modificar(banco);
+					await capitalService.Modificar(capital);
 
-			var Mensaje = new NotificationMessage
+					var MensajeEfectivo = new NotificationMessage
+						{
+							Severity = NotificationSeverity.Success,
+							Summary = "Compra realizada con éxito",
+							Detail = $"Pago realizado con éxito $RD{compra.TotalNeto.ToString("N2")}",
+							Duration = 5_000
+						};
+					notificationService.Notify(MensajeEfectivo);
+				}
+				else
 				{
-					Severity = NotificationSeverity.Success,
-					Summary = "Éxito al pagar a través de transferencia",
-					Detail = $"Pago realizado con éxito $RD{compra.MontoPagado.ToString("N2")}",
-					Duration = 5_000
-				};
-			notificationService.Notify(Mensaje);
+					await capitalService.Modificar(capital);
+
+					var MensajeEfectivo = new NotificationMessage
+						{
+							Severity = NotificationSeverity.Success,
+							Summary = "Compra realizada con éxito",
+							Detail = $"Debe $RD{compra.Deuda.ToString("N2")}",
+							Duration = 5_000
+						};
+					notificationService.Notify(MensajeEfectivo);
+				}
+				break;
+
+			case 2:
+				var MensajeDeuda = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Success,
+						Summary = "Compra realizada con éxito",
+						Detail = $"Debe $RD{compra.Deuda.ToString("N2")}",
+						Duration = 5_000
+					};
+				notificationService.Notify(MensajeDeuda);
+				break;
+
+			case 3:
+				var MensajeTrasnferencia = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Success,
+						Summary = "Compra realizada con éxito",
+						Detail = $"Monto de transferencia $RD{compra.MontoPagado.ToString("N2")}",
+						Duration = 5_000
+					};
+				notificationService.Notify(MensajeTrasnferencia);
+				break;
 		}
 	}
 
@@ -463,9 +504,9 @@
 		foreach (var product in compra.ComprasDetalle)
 		{
 			var buscarProducto = productos.FirstOrDefault(p => p.ProductoId == product.ProductoId);
-			buscarProducto.Existencia = buscarProducto.Existencia + product.CantidadProducto;
+			buscarProducto.Existencia += product.CantidadProducto;
 
-			await ActualizarExistenciaProducto(buscarProducto);
+			await productosService.Guardar(buscarProducto);
 		}
 	}
 
@@ -513,29 +554,13 @@
 					compra.Devuelta = 0;
 					compra.Deuda = montoFaltante;
 					compra.Estado = "Deuda";
-
-					var cuentaPorPagar1 = new CuentasPorPagar
-						{
-							CompraId = compra.CompraId,
-							DeudaInicial = compra.Deuda,
-							DeudaRestante = compra.Deuda,
-							Estado = "Pendiente"
-						};
 				}
 				break;
 			case 2:
 				compra.Deuda = compra.TotalNeto;
 				compra.MontoPagado = 0;
 				compra.Devuelta = 0;
-				compra.Estado = "Pendiente";
-
-				var cuentaPorPagar2 = new CuentasPorPagar
-					{
-						CompraId = compra.CompraId,
-						DeudaInicial = compra.Deuda,
-						DeudaRestante = compra.Deuda,
-						Estado = "Pendiente"
-					};
+				compra.Estado = "Deuda";
 
 				break;
 			case 3:
@@ -618,6 +643,22 @@
 
 	public async Task<bool> ValidarDetalle()
 	{
+		foreach(var productoid in compra.ComprasDetalle)
+		{
+			if(productoid.ProductoId == producto)
+			{
+				var Mensaje = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Error,
+						Summary = "Error al agregar detalle",
+						Detail = "Este producto ya existe en el detalle",
+						Duration = 5_000
+					};
+				notificationService.Notify(Mensaje);
+				return false;
+			}
+		}
+
 		if (producto <= 0)
 		{
 			var Mensaje = new NotificationMessage
@@ -644,13 +685,13 @@
 			return false;
 		}
 
-		if (unidades <= 0)
+		if (unidades <= 0 || unidades > 12)
 		{
 			var Mensaje = new NotificationMessage
 				{
 					Severity = NotificationSeverity.Error,
 					Summary = "Error al agregar detalle",
-					Detail = "Las unidades deben ser mayor a 0",
+					Detail = "Las unidades deben ser mayor a 0 y menor que 12",
 					Duration = 5_000
 				};
 			notificationService.Notify(Mensaje);
@@ -670,13 +711,13 @@
 			return false;
 		}
 
-		if (cantidad <= 0)
+		if (cantidad <= 0 || cantidad > 1000)
 		{
 			var Mensaje = new NotificationMessage
 				{
 					Severity = NotificationSeverity.Error,
 					Summary = "Error al agregar detalle",
-					Detail = "Debe ingresar una cantidad de producto",
+					Detail = "La cantidad debe ser mayor a 0 y menor que 1000",
 					Duration = 5_000
 				};
 			notificationService.Notify(Mensaje);
@@ -747,6 +788,9 @@
 
 	public async Task EliminarDetalle(ComprasDetalle detalle)
 	{
+		compra.SubTotal -= detalle.CostoTotalNeto;
+		compra.TotalItbis -= detalle.Itbis;
+		compra.TotalNeto -= detalle.CostoTotalNeto + detalle.Itbis;
 		compra.ComprasDetalle.Remove(detalle);
 
 		var Mensaje = new NotificationMessage
@@ -771,6 +815,6 @@
 
 	void Volver()
 	{
-		navigation.NavigateTo("/Proveedores");
+		navigation.NavigateTo("/Compras");
 	}
 }
