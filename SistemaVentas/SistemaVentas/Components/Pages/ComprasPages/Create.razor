@@ -8,9 +8,11 @@
 @inject MetodosPagoService metodosPagoService
 @inject BancoService bancoService
 @inject CapitalService capitalService
+@inject TiposContribuyenteService tiposContribuyenteService
 @inject NotificationService notificationService
 
 <PageTitle>Crear Nueva Compra</PageTitle>
+<RadzenNotification/>
 <EditForm Model="compra" OnValidSubmit="Crear" FormName="RegistroCompras">
 	<DataAnnotationsValidator />
 	<div class="container">
@@ -22,6 +24,11 @@
 			@*Cuerpo*@
 			<div class="card-body">
 				<div class="row mb-3">
+					<div class="col-2">
+						@*CompraId*@
+						<label class="form-label" for="compraId"><strong>CompraId</strong></label>
+						<InputNumber id="compraId" class="form-control" @bind-Value="compra.CompraId" readonly></InputNumber>
+					</div>
 					<div class="col-2">
 						@*FechaCreacion*@
 						<label class="form-label" for="fecha"><strong>Fecha Creaci&oacute;n</strong></label>
@@ -38,7 +45,7 @@
 					<div class="col-3">
 						@*Nombre*@
 						<label class="form-label" for="nombre"><strong>Proveedor</strong></label>
-						<InputSelect id="nombre" class="form-select" @bind-Value="compra.ProveedorId" @oninput="()=>ActualizarDatosProveedor(compra.ProveedorId)">
+						<InputSelect id="nombre" class="form-select" @bind-Value="compra.ProveedorId">
 							<option value="">Elige una opción</option>
 							@foreach (var proveedor in proveedores)
 							{
@@ -47,6 +54,12 @@
 						</InputSelect>
 						<ValidationMessage For="@(() => compra.ProveedorId)"></ValidationMessage>
 					</div>
+					@*Actualizar proveedor*@
+					@if(compra.ProveedorId != 0)
+					{
+						ActualizarDatosProveedor(compra.ProveedorId);
+					}
+
 					<div class="col-6">
 						@*Direccion*@
 						<label class="form-label" for="direccion"><strong>Direcci&oacute;n</strong></label>
@@ -139,7 +152,7 @@
 											<th>Costo</th>
 											<th>C/U</th>
 											<th>ITBIS</th>
-											<th>Valor</th>
+											<th>Costo Total Neto</th>
 											<th></th>
 										</tr>
 									</thead>
@@ -176,20 +189,31 @@
 									<option value="@metodoPago.MetodoPagoId">@metodoPago.MetodoPago</option>
 								}
 							</InputSelect>
+							<ValidationMessage For="@(() => compra.MetodoPagoId)"></ValidationMessage>
 						</div>
+
 						@if (compra.MetodoPagoId == 1)
 						{
 							<div class="col-4 mb-3">
 								<label class="form-label" for="monto"><strong>Monto</strong></label>
-								<InputNumber id="monto" class="form-control" @bind-Value="compra.MontoPagado"></InputNumber>
+								<div class="d-flex align-items-center">
+									<InputNumber id="monto" class="form-control me-2" @bind-Value="compra.MontoPagado"></InputNumber>
+									<img class="miImagen me-2" src="/Imagenes/pago-en-efectivo.png" alt="imagen-tarjeta-visa" />
+								</div>
 							</div>
 							<div class="col-4 mb-3">
 								<label class="form-label" for="devolucion"><strong>Devolución</strong></label>
-								<InputNumber id="devolucion" class="form-control" @bind-Value="compra.Devuelta" readonly />
+								<div class="d-flex align-items-center">
+									<InputNumber id="devolucion" class="form-control me-2" @bind-Value="compra.Devuelta" readonly />
+									<img class="miImagen me-2" src="/Imagenes/devolucion-de-dinero.png" alt="imagen-tarjeta-visa" />
+								</div>
 							</div>
 							<div class="col-4 mb-3">
 								<label class="form-label" for="debe"><strong>Debe</strong></label>
-								<InputNumber id="debe" class="form-control" @bind-Value="compra.Deuda" readonly />
+								<div class="d-flex align-items-center">
+									<InputNumber id="debe" class="form-control me-2" @bind-Value="compra.Deuda" readonly />
+									<img class="miImagen me-2" src="/Imagenes/doument.png" alt="imagen-tarjeta-visa" />
+								</div>
 							</div>
 
 							<div class="col-auto d-flex align-items-end">
@@ -201,7 +225,10 @@
 						{
 							<div class="col-4 mb-3">
 								<label class="form-label" for="debe"><strong>Debe</strong></label>
-								<InputNumber id="debe" class="form-control" @bind-Value="compra.Deuda" readonly />
+								<div class="d-flex align-items-center">
+									<InputNumber id="debe" class="form-control me-2" @bind-Value="compra.Deuda" readonly />
+									<img class="miImagen me-2" src="/Imagenes/doument.png" alt="imagen-tarjeta-visa" />
+								</div>
 							</div>
 							<div class="col-auto d-flex align-items-end">
 								<button type="button" class="btn btn-outline-success" @onclick="Pagar"><i class="bi bi-check-lg" /> Verificar</button>
@@ -210,42 +237,42 @@
 
 						@if (compra.MetodoPagoId == 3)
 						{
-							@*Usuario*@
-							<div class="col-4 mb-3">
-								<label class="form-label" for="usuario"><strong>Usuario</strong></label>
-								<InputText id="usuario" class="form-control" @bind-Value="usuario" />
-							</div>
-							@*Numero de Tarjeta*@
+							@*Numero de Cuenta Proveedor*@
 							<div class="col-6 mb-3">
-								<label class="form-label" for="tarjeta"><strong>N&uacute;mero de Tarjeta</strong></label>
+								<label class="form-label" for="tarjeta"><strong>N&uacute;mero de Cuenta del Proveedor</strong></label>
 								<div class="d-flex align-items-center">
-									<InputText id="tarjeta" class="form-control me-2" @bind-Value="numeroTarjeta" />
-									<img class="miImagen me-2" src="/Imagenes/visa.png" alt="imagen-tarjeta-visa" />
-									<img class="miImagen" src="/Imagenes/mastercard.png" alt="imagen-tarjeta-mastercard" />
+									<InputText id="tarjeta" class="form-control me-2" @bind-Value="cuenta" readonly/>
+									<img class="miImagen me-2" src="/Imagenes/tarjeta-codigo.png" alt="imagen-tarjeta-visa" />
 								</div>
 							</div>
-							@*Fecha vencimiento*@
-							<div class="col-4 mb-3">
-								<label class="form-label" for="vencimiento"><strong>Fecha Vencimiento</strong></label>
-								<InputDate id="vencimiento" class="form-control" @bind-Value="fechaVencimiento" />
-							</div>
-							@*Codigo de Seguridad*@
-							<div class="col-4 mb-3">
-								<label class="form-label" for="codigo"><strong>C&oacute;digo de Seguridad</strong></label>
+							@*Banco*@
+							<div class="col-6 mb-3">
+								<label class="form-label" for="banco"><strong>Banco</strong></label>
 								<div class="d-flex align-items-center">
-									<InputNumber id="codigo" class="form-control me-2" @bind-Value="codigoSeguridad" />
-									<img class="miImagen" src="/Imagenes/tarjeta-codigo.png" alt="imagen-tarjeta-codigo" />
+									<InputText id="banco" class="form-control me-2" @bind-Value="bancoProveedor" readonly />
+									<img class="miImagen me-2" src="/Imagenes/banco.png" alt="imagen-tarjeta-visa" />
 								</div>
 							</div>
+							@*Monto transferencia*@
+							<div class="col-4 mb-3">
+								<label class="form-label" for="codigo"><strong>Monto de Transferencia</strong></label>
+								<div class="d-flex align-items-center">
+									<InputNumber id="codigo" class="form-control me-2" @bind-Value="compra.TotalNeto" readonly />
+									<img class="miImagen" src="/Imagenes/transferencia-movil.png" alt="imagen-tarjeta-codigo" />
+								</div>
+							</div>
+							<div class="col-auto d-flex align-items-end">
+								<button type="button" class="btn btn-outline-success" @onclick="Pagar"><i class="bi bi-check-lg" /> Verificar</button>
+							</div>
+							@*
 							<div class="mensajeCorrecto mb-3">
 								@mensajeValidacionTarjeta
 							</div>
 							<div class="mensajeError mb-3">
 								@mensajeErrorTarjeta
 							</div>
-							<div class="col-auto d-flex align-items-end">
-								<button type="button" class="btn btn-outline-success" @onclick="Pagar"><i class="bi bi-check-lg" /> Verificar</button>
-							</div>
+							
+							*@
 						}
 					</div>
 					<div class="col-md-6">
@@ -301,9 +328,6 @@
 		</div>
 	</div>
 </EditForm>
-@mensaje
-@otro
-@mensajeErrorTarjeta
 
 @code {
 	public Proveedores proveedor { get; set; } = new Proveedores();
@@ -315,6 +339,7 @@
 	public List<Productos> productos = new List<Productos>();
 	public List<UnidadesMedida> unidadesMedidas = new List<UnidadesMedida>();
 	public List<MetodosPago> metodosPagos = new List<MetodosPago>();
+	public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
 
 	public int cantidad { get; set; }
 	public int producto { get; set; }
@@ -326,18 +351,24 @@
 	public string contribuyente { get; set; }
 	public string rnc { get; set; }
 	public string direccion { get; set; }
+	public string cuenta { get; set; }
+	public string bancoProveedor { get; set; }
 
 
-	public string mensajeNombre { get; set; } = string.Empty;
-	public string mensajeEmail { get; set; } = string.Empty;
-	public string mensajeRNC { get; set; } = string.Empty;
-	public string otro { get; set; } = string.Empty;
+	// public string mensajeNombre { get; set; } = string.Empty;
+	// public string mensajeEmail { get; set; } = string.Empty;
+	// public string mensajeRNC { get; set; } = string.Empty;
+	// public string otro { get; set; } = string.Empty;
 
+
+	//eliminar mas tarde
 	public string usuario { get; set; }
 	public string numeroTarjeta { get; set; }
 	public DateTime fechaVencimiento { get; set; } = DateTime.Today;
 	public int codigoSeguridad { get; set; }
 
+
+	//eliminar mas tarde
 	public string mensaje { get; set; } = string.Empty;
 	public string mensajeValidacionTarjeta { get; set; }
 	public string mensajeErrorTarjeta { get; set; }
@@ -355,29 +386,25 @@
 		metodosPagos = await metodosPagoService.Listar(um => um.MetodoPagoId > 0);
 		capital = await capitalService.BuscarId(1);
 		banco = await bancoService.BuscarId(1);
+		tiposContribuyente = await tiposContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
 	}
 
-	public async void Crear()
+	public async Task Crear()
 	{
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
+		if(compra.ComprasDetalle.Count == 0)
+		{
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al crear",
+				Detail = "Debe ingresar al menos un detalle",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+			return;
+		}
 
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
-
-		if (await ValidarProveedor())
+		if (await ValidarCompra())
 		{
 			// Pagar();
 			// if (compra.MetodoPagoId == 2)
@@ -405,6 +432,11 @@
 		await LimpiarPantalla();
 	}
 
+	public async Task<bool> ValidarCompra()
+	{
+		return true;
+	}
+
 	public void Pagar()
 	{
 		decimal pagar = 0;
@@ -418,7 +450,7 @@
 					compra.Devuelta = 0;
 					compra.Deuda = montoFaltante;
 					// compra.Estado = "Pendiente";
-					compraValidada = true;
+					
 				}
 				if (compra.MontoPagado > compra.TotalNeto)///si el monto es mayor que el total
 				{
@@ -426,7 +458,7 @@
 					compra.Devuelta = Math.Round(compra.MontoPagado - compra.TotalNeto, 2);
 					compra.Deuda = 0;
 					// compra.Estado = "Pagada";
-					compraValidada = true;
+					
 				}
 				else if (compra.MontoPagado < compra.TotalNeto)///si el monto es menor que el total
 				{
@@ -435,7 +467,7 @@
 					compra.Devuelta = 0;
 					compra.Deuda = montoFaltante;
 					// compra.Estado = "Pendiente";
-					compraValidada = true;
+					
 				}
 				else
 				{
@@ -443,13 +475,13 @@
 					compra.Devuelta = 0;
 					compra.Deuda = 0;
 					// compra.Estado = "Pagada";
-					compraValidada = true;
+					
 				}
 				break;
 			case 2:
 				compra.Deuda = compra.TotalNeto;
 				// compra.Estado = "Pendiente";
-				compraValidada = true;
+				
 				break;
 			case 3:
 				if (banco.Monto < compra.TotalNeto)
@@ -480,48 +512,16 @@
 		}
 	}
 
-	public async Task<bool> ValidarProveedor()
-	{
-		if (compra.TotalNeto == 0)
-			return false;
-
-		var validar = await proveedorService.Listar(p => p.Eliminado == false);
-		var nombre = validar.FirstOrDefault(p => p.Nombre == proveedor.Nombre);
-		var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
-		var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
-
-		bool nombreValido = true;
-		bool emailValido = true;
-		bool rncValido = true;
-
-		if (nombre != null)
-		{
-			nombreValido = false;
-			mensajeNombre = "Ya existe un proveedor con este nombre";
-		}
-
-		if (email != null)
-		{
-			emailValido = false;
-			mensajeEmail = "Ya existe un proveedor con este email";
-		}
-
-		if (rnc != null)
-		{
-			rncValido = false;
-			mensajeRNC = "Ya existe un proveedor con este número de RNC";
-		}
-
-		return nombreValido && emailValido && rncValido;
-	}
-
 	public async Task AgregarDetalle()
 	{
-		var costoUnidad = costoTotal / unidades;
-		var costo = costoTotal * cantidad;
-		var itbis = (decimal)((double)costo * 0.18);
+		if (await ValidarDetalle())
+		{
 
-		var nuevoDetalle = new ComprasDetalle
+			var costoUnidad = costoTotal / unidades;
+			var costo = costoTotal * cantidad;
+			var itbis = (decimal)((double)costo * 0.18);
+
+			var nuevoDetalle = new ComprasDetalle
 			{
 				ProductoId = producto,
 				CantidadProducto = cantidad,
@@ -533,70 +533,117 @@
 				CostoTotalNeto = costo + itbis
 			};
 
-		compra.ComprasDetalle.Add(nuevoDetalle);
+			compra.ComprasDetalle.Add(nuevoDetalle);
 
-		compra.SubTotal += costo + itbis;
-		compra.TotalItbis += itbis;
-		compra.TotalNeto = compra.SubTotal + compra.TotalItbis;
+			compra.SubTotal += costo + itbis;
+			compra.TotalItbis += itbis;
+			compra.TotalNeto = compra.SubTotal + compra.TotalItbis;
 
-
-		if (producto != 0 && unidadesMedida != 0 && precio != 0 && cantidad != 0)
-		{
-			if (costoTotal >= precio)
+			var Mensaje = new NotificationMessage
 			{
-				//costo no puede ser mayor que precio
-			}
+				Severity = NotificationSeverity.Success,
+				Summary = "Éxito al agregar detalle",
+				Detail = "El detalle se agregó correctamente",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
 
-			if (await ValidarDetalle())
-			{
-				// var nuevoDetalle = new ProveedoresDetalle { ContactoId = tipo, Contacto = contacto };
-				// proveedor.ProveedoresDetalle.Add(nuevoDetalle);
-				// await LimpiarPantalla();
-			}
-			else
-				mensaje = "La longitud del contacto debe ser de 10 digitos";
+			await LimpiarPantalla();
 		}
 	}
 
 	public async Task<bool> ValidarDetalle()
 	{
-		// foreach (var detalle in compra.ComprasDetalle)
-		// {
-		// 	if (detalle.No == contacto)
-		// 		return false;
-		// }
+		if (producto <= 0)
+		{
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al agregar detalle",
+				Detail = "Debe elegir un producto",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
+
+		if (unidadesMedida <= 0)
+		{
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al agregar detalle",
+				Detail = "Debe elegir una unidad de medida",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
+
+		if (unidades <= 0)
+		{
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al agregar detalle",
+				Detail = "Las unidades deben ser mayor a 0",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
+
+		if (costoTotal <= 0)
+		{
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al agregar detalle",
+				Detail = "Debe ingresar el costo del producto",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
+
+		if (cantidad <= 0)
+		{
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al agregar detalle",
+				Detail = "Debe ingresar una cantidad de producto",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
 
 		return true;
 	}
 
-	// public string ObtenerTipoContacto(int id)
-	// {
-	// 	var dato = contactos.FirstOrDefault(c => c.ContactoId == id);
-
-	// 	return dato.Descripcion;
-	// }
-
-	// public string FormatPhoneNumber(string phoneNumber)
-	// {
-	// 	return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
-	// }
-
 	private void ActualizarDatosProveedor(int proveedorId)
 	{
-		// var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.ProveedorId == proveedorId);
-		// if (proveedorSeleccionado != null)
-		// {
-		// 	direccion = proveedorSeleccionado.Ciudad + ", " + proveedorSeleccionado.Direccion;
-		// 	contribuyente = proveedorSeleccionado.TipoContribuyente;
-		// 	rnc = proveedorSeleccionado.RNC;
-		// }
-		// else
-		// {
-		// 	// Limpiar los campos si no se selecciona un proveedor válido
-		// 	direccion = string.Empty;
-		// 	contribuyente = string.Empty;
-		// 	rnc = string.Empty;
-		// }
+		var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.ProveedorId == proveedorId);
+		if (proveedorSeleccionado != null)
+		{
+			direccion = proveedorSeleccionado.Ciudad + ", " + proveedorSeleccionado.Direccion;
+			rnc = proveedorSeleccionado.RNC;
+			bancoProveedor = proveedorSeleccionado.Banco;
+			cuenta = proveedorSeleccionado.NumeroCuenta;
+
+			var contribuyenteId = tiposContribuyente
+			.FirstOrDefault(tc => tc.TipoContribuyenteId == proveedorSeleccionado.TipoContribuyenteId);
+
+			contribuyente = contribuyenteId.Descripcion;
+		}
+		else
+		{
+			// Limpiar los campos si no se selecciona un proveedor válido
+			direccion = string.Empty;
+			contribuyente = string.Empty;
+			rnc = string.Empty;
+		}
 	}
 
 	bool unidadesDisabled = true;
@@ -641,15 +688,11 @@
 
 	public async Task LimpiarPantalla()
 	{
-		mensaje = string.Empty;
-		mensajeNombre = string.Empty;
-		mensajeEmail = string.Empty;
-		mensajeRNC = string.Empty;
-
 		cantidad = 0;
-		precio = 0;
 		producto = 0;
 		unidadesMedida = 0;
+		unidades = 0;
+		costoTotal = 0;
 		StateHasChanged();
 	}
 

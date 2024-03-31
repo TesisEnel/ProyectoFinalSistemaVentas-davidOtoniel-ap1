@@ -137,7 +137,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		await Task.Delay(500);
+		// await Task.Delay(500);
 		compras = await comprasService.Listar(p => p.Eliminado == false);
 
 		loading = false;
