@@ -19,4 +19,12 @@ public class CapitalService
 			.AsNoTracking()
 			.FirstOrDefaultAsync(c => c.CapitalId == id);
 	}
+
+	public async Task<bool> Modificar(Capital capital)
+	{
+		_contexto.Update(capital);
+		var modifico = await _contexto.SaveChangesAsync() > 0;
+		_contexto.Entry(capital).State = EntityState.Detached;
+		return modifico;
+	}
 }

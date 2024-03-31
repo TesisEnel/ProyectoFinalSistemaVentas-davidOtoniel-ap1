@@ -121,6 +121,11 @@
 		</div>
 		<div class="card-footer">
 			<p><strong>Total de Compras:</strong> @compras.Count</p>
+			@*Pa borrar mas tarde*@
+			<div>
+				@compras.Sum(d => d.ComprasDetalle.Sum(d => d.CostoTotalNeto - d.Itbis));
+				@compras.Sum(d => d.ComprasDetalle.Sum(d => d.CostoTotalNeto));
+			</div>
 		</div>
 	</div>
 </div>

@@ -19,4 +19,12 @@ public class BancoService
 			.AsNoTracking()
 			.FirstOrDefaultAsync(c => c.BancoId == id);
 	}
+
+	public async Task<bool> Modificar(Banco banco)
+	{
+		_contexto.Update(banco);
+		var modifico = await _contexto.SaveChangesAsync() > 0;
+		_contexto.Entry(banco).State = EntityState.Detached;
+		return modifico;
+	}
 }
