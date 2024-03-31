@@ -23,25 +23,27 @@ public class Compras
 	public string UsuarioResponsable { get; set; }
 
     [ForeignKey("Proveedores")]
-	[Required(ErrorMessage = "Debe elegir un proveedor para la compra.")]
+	[Range(1, int.MaxValue,ErrorMessage = "Debe elegir un proveedor para la compra.")]
 	public int ProveedorId { get; set; }
 
 	[ForeignKey("MetodosPago")]
-	[Required(ErrorMessage = "Debe elegir un tipo de contribuyente.")]
+	[Range(1, int.MaxValue,ErrorMessage = "Debe elegir un método de pago.")]
 	public int MetodoPagoId { get; set; }
 
-	public decimal SubTotal { get; set; }
-    public decimal TotalItbis { get; set; }
-    public decimal TotalNeto { get; set; }
-    public decimal MontoPagado { get; set; }
-    public decimal Devuelta { get; set; }
-    public decimal Deuda { get; set; }
+	public decimal SubTotal { get; set; } = 0;
+    public decimal TotalItbis { get; set; } = 0;
+	public decimal TotalNeto { get; set; } = 0;
+	public decimal MontoPagado { get; set; } = 0;
+	public decimal Devuelta { get; set; } = 0;
+	public decimal Deuda { get; set; } = 0;
 
 
-    [StringLength(250, ErrorMessage = "El límite es de 250 caracteres.")]
+	[StringLength(250, ErrorMessage = "El límite es de 250 caracteres.")]
 	public string Nota { get; set; }
 
-	public bool Eliminado { get; set; } = false;
+    public bool Estado { get; set; }
+
+    public bool Eliminado { get; set; } = false;
 
     [ForeignKey("CompraId")]
     public ICollection<ComprasDetalle> ComprasDetalle { get; set; } = new List<ComprasDetalle>();
