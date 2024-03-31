@@ -2,9 +2,12 @@
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject ComprasService comprasService
+@inject ProveedoresService proveedoresService
+@inject MetodosPagoService metodosPagoService
 @inject NotificationService notificationService
 
 <PageTitle>Compras</PageTitle>
+<RadzenNotification/>
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
@@ -80,12 +83,11 @@
 					<thead>
 						<tr>
 							<th>CompraId</th>
-							<th>Fecha de Creaci&oacute;n</th>
+							<th>Fecha de Compra</th>
+							<th>Usuario Responsable</th>
 							<th>Proveedor</th>
-							<th>Direcci&oacute;n</th>
-							<th>Ciudad</th>
-							<th>RNC</th>
-							<th>Tipo de Contribuyente</th>
+							<th>M&eacute;todo de Pago</th>
+							<th>Estado de la Compra</th>
 							<th>Acciones</th>
 						</tr>
 					</thead>
@@ -95,10 +97,10 @@
 							<tr>
 								<td>@compra.CompraId</td>
 								<td>@compra.FechaCreacion.ToShortDateString()</td>
-								<td>@compra.ProveedorId</td>
-								@* <td>@compra.DireccionProveedor</td>
-								<td>@FormatRNCNumber(compra.RNC)</td>
-								<td>@compra.TipoContribuyente</td> *@
+								<td>@compra.UsuarioResponsable</td>
+								<td>@BuscarProveedor(compra.ProveedorId)</td>
+								<td>@BuscarMetodoPago(compra.MetodoPagoId)</td>
+								<td>@compra.Estado</td>
 								<td>
 									<div class="btn-group" role="group">
 										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(compra.CompraId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
@@ -128,6 +130,8 @@
 
 @code {
 	public List<Compras> compras = new List<Compras>();
+	public List<Proveedores> proveedores = new List<Proveedores>();
+	public List<MetodosPago> metodosPago = new List<MetodosPago>();
 	public string filtro { get; set; }
 	public string valorFiltro { get; set; }
 	public string mensaje { get; set; }
@@ -139,7 +143,8 @@
 	{
 		// await Task.Delay(500);
 		compras = await comprasService.Listar(p => p.Eliminado == false);
-
+		proveedores = await proveedoresService.Listar(p => p.Eliminado == false);
+		metodosPago = await metodosPagoService.Listar(m => m.MetodoPagoId > 0);
 		loading = false;
 
 		if (compras.Count == 0)
@@ -148,24 +153,6 @@
 
 	public async Task Buscar()
 	{
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
-
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
-
 		if (desde > hasta)
 		{
 			mensaje = "La fecha inicial no puede ser mayor a la fecha final";
@@ -217,71 +204,83 @@
 				}
 				break;
 
-			// case "proveedor":
-			// 	var resultadoNombre = compras
-			// 	.FirstOrDefault(c => c.NombreProveedor.ToLower().Contains(valorFiltro.ToLower()));
+				// case "proveedor":
+				// 	var resultadoNombre = compras
+				// 	.FirstOrDefault(c => c.NombreProveedor.ToLower().Contains(valorFiltro.ToLower()));
 
-			// 	if (resultadoNombre != null &&
-			// 		(resultadoNombre.FechaCreacion >= desde && resultadoNombre.FechaCreacion <= hasta))
-			// 	{
-			// 		compras.Clear();
-			// 		compras.Add(resultadoNombre);
-			// 	}
-			// 	break;
+				// 	if (resultadoNombre != null &&
+				// 		(resultadoNombre.FechaCreacion >= desde && resultadoNombre.FechaCreacion <= hasta))
+				// 	{
+				// 		compras.Clear();
+				// 		compras.Add(resultadoNombre);
+				// 	}
+				// 	break;
 
-			// case "direccion":
-			// 	var resultadoDireccion = compras
-			// 	.Where(c => c.DireccionProveedor.ToLower().Contains(valorFiltro.ToLower())).ToList();
+				// case "direccion":
+				// 	var resultadoDireccion = compras
+				// 	.Where(c => c.DireccionProveedor.ToLower().Contains(valorFiltro.ToLower())).ToList();
 
-			// 	if (resultadoDireccion != null)
-			// 	{
-			// 		foreach (var result in resultadoDireccion)
-			// 		{
-			// 			if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
-			// 				listaFiltro.Add(result);
+				// 	if (resultadoDireccion != null)
+				// 	{
+				// 		foreach (var result in resultadoDireccion)
+				// 		{
+				// 			if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+				// 				listaFiltro.Add(result);
+				// 		}
+
+				// 		if (listaFiltro.Count > 0)
+			// 			compras = listaFiltro;
+				// 	}
+				// 	break;
+
+				// case "rnc":
+				// 	var resultadoRNC = compras.Where(c => c.RNC.Contains(valorFiltro)).ToList();
+
+				// 	if (resultadoRNC != null)
+				// 	{
+				// 		foreach (var result in resultadoRNC)
+				// 		{
+				// 			if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+				// 				listaFiltro.Add(result);
+				// 		}
+
+				// 		if (listaFiltro.Count > 0)
+				// 			compras = listaFiltro;
+				// 	}
+				// 	break;
+
+				// case "contribuyente":
+				// 	var resultadoContribuyente = compras
+				// 	.Where(c => c.TipoContribuyente.ToLower().Contains(valorFiltro.ToLower())).ToList();
+
+				// 	if (resultadoContribuyente != null)
+				// 	{
+				// 		foreach (var result in resultadoContribuyente)
+				// 		{
+				// 			if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+				// 				listaFiltro.Add(result);
 			// 		}
 
-			// 		if (listaFiltro.Count > 0)
-			// 			compras = listaFiltro;
-			// 	}
-			// 	break;
-
-			// case "rnc":
-			// 	var resultadoRNC = compras.Where(c => c.RNC.Contains(valorFiltro)).ToList();
-
-			// 	if (resultadoRNC != null)
-			// 	{
-			// 		foreach (var result in resultadoRNC)
-			// 		{
-			// 			if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
-			// 				listaFiltro.Add(result);
-			// 		}
-
-			// 		if (listaFiltro.Count > 0)
-			// 			compras = listaFiltro;
-			// 	}
-			// 	break;
-
-			// case "contribuyente":
-			// 	var resultadoContribuyente = compras
-			// 	.Where(c => c.TipoContribuyente.ToLower().Contains(valorFiltro.ToLower())).ToList();
-
-			// 	if (resultadoContribuyente != null)
-			// 	{
-			// 		foreach (var result in resultadoContribuyente)
-			// 		{
-			// 			if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
-			// 				listaFiltro.Add(result);
-			// 		}
-
-			// 		if (listaFiltro.Count > 0)
-			// 			compras = listaFiltro;
-			// 	}
-			// 	break;
+				// 		if (listaFiltro.Count > 0)
+				// 			compras = listaFiltro;
+				// 	}
+				// 	break;
 		}
 
 		StateHasChanged();
 		await LimpiarPantalla();
+	}
+
+	public string BuscarProveedor(int id)
+	{
+		var proveedor = proveedores.FirstOrDefault(c => c.ProveedorId == id);
+		return proveedor.Nombre;
+	}
+
+	public string BuscarMetodoPago(int id)
+	{
+		var metodo = metodosPago.FirstOrDefault(c => c.MetodoPagoId == id);
+		return metodo.MetodoPago;
 	}
 
 	public string FormatRNCNumber(string rnc)

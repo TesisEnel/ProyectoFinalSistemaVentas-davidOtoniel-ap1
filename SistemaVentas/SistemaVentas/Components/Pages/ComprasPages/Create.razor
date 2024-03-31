@@ -12,7 +12,7 @@
 @inject NotificationService notificationService
 
 <PageTitle>Crear Nueva Compra</PageTitle>
-<RadzenNotification/>
+<RadzenNotification />
 <EditForm Model="compra" OnValidSubmit="Crear" FormName="RegistroCompras">
 	<DataAnnotationsValidator />
 	<div class="container">
@@ -55,7 +55,7 @@
 						<ValidationMessage For="@(() => compra.ProveedorId)"></ValidationMessage>
 					</div>
 					@*Actualizar proveedor*@
-					@if(compra.ProveedorId != 0)
+					@if (compra.ProveedorId != 0)
 					{
 						ActualizarDatosProveedor(compra.ProveedorId);
 					}
@@ -217,7 +217,7 @@
 							</div>
 
 							<div class="col-auto d-flex align-items-end">
-								<button type="button" class="btn btn-outline-success" @onclick="Pagar"><i class="bi bi-check-lg" /> Verificar</button>
+								<button type="button" class="btn btn-outline-success" @onclick="CalcularPago"><i class="bi bi-check-lg" /> Verificar</button>
 							</div>
 						}
 
@@ -231,7 +231,7 @@
 								</div>
 							</div>
 							<div class="col-auto d-flex align-items-end">
-								<button type="button" class="btn btn-outline-success" @onclick="Pagar"><i class="bi bi-check-lg" /> Verificar</button>
+								<button type="button" class="btn btn-outline-success" @onclick="CalcularPago"><i class="bi bi-check-lg" /> Verificar</button>
 							</div>
 						}
 
@@ -241,7 +241,7 @@
 							<div class="col-6 mb-3">
 								<label class="form-label" for="tarjeta"><strong>N&uacute;mero de Cuenta del Proveedor</strong></label>
 								<div class="d-flex align-items-center">
-									<InputText id="tarjeta" class="form-control me-2" @bind-Value="cuenta" readonly/>
+									<InputText id="tarjeta" class="form-control me-2" @bind-Value="cuenta" readonly />
 									<img class="miImagen me-2" src="/Imagenes/tarjeta-codigo.png" alt="imagen-tarjeta-visa" />
 								</div>
 							</div>
@@ -257,22 +257,22 @@
 							<div class="col-4 mb-3">
 								<label class="form-label" for="codigo"><strong>Monto de Transferencia</strong></label>
 								<div class="d-flex align-items-center">
-									<InputNumber id="codigo" class="form-control me-2" @bind-Value="compra.TotalNeto" readonly />
+									<InputNumber id="codigo" class="form-control me-2" @bind-Value="compra.MontoPagado" readonly />
 									<img class="miImagen" src="/Imagenes/transferencia-movil.png" alt="imagen-tarjeta-codigo" />
 								</div>
 							</div>
 							<div class="col-auto d-flex align-items-end">
-								<button type="button" class="btn btn-outline-success" @onclick="Pagar"><i class="bi bi-check-lg" /> Verificar</button>
+								<button type="button" class="btn btn-outline-success" @onclick="CalcularPago"><i class="bi bi-check-lg" /> Verificar</button>
 							</div>
 							@*
-							<div class="mensajeCorrecto mb-3">
-								@mensajeValidacionTarjeta
-							</div>
-							<div class="mensajeError mb-3">
-								@mensajeErrorTarjeta
-							</div>
-							
-							*@
+						<div class="mensajeCorrecto mb-3">
+						@mensajeValidacionTarjeta
+						</div>
+						<div class="mensajeError mb-3">
+						@mensajeErrorTarjeta
+						</div>
+
+						*@
 						}
 					</div>
 					<div class="col-md-6">
@@ -315,7 +315,7 @@
 				</div>
 
 
-
+				
 
 			</div>
 			@*Footer*@
@@ -334,6 +334,7 @@
 	public Compras compra { get; set; } = new Compras();
 	public Capital capital { get; set; } = new Capital();
 	public Banco banco { get; set; } = new Banco();
+	public CuentasPorPagar cuentasPorPagar { get; set; } = new CuentasPorPagar();
 
 	public List<Proveedores> proveedores = new List<Proveedores>();
 	public List<Productos> productos = new List<Productos>();
@@ -373,7 +374,7 @@
 	public string mensajeValidacionTarjeta { get; set; }
 	public string mensajeErrorTarjeta { get; set; }
 
-	public bool compraValidada { get; set; } = false;
+	public bool mostrarInfo { get; set; } = true;
 
 
 	protected override async Task OnInitializedAsync()
@@ -391,74 +392,160 @@
 
 	public async Task Crear()
 	{
-		if(compra.ComprasDetalle.Count == 0)
+		if (compra.ComprasDetalle.Count == 0)
 		{
 			var Mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Summary = "Error al crear",
-				Detail = "Debe ingresar al menos un detalle",
-				Duration = 5_000
-			};
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al crear",
+					Detail = "Debe ingresar al menos un detalle",
+					Duration = 5_000
+				};
 			notificationService.Notify(Mensaje);
 			return;
 		}
 
-		if (await ValidarCompra())
+		if (String.IsNullOrEmpty(compra.Nota))
+			compra.Nota = "----";
+
+		if (compra.Estado == "Deuda")
 		{
-			// Pagar();
-			// if (compra.MetodoPagoId == 2)
-			// 	compra.Estado = "Pendiente";
+			cuentasPorPagar = new CuentasPorPagar
+				{
+					CompraId = compra.CompraId,
+					DeudaInicial = compra.Deuda,
+					DeudaRestante = compra.Deuda,
+					Estado = "Pendiente"
+				};
 
-			if (String.IsNullOrEmpty(proveedor.Nota))
-				proveedor.Nota = "----";
+			compra.CuentaPorPagar = cuentasPorPagar;
+		}
 
-			var response = await proveedorService.Crear(proveedor);
-
-			// if (response.IsSuccessStatusCode)
-			// {
-			// 	mensaje = "La solicitud fue exitosa.";
-			// }
-			// else
-			// {
-			// 	mensaje = "La solicitud falló con el siguiente estado: " + response.ToString();
-			// }
+		var response = await comprasService.Crear(compra);
+		if (response)
+		{
+			await Pagar();
+			await SumarExistenciaProducto();
+			await Task.Delay(3000);
+			Volver();
 		}
 		else
-			mensaje = "Algunos datos ya existen en la base de datos.";
-
-		StateHasChanged();
-		await Task.Delay(4000);
-		await LimpiarPantalla();
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al crear",
+					Detail = "No se pudo realizar la compra",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+		}
 	}
 
-	public async Task<bool> ValidarCompra()
+	public async Task Pagar()
 	{
-		return true;
+		switch(compra.MetodoPagoId)
+		{
+			case 1:
+				if(compra.MontoPagado >= compra.TotalNeto)
+				{
+					await capitalService.Modificar(capital);
+
+					var MensajeEfectivo = new NotificationMessage
+						{
+							Severity = NotificationSeverity.Success,
+							Summary = "Compra realizada con éxito",
+							Detail = $"Pago realizado con éxito $RD{compra.TotalNeto.ToString("N2")}",
+							Duration = 5_000
+						};
+					notificationService.Notify(MensajeEfectivo);
+				}
+				else
+				{
+					await capitalService.Modificar(capital);
+
+					var MensajeEfectivo = new NotificationMessage
+						{
+							Severity = NotificationSeverity.Success,
+							Summary = "Compra realizada con éxito",
+							Detail = $"Debe $RD{compra.Deuda.ToString("N2")}",
+							Duration = 5_000
+						};
+					notificationService.Notify(MensajeEfectivo);
+				}
+				break;
+
+			case 2:
+				var MensajeDeuda = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Success,
+						Summary = "Compra realizada con éxito",
+						Detail = $"Debe $RD{compra.Deuda.ToString("N2")}",
+						Duration = 5_000
+					};
+				notificationService.Notify(MensajeDeuda);
+				break;
+
+			case 3:
+				var MensajeTrasnferencia = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Success,
+						Summary = "Compra realizada con éxito",
+						Detail = $"Monto de transferencia $RD{compra.MontoPagado.ToString("N2")}",
+						Duration = 5_000
+					};
+				notificationService.Notify(MensajeTrasnferencia);
+				break;
+		}
 	}
 
-	public void Pagar()
+	public async Task SumarExistenciaProducto()
+	{
+		foreach (var product in compra.ComprasDetalle)
+		{
+			var buscarProducto = productos.FirstOrDefault(p => p.ProductoId == product.ProductoId);
+			buscarProducto.Existencia += product.CantidadProducto;
+
+			await productosService.Guardar(buscarProducto);
+		}
+	}
+
+	public async Task ActualizarExistenciaProducto(Productos producto)
+	{
+		await productosService.Guardar(producto);
+	}
+
+	public void CalcularPago()
 	{
 		decimal pagar = 0;
 
 		switch (compra.MetodoPagoId)
 		{
 			case 1:
-				if (capital.Efectivo < compra.TotalNeto)///si no hay suficiente efectivo
+				if (capital.Efectivo < compra.MontoPagado)///si no hay suficiente efectivo
 				{
-					var montoFaltante = compra.TotalNeto - capital.Efectivo;
-					compra.Devuelta = 0;
-					compra.Deuda = montoFaltante;
-					// compra.Estado = "Pendiente";
-					
+					var Mensaje = new NotificationMessage
+						{
+							Severity = NotificationSeverity.Error,
+							Summary = "Error al pagar con efectivo",
+							Detail = "El dinero no es suficiente para realizar el pago",
+							Duration = 5_000
+						};
+					notificationService.Notify(Mensaje);
+					return;
+
+					// var montoFaltante = compra.TotalNeto - capital.Efectivo;
+					// compra.Devuelta = 0;
+					// compra.Deuda = montoFaltante;
+					// // compra.Estado = "Pendiente";
+
 				}
-				if (compra.MontoPagado > compra.TotalNeto)///si el monto es mayor que el total
+				if (compra.MontoPagado >= compra.TotalNeto)///si el monto es mayor que el total
 				{
 					capital.Efectivo -= compra.TotalNeto;
 					compra.Devuelta = Math.Round(compra.MontoPagado - compra.TotalNeto, 2);
 					compra.Deuda = 0;
-					// compra.Estado = "Pagada";
-					
+					compra.Estado = "Pagada";
 				}
 				else if (compra.MontoPagado < compra.TotalNeto)///si el monto es menor que el total
 				{
@@ -466,48 +553,36 @@
 					capital.Efectivo -= compra.MontoPagado;
 					compra.Devuelta = 0;
 					compra.Deuda = montoFaltante;
-					// compra.Estado = "Pendiente";
-					
-				}
-				else
-				{
-					capital.Efectivo -= compra.TotalNeto;///si el monto es igual que el total
-					compra.Devuelta = 0;
-					compra.Deuda = 0;
-					// compra.Estado = "Pagada";
-					
+					compra.Estado = "Deuda";
 				}
 				break;
 			case 2:
 				compra.Deuda = compra.TotalNeto;
-				// compra.Estado = "Pendiente";
-				
+				compra.MontoPagado = 0;
+				compra.Devuelta = 0;
+				compra.Estado = "Deuda";
+
 				break;
 			case 3:
 				if (banco.Monto < compra.TotalNeto)
 				{
-					mensajeErrorTarjeta = "Fondos insuficientes.";
-					mensajeValidacionTarjeta = string.Empty;
-					compraValidada = false;
+					var Mensaje = new NotificationMessage
+						{
+							Severity = NotificationSeverity.Error,
+							Summary = "Error al pagar a través de transferencia",
+							Detail = "Fondos insuficientes",
+							Duration = 5_000
+						};
+					notificationService.Notify(Mensaje);
 				}
 				else
 				{
-					if (usuario == banco.Usuario && numeroTarjeta == banco.NumeroTarjeta
-					&& fechaVencimiento == banco.FechaVencimiento && codigoSeguridad == banco.CodigoSeguridad)
-					{
-						banco.Monto -= compra.TotalNeto;
-						mensajeValidacionTarjeta = "La Tarjeta fue reconocida con éxito.";
-						mensajeErrorTarjeta = string.Empty;
-						compraValidada = true;
-					}
-					else
-					{
-						mensajeErrorTarjeta = "La tarjeta no fue reconocida correctamente, intente de nuevo.";
-						mensajeValidacionTarjeta = string.Empty;
-						compraValidada = false;
-					}
+					banco.Monto -= compra.TotalNeto;
+					compra.MontoPagado = compra.TotalNeto;
+					compra.Deuda = 0;
+					compra.Devuelta = 0;
+					compra.Estado = "Pagada";
 				}
-				StateHasChanged();
 				break;
 		}
 	}
@@ -522,16 +597,16 @@
 			var itbis = (decimal)((double)costo * 0.18);
 
 			var nuevoDetalle = new ComprasDetalle
-			{
-				ProductoId = producto,
-				CantidadProducto = cantidad,
-				UnidadMedidaId = unidadesMedida,
-				CantidadUnidadProducto = unidades,
-				CostoTotal = costo,
-				CostoUnidad = costoUnidad,
-				Itbis = itbis,
-				CostoTotalNeto = costo + itbis
-			};
+				{
+					ProductoId = producto,
+					CantidadProducto = cantidad,
+					UnidadMedidaId = unidadesMedida,
+					CantidadUnidadProducto = unidades,
+					CostoTotal = costo,
+					CostoUnidad = costoUnidad,
+					Itbis = itbis,
+					CostoTotalNeto = costo + itbis
+				};
 
 			compra.ComprasDetalle.Add(nuevoDetalle);
 
@@ -540,13 +615,27 @@
 			compra.TotalNeto = compra.SubTotal + compra.TotalItbis;
 
 			var Mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Success,
-				Summary = "Éxito al agregar detalle",
-				Detail = "El detalle se agregó correctamente",
-				Duration = 5_000
-			};
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al agregar detalle",
+					Detail = "El detalle se agregó correctamente",
+					Duration = 5_000
+				};
 			notificationService.Notify(Mensaje);
+
+			if (compra.MetodoPagoId != 3 && compra.TotalNeto > 20000 && mostrarInfo)
+			{
+				var MensajeInfo = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Warning,
+						Summary = "Monto a pagar excede los $20,000.00",
+						Detail = "Se recomienda realizar la compra a través de transferencia",
+						Duration = 10_000
+					};
+				notificationService.Notify(MensajeInfo);
+
+				mostrarInfo = false;
+			}
 
 			await LimpiarPantalla();
 		}
@@ -554,15 +643,31 @@
 
 	public async Task<bool> ValidarDetalle()
 	{
+		foreach(var productoid in compra.ComprasDetalle)
+		{
+			if(productoid.ProductoId == producto)
+			{
+				var Mensaje = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Error,
+						Summary = "Error al agregar detalle",
+						Detail = "Este producto ya existe en el detalle",
+						Duration = 5_000
+					};
+				notificationService.Notify(Mensaje);
+				return false;
+			}
+		}
+
 		if (producto <= 0)
 		{
 			var Mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Summary = "Error al agregar detalle",
-				Detail = "Debe elegir un producto",
-				Duration = 5_000
-			};
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "Debe elegir un producto",
+					Duration = 5_000
+				};
 			notificationService.Notify(Mensaje);
 			return false;
 		}
@@ -570,51 +675,51 @@
 		if (unidadesMedida <= 0)
 		{
 			var Mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Summary = "Error al agregar detalle",
-				Detail = "Debe elegir una unidad de medida",
-				Duration = 5_000
-			};
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "Debe elegir una unidad de medida",
+					Duration = 5_000
+				};
 			notificationService.Notify(Mensaje);
 			return false;
 		}
 
-		if (unidades <= 0)
+		if (unidades <= 0 || unidades > 12)
 		{
 			var Mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Summary = "Error al agregar detalle",
-				Detail = "Las unidades deben ser mayor a 0",
-				Duration = 5_000
-			};
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "Las unidades deben ser mayor a 0 y menor que 12",
+					Duration = 5_000
+				};
 			notificationService.Notify(Mensaje);
 			return false;
 		}
 
-		if (costoTotal <= 0)
+		if (costoTotal <= 0 || costoTotal > 100000)
 		{
 			var Mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Summary = "Error al agregar detalle",
-				Detail = "Debe ingresar el costo del producto",
-				Duration = 5_000
-			};
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "El costo debe ser mayor a $0.00 y menor que $100,000.00",
+					Duration = 5_000
+				};
 			notificationService.Notify(Mensaje);
 			return false;
 		}
 
-		if (cantidad <= 0)
+		if (cantidad <= 0 || cantidad > 1000)
 		{
 			var Mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Summary = "Error al agregar detalle",
-				Detail = "Debe ingresar una cantidad de producto",
-				Duration = 5_000
-			};
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "La cantidad debe ser mayor a 0 y menor que 1,000",
+					Duration = 5_000
+				};
 			notificationService.Notify(Mensaje);
 			return false;
 		}
@@ -683,7 +788,19 @@
 
 	public async Task EliminarDetalle(ComprasDetalle detalle)
 	{
+		compra.SubTotal -= detalle.CostoTotalNeto;
+		compra.TotalItbis -= detalle.Itbis;
+		compra.TotalNeto -= detalle.CostoTotalNeto + detalle.Itbis;
 		compra.ComprasDetalle.Remove(detalle);
+
+		var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Success,
+				Summary = "Éxito al eliminar detalle",
+				Detail = "El detalle se eliminó con éxito",
+				Duration = 5_000
+			};
+		notificationService.Notify(Mensaje);
 	}
 
 	public async Task LimpiarPantalla()
@@ -698,6 +815,6 @@
 
 	void Volver()
 	{
-		navigation.NavigateTo("/Proveedores");
+		navigation.NavigateTo("/Compras");
 	}
 }

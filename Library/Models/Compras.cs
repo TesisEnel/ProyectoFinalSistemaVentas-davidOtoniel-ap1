@@ -41,7 +41,7 @@ public class Compras
 	[StringLength(250, ErrorMessage = "El límite es de 250 caracteres.")]
 	public string Nota { get; set; }
 
-    public bool Estado { get; set; }
+    public string Estado { get; set; }
 
     public bool Eliminado { get; set; } = false;
 
