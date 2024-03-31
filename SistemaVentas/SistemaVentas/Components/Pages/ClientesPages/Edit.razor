@@ -1,0 +1,126 @@
+﻿@page "/EditClientes"
+@page "/EditClientes/clienteId={clienteId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ClientesService clientesService
+@inject NotificationService notificationService
+
+<PageTitle>Editar Cliente</PageTitle>
+<RadzenNotification/>
+<EditForm Model="cliente" OnValidSubmit="Modificar" FormName="EditarCliente">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			@*Header*@
+			<div class="card-header">
+				<h3 class="align-text-center"><strong>Editar Cliente</strong></h3>
+			</div>
+			@*Cuerpo*@
+			<div class="card-body">
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Categoria Id*@
+						<label class="form-label" for="clienteId"><strong>ClienteId:</strong></label>
+						<InputNumber id="clienteId" class="form-control" @bind-Value="cliente.ClienteId" readonly></InputNumber>
+					</div>
+					<div class="col-4">
+						@*FechaCreacion*@
+						<label class="form-label" for="fechaCreacion"><strong>Fecha Creaci&oacute;n:</strong></label>
+						<InputDate id="fechaCreacion" class="form-control" @bind-Value="cliente.FechaCreacion" readonly></InputDate>
+						<ValidationMessage For="@(() => cliente.FechaCreacion)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Nombre*@
+						<label class="form-label" for="nombre"><strong>Nombre:</strong></label>
+						<InputText id="nombre" class="form-control" @bind-Value="cliente.Nombre" placeholder="Ej: Pablo Reyes"></InputText>
+						<ValidationMessage For="@(() => cliente.Nombre)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Email*@
+						<label class="form-label" for="email"><strong>Email:</strong></label>
+						<InputText id="email" class="form-control" @bind-Value="cliente.Email" placeholder="Ej: pablo_reyes@gmail.com"></InputText>
+						<ValidationMessage For="@(() => cliente.Email)"></ValidationMessage>
+					</div>
+				</div>
+			</div>
+			@*Footer*@
+			<div class="card-footer d-flex justify-content-center">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="submit" class="btn btn-outline-success">
+					<i class="bi bi-floppy-fill" /> Modificar
+				</button>
+			</div>
+		</div>
+	</div>
+</EditForm>
+@mensaje
+
+@code {
+	[Parameter]
+	public int clienteId { get; set; }
+	public Clientes cliente { get; set; } = new Clientes();
+	public string mensaje { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		cliente = await clientesService.BuscarId(clienteId);
+	}
+
+	public async Task Modificar()
+	{
+		// var Mensaje = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Error,
+		// 		Summary = "Error al guardar",
+		// 		Detail = "Ha ocurrido un error",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Mensaje);
+
+		// var Otro = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Success,
+		// 		Summary = "Guardo",
+		// 		Detail = "Guardo correctamente",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Otro);
+
+		if (!await Validar() && await clientesService.Guardar(cliente))
+		{
+			mensaje = "Se modificó correctamente el cliente.";
+		}
+		else
+		{
+			mensaje = "No se pudo modificar el cliente.";
+		}
+	}
+
+	public async Task<bool> Validar()
+	{
+		var nombre = await clientesService.BuscarNombre(cliente.Nombre);
+		var email = await clientesService.BuscarEmail(cliente.Email);
+
+		if (nombre != null)
+		{
+			mensaje = "Ya existe un cliente con este nombre.";
+			return true;
+		}
+		if (email != null)
+		{
+			mensaje = "Ya existe un cliente con este email.";
+			return true;
+		}
+		return false;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Clientes");
+	}
+}

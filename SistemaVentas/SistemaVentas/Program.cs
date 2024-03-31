@@ -52,7 +52,7 @@ builder.Services.AddScoped<UnidadesMedidaService>();
 builder.Services.AddScoped<BancoService>();
 builder.Services.AddScoped<CapitalService>();
 builder.Services.AddScoped<DevolucionesService>();
-
+builder.Services.AddScoped<ClientesService>();
 
 
 //Radzen

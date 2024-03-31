@@ -60,9 +60,6 @@
 						<label class="form-label" for="nota"><strong>Nota: </strong>(Opcional)</label>
 						<InputTextArea id="nota" class="form-control" @bind-Value="producto.Nota" placeholder="Ingrese una nota"></InputTextArea>
 						<ValidationMessage For="@(() => producto.Nota)"></ValidationMessage>
-						<ValidationMessage For="@(() => producto.Precio)"></ValidationMessage>
-						<ValidationMessage For="@(() => producto.Costo)"></ValidationMessage>
-						<ValidationMessage For="@(() => producto.Existencia)"></ValidationMessage>
 					</div>
 				</div>
 			</div>

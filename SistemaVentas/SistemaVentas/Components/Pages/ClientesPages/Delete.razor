@@ -1,39 +1,41 @@
-﻿@page "/DeleteCategorias"
-@page "/DeleteCategorias/categoriaId={categoriaId:int}"
+﻿@page "/DeleteClientes"
+@page "/DeleteClientes/clienteId={clienteId:int}"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
-@inject CategoriasService categoriasService
+@inject ClientesService clientesService
 @inject NotificationService notificationService
 
-<PageTitle>Eliminar Categoria</PageTitle>
+<PageTitle>Eliminar Cliente</PageTitle>
 <RadzenNotification  />
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Detalles de Categoria</strong></h3>
+			<h3><strong>Detalles de Cliente</strong></h3>
 		</div>
 		@*Cuerpo*@
 		<div class="card-body">
 			<div class="row">
 				<div class="col-8">
 					<div class="col-md-11">
-						<h3 class="text-center"><strong>Datos de la Categoria</strong></h3>
+						<h3 class="text-center"><strong>Datos del Cliente</strong></h3>
 						<div class="border-primmary border border-2 borde">
 							<div class="card-body">
 								<div class="row">
 									@*Imagen*@
 									<div class="col-2">
 										<div class="text-center">
-											<img src="Imagenes/canasta.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+											<img src="Imagenes/clasificacion.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
 										</div>
 									</div>
 									@*Datos del cliente*@
 									<div class="col-9">
 										<ul class="list-unstyled" style="margin-top: 20px; margin-bottom: 20px;">
-											<li><strong>CategoriaId:</strong> @categoria.CategoriaId</li>
-											<li><strong>FechaCreacion:</strong> @categoria.FechaCreacion.ToShortDateString()</li>
-											<li><strong>Descripci&oacute;n:</strong> @categoria.Descripcion</li>
+											<li><strong>ClienteId:</strong> @cliente.ClienteId</li>
+											<li><strong>FechaCreacion:</strong> @cliente.FechaCreacion.ToShortDateString()</li>
+											<li><strong>Nombre:</strong> @cliente.Nombre</li>
+											<li><strong>Email:</strong> @cliente.Email</li>
+											<li><strong>Nota:</strong> @cliente.Nota</li>
 										</ul>
 									</div>
 								</div>
@@ -56,14 +58,14 @@
 
 @code {
 	[Parameter]
-	public int categoriaId { get; set; }
-	public Categorias categoria { get; set; } = new Categorias();
+	public int clienteId { get; set; }
+	public Clientes cliente { get; set; } = new Clientes();
 	public string mensaje { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		categoria = await categoriasService.BuscarId(categoriaId);
+		cliente = await clientesService.BuscarId(clienteId);
 	}
 
 	public async Task Eliminar()
@@ -87,13 +89,13 @@
 		// 	};
 		// notificationService.Notify(Otro);
 
-		categoria.Eliminado = true;
-		await categoriasService.Guardar(categoria);
+		cliente.Eliminado = true;
+		await clientesService.Guardar(cliente);
 		Volver();
 	}
 
 	void Volver()
 	{
-		navigation.NavigateTo("/Categorias");
+		navigation.NavigateTo("/Clientes");
 	}
 }

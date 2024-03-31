@@ -1,0 +1,84 @@
+﻿@page "/ViewClientes"
+@page "/ViewClientes/clienteId={clienteId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ClientesService clientesService
+@inject NotificationService notificationService
+
+<PageTitle>Ver Cliente</PageTitle>
+<RadzenNotification/>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header">
+            <h3><strong>Detalles de Cliente</strong></h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-8">
+                    <div class="col-md-11">
+                        <h3 class="text-center"><strong>Datos del Cliente</strong></h3>
+                        <div class="border-primmary border border-2 borde">
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Columna para la imagen -->
+                                    <div class="col-2">
+                                        <div class="text-center">
+                                            <img src="Imagenes/clasificacion.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+                                        </div>
+                                    </div>
+                                    <!-- Columna para los datos del cliente -->
+                                    <div class="col-9">
+                                        <ul class="list-unstyled" style="margin-top: 20px; margin-bottom: 20px;">
+                                            <li><strong>ClienteId:</strong> @cliente.ClienteId</li>
+                                            <li><strong>Fecha de Creaci&oacute;n:</strong> @cliente.FechaCreacion.ToShortDateString()</li>
+                                            <li><strong>Nombre:</strong> @cliente.Nombre</li>
+                                            <li><strong>Email:</strong> @cliente.Email</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int clienteId { get; set; }
+    public Clientes cliente { get; set; } = new Clientes();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
+        cliente = await clientesService.BuscarId(clienteId);
+
+        // var Mensaje = new NotificationMessage
+        // 	{
+        // 		Severity = NotificationSeverity.Error,
+        // 		Summary = "Error al guardar",
+        // 		Detail = "Ha ocurrido un error",
+        // 		Duration = 5_000
+        // 	};
+        // notificationService.Notify(Mensaje);
+
+        // var Otro = new NotificationMessage
+        // 	{
+        // 		Severity = NotificationSeverity.Success,
+        // 		Summary = "Guardo",
+        // 		Detail = "Guardo correctamente",
+        // 		Duration = 5_000
+        // 	};
+        // notificationService.Notify(Otro);
+    }
+
+    void Volver()
+    {
+        navigation.NavigateTo("/Clientes");
+    }
+}
