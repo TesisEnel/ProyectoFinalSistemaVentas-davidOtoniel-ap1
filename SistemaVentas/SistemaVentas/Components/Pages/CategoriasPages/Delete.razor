@@ -6,22 +6,42 @@
 @inject NotificationService notificationService
 
 <PageTitle>Eliminar Categoria</PageTitle>
-<RadzenNotification/>
+<RadzenNotification  />
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Eliminar Categoria</strong></h3>
+			<h3><strong>Detalles de Categoria</strong></h3>
 		</div>
 		@*Cuerpo*@
 		<div class="card-body">
-			<h3><strong>¿Est&aacute;s seguro de que quieres eliminar esta categoria?</strong></h3>
-			@*Datos*@
-			<ul>
-				<li><strong>CategoriaId:</strong> @categoria.CategoriaId</li>
-				<li><strong>Fecha Creaci&oacute;n:</strong> @categoria.FechaCreacion.ToShortDateString()</li>
-				<li><strong>Descripci&oacute;n:</strong> @categoria.Descripcion</li>
-			</ul>
+			<div class="row">
+				<div class="col-8">
+					<div class="col-md-11">
+						<h3 class="text-center"><strong>Datos de la Categoria</strong></h3>
+						<div class="border-primmary border border-2 borde">
+							<div class="card-body">
+								<div class="row">
+									@*Imagen*@
+									<div class="col-2">
+										<div class="text-center">
+											<img src="Imagenes/canasta.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+										</div>
+									</div>
+									@*Datos del cliente*@
+									<div class="col-9">
+										<ul class="list-unstyled" style="margin-top: 20px; margin-bottom: 20px;">
+											<li><strong>CategoriaId:</strong> @categoria.CategoriaId</li>
+											<li><strong>FechaCreacion:</strong> @categoria.FechaCreacion.ToShortDateString()</li>
+											<li><strong>Descripci&oacute;n:</strong> @categoria.Descripcion</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 		@*Footer*@
 		<div class="card-footer d-flex justify-content-center">
@@ -48,6 +68,7 @@
 
 	public async Task Eliminar()
 	{
+
 		// var Mensaje = new NotificationMessage
 		// 	{
 		// 		Severity = NotificationSeverity.Error,
