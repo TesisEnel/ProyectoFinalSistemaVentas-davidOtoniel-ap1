@@ -1,0 +1,254 @@
+﻿@page "/Clientes"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ClientesService clientesService
+@inject NotificationService notificationService
+
+<PageTitle>Clientes</PageTitle>
+<RadzenNotification/>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Clientes</strong></h3>
+			<div class="d-flex align-items-start">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="button" class="btn btn-outline-primary" @onclick="IrACrear"><i class="bi bi-plus-circle" /> Crear</button>
+			</div>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			@if (loading)
+			{
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border text-info">
+					</div>
+				</div>
+			}
+			else if (clientes.Count == 0)
+			{
+				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay clientes creados</h1>
+			}
+			else
+			{
+				@*Fechas*@
+				<div class="mb-3">
+					<div class="row">
+						<div class="col-3">
+							<label class="form-label" for="desde"><strong>Desde:</strong></label>
+							<InputDate id="desde" class="form-control" @bind-Value="desde"></InputDate>
+						</div>
+						<div class="col-3">
+							<label class="form-label" for="hasta"><strong>Hasta:</strong></label>
+							<InputDate id="hasta" class="form-control" @bind-Value="hasta"></InputDate>
+						</div>
+					</div>
+				</div>
+				@*Campos a Filtrar*@
+				<div class="mb-3">
+					<div class="row align-items-center">
+						<label class="form-label" for="filtro"><strong>Campo a Filtrar:</strong></label>
+						<div class="col-3">
+							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+								<option>Elije una opci&oacute;n</option>
+								<option value="id">CategoriaId</option>
+								<option value="nombre">Nombre</option>
+							</InputSelect>
+						</div>
+						<div class="col-auto miFlecha">
+							<p>→</p>
+						</div>
+						<div class="col-4">
+							<div class="input-group">
+								<InputText class="form-control" @bind-Value="valorFiltro" placeholder="Ingrese un dato para filtrar"></InputText>
+								<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search" /></button>
+							</div>
+						</div>
+						<div class="col-3">
+							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
+						</div>
+					</div>
+				</div>
+
+				<table class="table table-bordered miTabla">
+					<thead>
+						<tr>
+							<th>ClienteId</th>
+							<th>Fecha de Creaci&oacute;n</th>
+							<th>Nombre</th>
+							<th>Email</th>
+							<th>Ver</th>
+							<th>Editar</th>
+							<th>Eliminar</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var cliente in clientes)
+						{
+							<tr>
+								<td>@cliente.ClienteId</td>
+								<td>@cliente.FechaCreacion.ToShortDateString()</td>
+								<td>@cliente.Nombre</td>
+								<td>@cliente.Email</td>
+								<td><button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(cliente.ClienteId)"><i class="bi bi-eye" /></button></td>
+								<td><button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(cliente.ClienteId)"><i class="bi bi-pencil-square" /></button></td>
+								<td><button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(cliente.ClienteId)"><i class="bi bi-trash3-fill" /></button></td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+		</div>
+		<div class="card-footer">
+			<p><strong>Total de Clientes:</strong> @clientes.Count</p>
+		</div>
+	</div>
+</div>
+@mensaje
+
+@code {
+	public List<Clientes> clientes = new List<Clientes>();
+	public string filtro { get; set; }
+	public string valorFiltro { get; set; }
+	public string mensaje { get; set; }
+	public bool loading { get; set; } = true;
+	public DateTime desde { get; set; } = DateTime.Today;
+	public DateTime hasta { get; set; } = DateTime.Today;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		clientes = await clientesService.Listar(c => c.Eliminado == false);
+		loading = false;
+
+		if (clientes.Count == 0)
+			StateHasChanged();
+	}
+
+	public async Task Buscar()
+	{
+		// var Mensaje = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Error,
+		// 		Summary = "Error al guardar",
+		// 		Detail = "Ha ocurrido un error",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Mensaje);
+
+		// var Otro = new NotificationMessage
+		// 	{
+		// 		Severity = NotificationSeverity.Success,
+		// 		Summary = "Guardo",
+		// 		Detail = "Guardo correctamente",
+		// 		Duration = 5_000
+		// 	};
+		// notificationService.Notify(Otro);
+
+		if (desde > hasta)
+		{
+			mensaje = "La fecha inicial no puede ser mayor a la fecha final";
+			StateHasChanged();
+			await Task.Delay(3000);
+			await LimpiarPantalla();
+			return;
+		}
+
+		else if (filtro == null)
+		{
+			mensaje = "Debe elegir un método parar filtrar";
+			StateHasChanged();
+			await Task.Delay(3000);
+			await LimpiarPantalla();
+			return;
+		}
+
+		else if (valorFiltro == null)
+		{
+			mensaje = "Debe ingresar un dato";
+			StateHasChanged();
+			await Task.Delay(3000);
+			await LimpiarPantalla();
+			return;
+		}
+
+		List<Clientes> listaFiltro = new List<Clientes>();
+
+		switch (filtro)
+		{
+			case "id":
+				if (int.TryParse(valorFiltro, out int id))
+				{
+					var resultadoId = clientes.FirstOrDefault(c => c.ClienteId == id);
+					if (resultadoId != null &&
+						(resultadoId.FechaCreacion >= desde && resultadoId.FechaCreacion <= hasta))
+					{
+						clientes.Clear();
+						clientes.Add(resultadoId);
+					}
+					else
+						mensaje = "No se encontraron resultados";
+				}
+				else
+				{
+					mensaje = "El valor ingresado para ClienteId no es válido";
+					await Task.Delay(3000);
+				}
+				break;
+			case "nombre":
+				var resultadoNombre = clientes
+				.Where(c => c.Nombre.ToLower().Contains(valorFiltro.ToLower())).ToList();
+
+				if (resultadoNombre != null)
+				{
+					foreach (var result in resultadoNombre)
+					{
+						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+							listaFiltro.Add(result);
+					}
+
+					if (listaFiltro.Count > 0)
+						clientes = listaFiltro;
+				}
+				break;
+		}
+		StateHasChanged();
+		await LimpiarPantalla();
+	}
+
+	public async Task Restablecer()
+	{
+		clientes = await clientesService.Listar(p => p.Eliminado == false);
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		await Task.Delay(2000);
+		mensaje = string.Empty;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/");
+	}
+
+	void IrACrear()
+	{
+		navigation.NavigateTo("/CreateClientes");
+	}
+
+	void IrADetalles(int id)
+	{
+		navigation.NavigateTo($"/ViewClientes/clienteId={id}");
+	}
+	void IrAEditar(int id)
+	{
+		navigation.NavigateTo($"/EditClientes/clienteId={id}");
+	}
+	void IrAEliminar(int id)
+	{
+		navigation.NavigateTo($"/DeleteClientes/clienteId={id}");
+	}
+}
