@@ -698,13 +698,13 @@
 			return false;
 		}
 
-		if (costoTotal <= 0)
+		if (costoTotal <= 0 || costoTotal > 100000)
 		{
 			var Mensaje = new NotificationMessage
 				{
 					Severity = NotificationSeverity.Error,
 					Summary = "Error al agregar detalle",
-					Detail = "Debe ingresar el costo del producto",
+					Detail = "El costo debe ser mayor a $0.00 y menor que $100,000.00",
 					Duration = 5_000
 				};
 			notificationService.Notify(Mensaje);
@@ -717,7 +717,7 @@
 				{
 					Severity = NotificationSeverity.Error,
 					Summary = "Error al agregar detalle",
-					Detail = "La cantidad debe ser mayor a 0 y menor que 1000",
+					Detail = "La cantidad debe ser mayor a 0 y menor que 1,000",
 					Duration = 5_000
 				};
 			notificationService.Notify(Mensaje);
