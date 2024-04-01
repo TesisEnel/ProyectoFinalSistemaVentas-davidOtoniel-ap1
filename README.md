@@ -1,4 +1,7 @@
 # Sistema de Ventas 
+
+![vendedor](https://github.com/Stiinger/ProyectoFinalSistemaVentas/assets/64880156/bea74b73-a859-4f5f-8bf4-68771f00a68f)
+
 Este proyecto es un sistema de ventas integral diseñado para optimizar la gestión de restaurantes y bares. Proporciona una plataforma única y fácil de usar que permite a los propietarios administrar de manera eficiente diversas áreas de su negocio.
 
 Características
