@@ -5,7 +5,7 @@
 @inject NotificationService notificationService
 
 <PageTitle>Crear Nueva Categoria</PageTitle>
-<RadzenNotification/>
+<RadzenNotification />
 <EditForm Model="categoria" OnValidSubmit="Crear" FormName="RegistroCategorias">
 	<DataAnnotationsValidator />
 	<div class="container">
@@ -61,38 +61,39 @@
 
 	public async Task Crear()
 	{
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
-
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
-
 		if (!await Validar() && await categoriasService.Guardar(categoria))
 		{
-			mensaje = "Se guardó correctamente la categoría.";
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al crear",
+					Detail = "La categoria se creó con éxito",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			await Task.Delay(3000);
+			Volver();
 		}
 		else
 		{
-			mensaje = "No se pudo guardar la categoría.";
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al crear",
+					Detail = "La categoria no se pudo crear correctamente",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			await Task.Delay(3000);
+			Volver();
 		}
 	}
 
 	public async Task<bool> Validar()
 	{
 		var descripcion = await categoriasService.BuscarDescripcion(categoria.Descripcion);
-		
+
 		if (descripcion != null)
 		{
 			mensaje = "Ya existe una categoría con esta descripción.";
