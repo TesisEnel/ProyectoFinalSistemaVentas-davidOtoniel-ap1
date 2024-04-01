@@ -17,13 +17,13 @@ namespace Library.Models
 		[Required(ErrorMessage = "Debe elegir una categoria.")]
 		public string Categoria { get; set; } = string.Empty;
 		[Required(ErrorMessage = "Este campo es obligatorio.")]
-		[Range(1, 100000, ErrorMessage = "El campo {0} debe ser mayor que 0 y menor que 100000.")]
+		[Range(0, 100000, ErrorMessage = "El campo {0} debe ser mayor que 0 y menor que 100000.")]
 		public float Precio { get; set; }
 		[Required(ErrorMessage = "Este campo es obligatorio.")]
-		[Range(1, 100000, ErrorMessage = "El campo {0} debe ser mayor que 0 y menor que 100000.")]
+		[Range(0, 100000, ErrorMessage = "El campo {0} debe ser mayor que 0 y menor que 100000.")]
 		public float Costo { get; set; }
 		[Required(ErrorMessage = "Este campo es obligatorio.")]
-		[Range(1, 100000, ErrorMessage = "El campo {0} debe ser mayor que 0 y menor que 100000.")]
+		[Range(0, 100000, ErrorMessage = "El campo {0} debe ser mayor que 0 y menor que 100000.")]
 		public int Existencia { get; set; }
 		public bool Eliminado { get; set; } = false;
 		public string Nota { get; set; } = string.Empty;
