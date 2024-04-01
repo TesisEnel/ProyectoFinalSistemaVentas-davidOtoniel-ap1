@@ -16,9 +16,14 @@ public class Devoluciones
 	[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
 	
 	public DateTime FechaDevolucion { get; set; } = DateTime.Today;
-	
-	public decimal MontoDevolucion { get; set; }
-	
+
+    [ForeignKey("Clientes")]
+	[Range(1, int.MaxValue, ErrorMessage = "Debe elegir un cliente")]
+    public int ClienteId { get; set; }
+
+    public decimal MontoDevolucion { get; set; }
+
+	[StringLength(100, ErrorMessage = "El límite es de 100 caracteres.")]
 	public string Observacion { get; set; }
 
 	public bool Eliminado { get; set; } = false;
