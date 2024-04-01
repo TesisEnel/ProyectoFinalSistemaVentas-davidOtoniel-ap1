@@ -55,15 +55,14 @@ public class VentasService
 	public async Task<Ventas?> BuscarId(int id)
 	{
 		return await _contexto.Ventas
-			.Include(v => v.VentaDetalle.Where(d => d.Eliminado == false))
+			.Include(v => v.VentasDetalle.Where(v => v.Eliminado == false))
 			.AsNoTracking()
 			.FirstOrDefaultAsync(v => v.VentaId == id);
 	}
-
 	public async Task<List<Ventas>>? Listar(Expression<Func<Ventas, bool>> criterio)
 	{
 		return _contexto.Ventas
-			.Include(v => v.VentaDetalle.Where(d => d.Eliminado == false))
+			.Include(v => v.VentasDetalle.Where(v => v.Eliminado == false))
 			.AsNoTracking()
 			.Where(criterio)
 			.ToList();

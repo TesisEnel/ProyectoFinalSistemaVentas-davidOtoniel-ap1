@@ -10,3 +10,7 @@
 .miFlecha {
     margin-top: 10px;
 }
+
+.mensajeError {
+    color: red;
+}

@@ -2,16 +2,19 @@
 @page "/DeleteVentas/ventaId={ventaId:int}"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
+@inject ClientesService clientesService
 @inject VentasService ventasService
+@inject ProductosService productosService
+@inject UnidadesMedidaService unidadesMedidaService
+@inject MetodosPagoService metodosPagoService
 @inject NotificationService notificationService
 
 <PageTitle>Eliminar Venta</PageTitle>
-<RadzenNotification/>
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Detalles de Venta</strong></h3>
+			<h3><strong>Eliminar Venta</strong></h3>
 		</div>
 		@*Cuerpo*@
 		<div class="card-body">
@@ -28,15 +31,48 @@
 											<img src="Imagenes/bolsa-de-valores.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
 										</div>
 									</div>
-									@*Datos de la venta*@
+									@*Datos de la Venta*@
 									<div class="col-9">
-										<ul class="list-unstyled" style="margin-top: 20px; margin-bottom: 20px;">
-											<li><strong>VentaId:</strong> @venta.VentaId</li>
-											<li><strong>Fecha:</strong> @venta.Fecha.ToShortDateString()</li>
-											<li><strong>Devoluci&oacute;n:</strong> @venta.Devolucion.ToString("N2")</li>
-											<li><strong>Pago:</strong> @venta.Pago.ToString("N2")</li>
-											<li><strong>SubTotal:</strong> @venta.SubTotal.ToString("N2")</li>
-										</ul>
+										<table class="table table-bordered">
+											<tbody>
+												<tr>
+													<th>VentaId</th>
+													<td>@venta.VentaId</td>
+												</tr>
+												<tr>
+													<th>Fecha Creación</th>
+													<td>@venta.FechaCreacion.ToShortDateString()</td>
+												</tr>
+												<tr>
+													<th>Empleado Responsable</th>
+													<td>@venta.EmpleadoResponsable</td>
+												</tr>
+												<tr>
+													<th>Cliente</th>
+													<td>@venta.ClienteId</td>
+												</tr>
+												<tr>
+													<th>M&eacute;todo de Pago</th>
+													<td>@venta.MetodoPagoId</td>
+												</tr>
+												<tr>
+													<th>SubTotal</th>
+													<td>@venta.SubTotal</td>
+												</tr>
+												<tr>
+													<th>Total ITBIS</th>
+													<td>@venta.TotalItbis</td>
+												</tr>
+												<tr>
+													<th>Total</th>
+													<td>@venta.TotalNeto</td>
+												</tr>
+												<tr>
+													<th>Nota</th>
+													<td>@venta.Nota</td>
+												</tr>
+											</tbody>
+										</table>
 									</div>
 								</div>
 							</div>
@@ -48,49 +84,55 @@
 		@*Footer*@
 		<div class="card-footer d-flex justify-content-center">
 			<div class="px-2">
-				<button type="button" class="btn btn-outline-dark" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Cancelar</button>
+				<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
 			</div>
 			<button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="bi bi-trash3-fill" /> Eliminar</button>
 		</div>
 	</div>
 </div>
-@mensaje
 
 @code {
 	[Parameter]
 	public int ventaId { get; set; }
 	public Ventas venta { get; set; } = new Ventas();
-	public string mensaje { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		venta = (await ventasService.BuscarId(ventaId))!;
+
+		venta = await ventasService.BuscarId(ventaId);
 	}
 
 	public async Task Eliminar()
 	{
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
-
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
-
 		venta.Eliminado = true;
-		await ventasService.Guardar(venta);
-		Volver();
+		var response = await ventasService.Guardar(venta);
+
+		if (response)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al eliminar",
+					Detail = "Se eliminó la venta con éxito",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			await Task.Delay(3000);
+			Volver();
+		}
+		else
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al eliminar",
+					Detail = "No se pudo eliminar la venta correctamente",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+		}
 	}
 
 	void Volver()

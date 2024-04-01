@@ -2,84 +2,114 @@
 @page "/ViewVentas/ventaId={ventaId:int}"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
+@inject ClientesService clientesService
 @inject VentasService ventasService
+@inject ProductosService productosService
+@inject UnidadesMedidaService unidadesMedidaService
+@inject MetodosPagoService metodosPagoService
 @inject NotificationService notificationService
 
-<PageTitle>Ver Venta</PageTitle>
+<PageTitle>Detalles de Venta</PageTitle>
 <RadzenNotification/>
 <div class="container">
-    <div class="card shadow-lg">
-        <div class="card-header">
-            <h3><strong>Detalles de Venta</strong></h3>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-8">
-                    <div class="col-md-11">
-                        <h3 class="text-center"><strong>Datos de la Venta</strong></h3>
-                        <div class="border-primmary border border-2 borde">
-                            <div class="card-body">
-                                <div class="row">
-                                    <!-- Columna para la imagen -->
-                                    <div class="col-2">
-                                        <div class="text-center">
-                                            <img src="Imagenes/bolsa-de-valores.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
-                                        </div>
-                                    </div>
-                                    <!-- Columna para los datos de la Venta -->
-                                    <div class="col-9">
-                                        <ul class="list-unstyled" style="margin-top: 20px; margin-bottom: 20px;">
-                                            <li><strong>VentaId:</strong> @venta.VentaId</li>
-                                            <li><strong>Fecha:</strong> @venta.Fecha.ToShortDateString()</li>
-                                            <li><strong>Devoluci&oacute;n:</strong> @venta.Devolucion.ToString("N2")</li>
-                                            <li><strong>Pago:</strong> @venta.Pago.ToString("N2")</li>
-                                            <li><strong>SubTotal:</strong> @venta.SubTotal.ToString("N2")</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="card-footer">
-            <button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
-        </div>
-    </div>
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Detalles de Venta</strong></h3>
+		</div>
+		@*Cuerpo*@
+		<div class="card-body">
+			<div class="row">
+				<div class="col-8">
+					<div class="col-md-11">
+						<h3 class="text-center"><strong>Datos de la Venta</strong></h3>
+						<div class="border-primmary border border-2 borde">
+							<div class="card-body">
+								<div class="row">
+									@*Imagen*@
+									<div class="col-2">
+										<div class="text-center">
+											<img src="Imagenes/bolsa-de-valores.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+										</div>
+									</div>
+									@*Datos de la Venta*@
+									<div class="col-9">
+										<table class="table table-bordered">
+											<tbody>
+												<tr>
+													<th>VentaId</th>
+													<td>@venta.VentaId</td>
+												</tr>
+												<tr>
+													<th>Fecha Creación</th>
+													<td>@venta.FechaCreacion.ToShortDateString()</td>
+												</tr>
+												<tr>
+													<th>Empleado Responsable</th>
+													<td>@venta.EmpleadoResponsable</td>
+												</tr>
+												<tr>
+													<th>Cliente</th>
+													<td>@venta.ClienteId</td>
+												</tr>
+												<tr>
+													<th>M&eacute;todo de Pago</th>
+													<td>@venta.MetodoPagoId</td>
+												</tr>
+												<tr>
+													<th>SubTotal</th>
+													<td>@venta.SubTotal</td>
+												</tr>
+												<tr>
+													<th>Total ITBIS</th>
+													<td>@venta.TotalItbis</td>
+												</tr>
+												<tr>
+													<th>Total</th>
+													<td>@venta.TotalNeto</td>
+												</tr>
+												<tr>
+													<th>Nota</th>
+													<td>@venta.Nota</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		@*Footer*@
+		<div class="card-footer">
+			<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+		</div>
+	</div>
 </div>
 
 @code {
-    [Parameter]
-    public int ventaId { get; set; }
-    public Ventas venta { get; set; } = new Ventas();
+	public Clientes cliente { get; set; } = new Clientes();
+	public Ventas venta { get; set; } = new Ventas();
 
-    protected override async Task OnInitializedAsync()
-    {
-        await Task.Delay(500);
-        venta = (await ventasService.BuscarId(ventaId))!;
+	public List<Clientes> clientes = new List<Clientes>();
+	public List<Productos> productos = new List<Productos>();
+	public List<UnidadesMedida> unidadesMedidas = new List<UnidadesMedida>();
+	public List<MetodosPago> metodosPagos = new List<MetodosPago>();
 
-        // var Mensaje = new NotificationMessage
-        // 	{
-        // 		Severity = NotificationSeverity.Error,
-        // 		Summary = "Error al guardar",
-        // 		Detail = "Ha ocurrido un error",
-        // 		Duration = 5_000
-        // 	};
-        // notificationService.Notify(Mensaje);
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
 
-        // var Otro = new NotificationMessage
-        // 	{
-        // 		Severity = NotificationSeverity.Success,
-        // 		Summary = "Guardo",
-        // 		Detail = "Guardo correctamente",
-        // 		Duration = 5_000
-        // 	};
-        // notificationService.Notify(Otro);
-    }
+		clientes = await clientesService.Listar(c => c.Eliminado == false);
+		productos = await productosService.Listar(p => p.Eliminado == false);
+		unidadesMedidas = await unidadesMedidaService.Listar(um => um.UnidadMedidaId > 0);
+		metodosPagos = await metodosPagoService.Listar(um => um.MetodoPagoId > 0);
+	}
 
-    void Volver()
-    {
-        navigation.NavigateTo("/Ventas");
-    }
+	void Volver()
+	{
+		navigation.NavigateTo("/Ventas");
+	}
 }
