@@ -132,48 +132,45 @@
 
 	public async Task Buscar()
 	{
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
-
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
-
 		if (desde > hasta)
 		{
-			mensaje = "La fecha inicial no puede ser mayor a la fecha final";
-			StateHasChanged();
-			await Task.Delay(3000);
-			await LimpiarPantalla();
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "La fecha inicial no puede ser mayor a la fecha final",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
 			return;
 		}
 
 		else if (filtro == null)
 		{
-			mensaje = "Debe elegir un método parar filtrar";
-			StateHasChanged();
-			await Task.Delay(3000);
-			await LimpiarPantalla();
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "Debe elegir un método parar filtrar",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
 			return;
 		}
 
 		else if (valorFiltro == null)
 		{
-			mensaje = "Debe ingresar un dato";
-			StateHasChanged();
-			await Task.Delay(3000);
-			await LimpiarPantalla();
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "Debe ingresar un dato",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
 			return;
 		}
 

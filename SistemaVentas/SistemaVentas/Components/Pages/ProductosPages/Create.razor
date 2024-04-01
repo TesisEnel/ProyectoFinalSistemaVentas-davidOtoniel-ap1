@@ -86,40 +86,35 @@
 	{
 		await Task.Delay(500);
 		listaCategorias = await categoriasService.Listar(c => c.Eliminado == false);
-		producto.Precio = 1;
-		producto.Costo = 1;
-		producto.Existencia = 1;
 	}
 
 	public async Task Crear()
 	{
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
-
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
 		if (!await Validar() && await productosService.Guardar(producto))
 		{
-			mensaje = "Se guardó correctamente el producto.";
-			await Task.Delay(1000);
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al crear",
+					Detail = "El producto se creó con éxito",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			await Task.Delay(3000);
 			Volver();
 		}
 		else
 		{
-			mensaje = "No se pudo guardar el producto.";
-			await Task.Delay(1000);
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al crear",
+					Detail = "El producto no se pudo crear correctamente",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			await Task.Delay(3000);
 			Volver();
 		}
 	}

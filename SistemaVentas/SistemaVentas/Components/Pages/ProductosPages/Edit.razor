@@ -92,31 +92,32 @@
 
 	public async Task Modificar()
 	{
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
-
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
-
 		if (!await Validar() && await productosService.Guardar(producto))
 		{
-			mensaje = "Se modificó correctamente el producto.";
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al crear",
+					Detail = "El producto se modificó con éxito",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			await Task.Delay(3000);
+			Volver();
 		}
 		else
 		{
-			mensaje = "No se pudo modificar el producto.";
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al crear",
+					Detail = "El producto no se pudo modificar correctamente",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			await Task.Delay(3000);
+			Volver();
 		}
 	}
 
