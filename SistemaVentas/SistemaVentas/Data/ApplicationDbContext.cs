@@ -77,6 +77,46 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 			.Property(cd => cd.CostoTotalNeto)
 			.HasPrecision(18, 2);
 
+		modelBuilder.Entity<Ventas>()
+			.Property(v => v.SubTotal)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<Ventas>()
+			.Property(v => v.TotalItbis)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<Ventas>()
+			.Property(v => v.TotalNeto)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<Ventas>()
+			.Property(vd => vd.MontoPagado)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<Ventas>()
+			.Property(vd => vd.Devuelta)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<Ventas>()
+			.Property(vd => vd.Deuda)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<VentasDetalle>()
+			.Property(vd => vd.Itbis)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<VentasDetalle>()
+			.Property(vd => vd.CostoTotal)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<VentasDetalle>()
+			.Property(vd => vd.CostoUnidad)
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<VentasDetalle>()
+			.Property(vd => vd.CostoTotalNeto)
+			.HasPrecision(18, 2);
+
 
 		modelBuilder.Entity<MetodosPago>().HasData(new List<MetodosPago>
 		{
