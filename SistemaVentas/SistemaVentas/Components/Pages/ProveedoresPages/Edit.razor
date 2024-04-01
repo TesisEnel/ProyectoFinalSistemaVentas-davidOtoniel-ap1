@@ -116,7 +116,7 @@
 							<div class="row align-content-center">
 								@*Contacto*@
 								<div class="col-4">
-									<label class="form-label" for="Tipocontacto"><strong>Tipo de Contacto:</strong></label>
+									<label class="form-label" for="Tipocontacto"><strong>Tipo de N&uacute;:</strong></label>
 									<InputSelect id="Tipocontacto" class="form-select" @bind-Value="tipo">
 										<option>Elige una opci&oacute;n</option>
 										@foreach (var contacto in contactos)
@@ -127,9 +127,9 @@
 								</div>
 								@*Descripcion*@
 								<div class="col-4">
-									<label class="form-label" for="descripcion"><strong>N&uacute;mero de Contacto:</strong></label>
+									<label class="form-label" for="descripcion"><strong>N&uacute;mero:</strong></label>
 									<label>(Sin guiones)</label>
-									<InputText id="descripcion" class="form-control" @bind-Value="contacto" placeholder="Ingrese un número para el contacto"></InputText>
+									<InputText id="descripcion" class="form-control" @bind-Value="contacto" placeholder="Ingrese un número"></InputText>
 								</div>
 								@*Boton*@
 								<div class="col-4 d-flex align-items-end">
