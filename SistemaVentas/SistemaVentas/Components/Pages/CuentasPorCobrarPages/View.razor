@@ -1,0 +1,228 @@
+﻿@page "/ViewCuentasPorCobrar"
+@page "/ViewCuentasPorCobrar/cuentaPorCobrarId={cuentaPorCobrarId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ClientesService clientesService
+@inject VentasService ventasService
+@inject CuentasPorCobrarService cuentasPorCobrarService
+@inject TiposContribuyenteService tipoContribuyenteService
+@inject ContactosService contactoService
+@inject NotificationService notificationService
+
+<PageTitle>Detalles de Cuenta Por Cobrar</PageTitle>
+<RadzenNotification />
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Detalles de Cuenta Por Cobrar</strong></h3>
+		</div>
+		@*Cuerpo*@
+		<div class="card-body">
+			<div class="row">
+				<div class="col-8 mb-3">
+					<div class="col-md-11">
+						<h3 class="text-center"><strong>Datos de la CxC</strong></h3>
+						<div class="border border-primary border-2 p-3 borde">
+							<div class="card-body">
+								<div class="row">
+									@*Imagen*@
+									<div class="col-2">
+										<div class="text-center">
+											<img src="Imagenes/doument.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+										</div>
+									</div>
+									@*Datos de la cuenta*@
+									<div class="col-9">
+										<table class="table table-bordered">
+											<tbody>
+												<tr>
+													<th>CxCId</th>
+													<td>@cuentasPorCobrar.CuentaPorCobrarId</td>
+												</tr>
+												<tr>
+													<th>Fecha de Venta</th>
+													<td>@BuscarFechaVenta(cuentasPorCobrar.VentaId).ToShortDateString()</td>
+												</tr>
+												<tr>
+													<th>Usuario Responsable</th>
+													<td>@BuscarEmpleadoResponsable(cuentasPorCobrar.VentaId)</td>
+												</tr>
+												<tr>
+													<th>Proveedor</th>
+													<td>@BuscarCliente(cuentasPorCobrar.VentaId)</td>
+												</tr>
+												<tr>
+													<th>Cantidad de Productos</th>
+													<td>@BuscarCantidadProducto(cuentasPorCobrar.VentaId)</td>
+												</tr>
+												<tr>
+													<th>Total de Ventas</th>
+													<td>@CalcularMontoTotal(cuentasPorCobrar.VentaId)</td>
+												</tr>
+												<tr>
+													<th>Deuda Inicial</th>
+													<td>@cuentasPorCobrar.DeudaInicial</td>
+												</tr>
+												<tr>
+													<th>Deuda Pendiente</th>
+													<td>@cuentasPorCobrar.DeudaRestante</td>
+												</tr>
+												<tr>
+													<th>Estado</th>
+													<td>@cuentasPorCobrar.Estado</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				@*Detalle*@
+				<div class="col-4">
+					<h3 class="text-center"><strong>Detalles</strong></h3>
+					<fieldset class="border border-primary border-2 p-3 borde">
+						@*Body*@
+						<div class="card-body">
+							<section class="row mb-4">
+							</section>
+							<section>
+								@if (cuentasPorCobrar.CuentasPorCobrarDetalle.Count > 0)
+								{
+									@*Table Detalles*@
+									<table class="table table-bordered miTabla">
+										<thead>
+											<tr>
+												<th>Fecha de pago</th>
+												<th>Concepto</th>
+												<th>Abono</th>
+											</tr>
+										</thead>
+										<tbody>
+											@foreach (var detalle in cuentasPorCobrar.CuentasPorCobrarDetalle)
+											{
+												<tr>
+													<td>@detalle.FechaPago.ToShortDateString()</td>
+													<td>@detalle.Concepto</td>
+													<td>@detalle.Abono.ToString("N2")</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+									<p><strong>Total de Abonos: </strong>@cuentasPorCobrar.CuentasPorCobrarDetalle.Count</p>
+								}
+							</section>
+						</div>
+					</fieldset>
+				</div>
+			</div>
+		</div>
+		@*Footer*@
+		<div class="card-footer">
+			<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+		</div>
+	</div>
+</div>
+
+@mensaje
+
+@code {
+	[Parameter]
+	public int cuentaPorCobrarId { get; set; }
+
+	public Clientes cliente { get; set; } = new Clientes();
+	public CuentasPorCobrar cuentasPorCobrar { get; set; } = new CuentasPorCobrar();
+	public List<Ventas> ventas = new List<Ventas>();
+	public List<Clientes> clientes = new List<Clientes>();
+	public int tipo { get; set; }
+	public string contacto { get; set; } = string.Empty;
+	public string mensaje { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+
+		cuentasPorCobrar = await cuentasPorCobrarService.BuscarId(cuentaPorCobrarId);
+		ventas = await ventasService.Listar(c => c.Eliminado == false);
+		clientes = await clientesService.Listar(c => c.Eliminado == false);
+	}
+
+	public DateTime BuscarFechaVenta(int id)
+	{
+		var venta = ventas.FirstOrDefault(c => c.VentaId == id);
+		if (venta != null)
+		{
+			return venta.FechaCreacion;
+		}
+		else
+		{
+			return DateTime.MinValue; // Valor predeterminado
+		}
+	}
+
+	public string BuscarEmpleadoResponsable(int id)
+	{
+		var venta = ventas.FirstOrDefault(c => c.VentaId == id);
+		if (venta != null)
+		{
+			return venta.EmpleadoResponsable;
+		}
+		else
+		{
+			return null;		}
+	}
+
+	public string BuscarCliente(int id)
+	{
+		var venta = ventas.FirstOrDefault(c => c.VentaId == id);
+		if (venta != null)
+		{
+			var cliente = clientes.FirstOrDefault(p => p.ClienteId == venta.ClienteId);
+			if (cliente != null)
+			{
+				return cliente.Nombre;
+			}
+			else
+			{
+				return null;
+			}
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	public int BuscarCantidadProducto(int id)
+	{
+		var venta = ventas.FirstOrDefault(c => c.VentaId == id);
+		if (venta != null && venta.VentasDetalle != null)
+		{
+			return venta.VentasDetalle.Count;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	public decimal CalcularMontoTotal(int id)
+	{
+		var compra = ventas.FirstOrDefault(c => c.VentaId == id);
+		if (compra != null)
+		{
+			return compra.TotalNeto;
+		}
+		else
+		{
+			return 0; 
+		}
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/CuentasPorCobrar");
+	}
+}
