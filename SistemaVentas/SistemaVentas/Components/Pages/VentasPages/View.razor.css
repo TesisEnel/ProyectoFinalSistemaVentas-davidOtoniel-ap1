@@ -10,3 +10,7 @@
 .miFlecha {
     margin-top: 10px;
 }
+
+.borde {
+    border-radius: 10px;
+}

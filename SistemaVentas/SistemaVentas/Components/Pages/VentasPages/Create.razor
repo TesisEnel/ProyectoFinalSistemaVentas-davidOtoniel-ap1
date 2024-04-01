@@ -1,220 +1,712 @@
 ﻿@page "/CreateVentas"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
-@inject ProductosService productosService
+@inject ClientesService clientesService
 @inject VentasService ventasService
+@inject ProductosService productosService
+@inject UnidadesMedidaService unidadesMedidaService
+@inject MetodosPagoService metodosPagoService
+@inject BancoService bancoService
+@inject CapitalService capitalService
+@inject TiposContribuyenteService tiposContribuyenteService
 @inject NotificationService notificationService
 
 <PageTitle>Crear Nueva Venta</PageTitle>
-<RadzenNotification/>
+<RadzenNotification />
 <EditForm Model="venta" OnValidSubmit="Crear" FormName="RegistroVentas">
 	<DataAnnotationsValidator />
 	<div class="container">
 		<div class="card shadow-lg">
 			@*Header*@
 			<div class="card-header">
-				<h3 class="align-text-center"><strong>Crear Nueva Venta</strong></h3>
+				<h3><strong>Crear Nueva Venta</strong></h3>
 			</div>
 			@*Cuerpo*@
 			<div class="card-body">
 				<div class="row mb-3">
-					<div class="col-4">
-						@*Venta Id*@
+					<div class="col-2">
+						@*VentaId*@
 						<label class="form-label" for="ventaId"><strong>VentaId:</strong></label>
 						<InputNumber id="ventaId" class="form-control" @bind-Value="venta.VentaId" readonly></InputNumber>
 					</div>
-					<div class="col-4">
-						@*Fecha*@
-						<label class="form-label" for="fecha"><strong>Fecha:</strong></label>
-						<InputDate id="fecha" class="form-control" @bind-Value="venta.Fecha" readonly></InputDate>
-						<ValidationMessage For="@(() => venta.Fecha)"></ValidationMessage>
-					</div>
 					<div class="col-2">
-						@*SubTotal*@
-						<label class="form-label" for="subtotal"><strong>SubTotal:</strong></label>
-						<InputNumber id="subtotal" class="form-control" @bind-Value="venta.SubTotal" readonly></InputNumber>
-						<ValidationMessage For="@(() => venta.SubTotal)"></ValidationMessage>
+						@*FechaCreacion*@
+						<label class="form-label" for="fecha"><strong>Fecha Creaci&oacute;n</strong></label>
+						<InputDate id="fecha" class="form-control" @bind-Value="venta.FechaCreacion" readonly></InputDate>
+					</div>
+					<div class="col-3">
+						@*Responsable*@
+						<label class="form-label" for="responsable"><strong>Empleado Responsable</strong></label>
+						<InputText id="responsable" class="form-control" @bind-Value="venta.EmpleadoResponsable" placeholder="Ej: Juan Pérez"></InputText>
+						<ValidationMessage For="@(() => venta.EmpleadoResponsable)"></ValidationMessage>
 					</div>
 				</div>
 				<div class="row mb-3">
 					<div class="col-3">
-						@*Devolucion*@
-						<label class="form-label" for="devolucion"><strong>Devoluci&oacute;n:</strong></label>
-						<InputNumber id="devolucion" class="form-control" @bind-Value="venta.Devolucion" readonly></InputNumber>
-						<ValidationMessage For="@(() => venta.Devolucion)"></ValidationMessage>
+						@*Nombre*@
+						<label class="form-label" for="nombre"><strong>Cliente</strong></label>
+						<InputSelect id="nombre" class="form-select" @bind-Value="venta.ClienteId">
+							<option value="">Elige una opción</option>
+							@foreach (var cliente in clientes)
+							{
+								<option value="@cliente.ClienteId">@cliente.Nombre</option>
+							}
+						</InputSelect>
+						<ValidationMessage For="@(() => venta.ClienteId)"></ValidationMessage>
 					</div>
+					@*Actualizar proveedor*@
+					@if (venta.ClienteId != 0)
+					{
+						ActualizarDatosCliente(venta.ClienteId);
+					}
 					<div class="col-3">
-						@*Pago*@
-						<label class="form-label" for="pago"><strong>Pago:</strong></label>
-						<InputNumber id="pago" class="form-control" @bind-Value="venta.Pago"></InputNumber>
-						<ValidationMessage For="@(() => venta.Pago)"></ValidationMessage>
+						@*Email*@
+						<label class="form-label" for="email"><strong>Email</strong></label>
+						<InputText id="email" class="form-control" @bind-Value="email" placeholder="Ej: jorge_pulido@gmail.com" readonly></InputText>
 					</div>
 				</div>
-				@*ventasDetalles*@
-				<fieldset class="border-primmary border border-2">
+				<div class="row mb-3">
+					<div class="col-12">
+						@*Nota*@
+						<label class="form-label" for="nota"><strong>Nota:</strong></label>
+						<label>(Opcional)</label>
+						<InputTextArea id="nota" class="form-control" @bind-Value="venta.Nota" placeholder="Ingrese una nota"></InputTextArea>
+						<ValidationMessage For="@(() => venta.Nota)"></ValidationMessage>
+					</div>
+				</div>
+				@*Detalles*@
+				<fieldset class="border-primmary border border-2 mb-3">
 					@*Body*@
 					<div class="card-body">
 						<section class="row mb-4">
-							<h3><strong>Agregar Productos</strong></h3>
+							<h3><strong>Detalles</strong></h3>
 							<div class="row align-content-center">
-								@*Producto*@
-								<div class="col-4">
-									<label class="form-label" for="producto"><strong>Producto:</strong></label>
-									<InputSelect id="producto" class="form-select" @bind-Value="productoSeleccionado">
-										<option>Elija una opci&oacute;n</option>
-										@foreach (var producto in listaProductos)
+								@*Productos*@
+								<div class="col-3">
+									<label class="form-label" for="producto"><strong>Producto</strong></label>
+									<InputSelect id="producto" class="form-select" @bind-Value="producto">
+										<option>Elige una opci&oacute;n</option>
+										@foreach (var product in productos)
 										{
-											<option value="@producto.ProductoId">@producto.Nombre</option>
+											<option value="@product.ProductoId">@product.Nombre</option>
 										}
 									</InputSelect>
 								</div>
-								@*Cantidad*@
+								@* Unidades de Medida *@
 								<div class="col-2">
-									<label class="form-label" for="cantidad"><strong>Cantidad:</strong></label>
+									<label class="form-label"><strong>Uni. Medida</strong></label>
+									<InputSelect class="form-select" @bind-Value="unidadesMedida" @oninput="VerificarUnidades">
+										<option>Elige una opción</option>
+										@foreach (var unidadMedida in unidadesMedidas)
+										{
+											<option value="@unidadMedida.UnidadMedidaId">@unidadMedida.UnidadMedida</option>
+										}
+									</InputSelect>
+								</div>
+								@* Unidades *@
+								<div class="col-2">
+									<label class="form-label"><strong>Cant. por Empaque</strong></label>
+									<InputNumber class="form-control" @bind-Value="unidades" @attributes="UnidadesAttributes"></InputNumber>
+								</div>
+								@* Precio *@
+								<div class="col-2">
+									<label class="form-label"><strong>Precio</strong></label>
+									<InputNumber class="form-control" @bind-Value="precioTotal"></InputNumber>
+								</div>
+								@*Cantidad*@
+								<div class="col-1">
+									<label class="form-label" for="cantidad"><strong>Cantidad</strong></label>
 									<InputNumber id="cantidad" class="form-control" @bind-Value="cantidad"></InputNumber>
+									<spam class="mensajeError">@mensaje</spam>
 								</div>
 								@*Boton*@
-								<div class="col-4 d-flex align-items-end">
+								<div class="col-auto d-flex align-items-end">
 									<button type="button" class="btn btn-outline-success" @onclick="AgregarDetalle"><i class="bi bi-plus-circle" /> Agregar</button>
 								</div>
 							</div>
 						</section>
 						<section>
-							@if (venta.VentaDetalle.Count > 0)
+							@if (venta.VentasDetalle.Count > 0)
 							{
 								@*Table Detalles*@
 								<table class="table table-bordered miTabla">
 									<thead>
 										<tr>
-											<th>Producto</th>
 											<th>Cantidad</th>
+											<th>Descripci&oacute;n</th>
+											<th>Uni. Medida</th>
+											<th>Cant. por Empaque</th>
+											<th>Precio</th>
+											<th>P/U</th>
+											<th>ITBIS</th>
+											<th>Precio Total Neto</th>
 											<th></th>
 										</tr>
 									</thead>
 									<tbody>
-										@foreach (var detalle in venta.VentaDetalle)
+										@foreach (var detalle in venta.VentasDetalle)
 										{
 											<tr>
-												<td>@ObtenerNombreProducto(detalle.ProductoId)</td>
-												<td>@detalle.Cantidad</td>
+												<td>@detalle.CantidadProducto</td>
+												<td>@BuscarProducto(detalle.ProductoId)</td>
+												<td>@BuscarUnidadMedida(detalle.UnidadMedidaId)</td>
+												<td>@detalle.CantidadUnidadProducto</td>
+												<td>@detalle.CostoTotal.ToString("N2")</td>
+												<td>@detalle.CostoUnidad.ToString("N2")</td>
+												<td>@detalle.Itbis.ToString("N2")</td>
+												<td>@detalle.CostoTotalNeto.ToString("N2")</td>
 												<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
 											</tr>
-										}
+										}-
 									</tbody>
 								</table>
-								<p class="float-start"><strong>Total de Detalles: </strong>@venta.VentaDetalle.Count</p>
+								<p><strong>Total de Productos: </strong>@venta.VentasDetalle.Count</p>
 							}
 						</section>
 					</div>
 				</fieldset>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="col-6 mb-3">
+							<label class="form-label" for="pago"><strong>Método de Pago</strong></label>
+							<InputSelect id="pago" class="form-select" @bind-Value="venta.MetodoPagoId">
+								<option value="">Elige una opción</option>
+								@foreach (var metodoPago in metodosPagos)
+								{
+									<option value="@metodoPago.MetodoPagoId">@metodoPago.MetodoPago</option>
+								}
+							</InputSelect>
+							<ValidationMessage For="@(() => venta.MetodoPagoId)"></ValidationMessage>
+						</div>
+
+						@if (venta.MetodoPagoId == 1)
+						{
+							<div class="col-4 mb-3">
+								<label class="form-label" for="monto"><strong>Monto</strong></label>
+								<div class="d-flex align-items-center">
+									<InputNumber id="monto" class="form-control me-2" @bind-Value="venta.MontoPagado"></InputNumber>
+									<img class="miImagen me-2" src="/Imagenes/pago-en-efectivo.png" alt="imagen-tarjeta-visa" />
+								</div>
+							</div>
+							<div class="col-4 mb-3">
+								<label class="form-label" for="devolucion"><strong>Devolución</strong></label>
+								<div class="d-flex align-items-center">
+									<InputNumber id="devolucion" class="form-control me-2" @bind-Value="venta.Devuelta" readonly />
+									<img class="miImagen me-2" src="/Imagenes/devolucion-de-dinero.png" alt="imagen-tarjeta-visa" />
+								</div>
+							</div>
+							<div class="col-4 mb-3">
+								<label class="form-label" for="debe"><strong>Debe</strong></label>
+								<div class="d-flex align-items-center">
+									<InputNumber id="debe" class="form-control me-2" @bind-Value="venta.Deuda" readonly />
+									<img class="miImagen me-2" src="/Imagenes/doument.png" alt="imagen-tarjeta-visa" />
+								</div>
+							</div>
+
+							<div class="col-auto d-flex align-items-end">
+								<button type="button" class="btn btn-outline-success" @onclick="CalcularPago"><i class="bi bi-check-lg" /> Verificar</button>
+							</div>
+						}
+
+						@if (venta.MetodoPagoId == 2)
+						{
+							<div class="col-4 mb-3">
+								<label class="form-label" for="debe"><strong>Debe</strong></label>
+								<div class="d-flex align-items-center">
+									<InputNumber id="debe" class="form-control me-2" @bind-Value="venta.Deuda" readonly />
+									<img class="miImagen me-2" src="/Imagenes/doument.png" alt="imagen-tarjeta-visa" />
+								</div>
+							</div>
+							<div class="col-auto d-flex align-items-end">
+								<button type="button" class="btn btn-outline-success" @onclick="CalcularPago"><i class="bi bi-check-lg" /> Verificar</button>
+							</div>
+						}
+					</div>
+					<div class="col-md-6">
+						<div class="card">
+							<div class="card-body">
+								<h3 class="text-center"><strong>Totales</strong></h3>
+								<!-- Subtotal -->
+								<div class="row mb-3 justify-content-center">
+									<div class="col-6">
+										<label class="form-label text-center"><strong>Subtotal</strong></label>
+										<div class="input-group">
+											<span class="input-group-text">$</span>
+											<span id="subtotal" class="form-control">@venta.SubTotal.ToString("N2")</span>
+										</div>
+									</div>
+								</div>
+								<!-- Total ITBIS -->
+								<div class="row mb-3 justify-content-center">
+									<div class="col-6">
+										<label class="form-label"><strong>Total ITBIS</strong></label>
+										<div class="input-group">
+											<span class="input-group-text">$</span>
+											<span id="totalItbis" class="form-control">@venta.TotalItbis.ToString("N2")</span>
+										</div>
+									</div>
+								</div>
+								<!-- Total -->
+								<div class="row mb-3 justify-content-center">
+									<div class="col-6">
+										<label class="form-label"><strong>Total</strong></label>
+										<div class="input-group">
+											<span class="input-group-text">$</span>
+											<span id="total" class="form-control">@venta.TotalNeto.ToString("N2")</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			@*Footer*@
 			<div class="card-footer d-flex justify-content-center">
 				<div class="px-2">
 					<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
 				</div>
-				<button type="submit" class="btn btn-outline-success">
-					<i class="bi bi-floppy-fill" /> Crear
-				</button>
+				<button type="submit" class="btn btn-outline-success"><i class="bi bi-floppy-fill" /> Crear</button>
 			</div>
 		</div>
 	</div>
 </EditForm>
-@mensaje
 
 @code {
+	public Clientes cliente { get; set; } = new Clientes();
 	public Ventas venta { get; set; } = new Ventas();
+	public Capital capital { get; set; } = new Capital();
+	public Banco banco { get; set; } = new Banco();
+	public CuentasPorPagar cuentasPorPagar { get; set; } = new CuentasPorPagar();
+
+	public List<Clientes> clientes = new List<Clientes>();
+	public List<Productos> productos = new List<Productos>();
+	public List<UnidadesMedida> unidadesMedidas = new List<UnidadesMedida>();
+	public List<MetodosPago> metodosPagos = new List<MetodosPago>();
+	public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
+
+	public int cantidad { get; set; }
+	public int producto { get; set; }
+	public int unidadesMedida { get; set; }
+	public int unidades { get; set; }
+	public decimal precio { get; set; }
+	public decimal precioTotal { get; set; }
+
+	public string contribuyente { get; set; }
+	public string rnc { get; set; }
+	public string email { get; set; }
+	public string cuenta { get; set; }
+	public string bancoProveedor { get; set; }
+
+
+	// public string mensajeNombre { get; set; } = string.Empty;
+	// public string mensajeEmail { get; set; } = string.Empty;
+	// public string mensajeRNC { get; set; } = string.Empty;
+	// public string otro { get; set; } = string.Empty;
+
+
+	//eliminar mas tarde
+	public string usuario { get; set; }
+	public string numeroTarjeta { get; set; }
+	public DateTime fechaVencimiento { get; set; } = DateTime.Today;
+	public int codigoSeguridad { get; set; }
+
+
+	//eliminar mas tarde
 	public string mensaje { get; set; } = string.Empty;
-	public List<Productos> listaProductos = new List<Productos>();
-	public int productoSeleccionado { get; set; }
-	public float cantidad { get; set; } = 0;
+	public string mensajeValidacionTarjeta { get; set; }
+	public string mensajeErrorTarjeta { get; set; }
+
+	public bool mostrarInfo { get; set; } = true;
+
 
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
 
-		listaProductos = await productosService.Listar(p => p.Eliminado == false);
+		clientes = await clientesService.Listar(c => c.Eliminado == false);
+		productos = await productosService.Listar(p => p.Eliminado == false);
+		unidadesMedidas = await unidadesMedidaService.Listar(um => um.UnidadMedidaId > 0);
+		metodosPagos = await metodosPagoService.Listar(um => um.MetodoPagoId > 0 && um.MetodoPagoId < 3);
+		capital = await capitalService.BuscarId(1);
+		banco = await bancoService.BuscarId(1);
+		tiposContribuyente = await tiposContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
 	}
 
 	public async Task Crear()
 	{
-
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
-
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
-
-		if (await ventasService.Guardar(venta))
+		if (venta.VentasDetalle.Count == 0)
 		{
-			mensaje = "Se guardó correctamente la venta.";
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al crear",
+					Detail = "Debe ingresar al menos un detalle",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			return;
+		}
+
+		if (String.IsNullOrEmpty(venta.Nota))
+			venta.Nota = "----";
+
+		if (venta.Estado == "Deuda")
+		{
+			cuentasPorPagar = new CuentasPorPagar
+				{
+					CompraId = venta.VentaId,
+					DeudaInicial = venta.Deuda,
+					DeudaRestante = venta.Deuda,
+					Estado = "Pendiente"
+				};
+
+			venta.CuentaPorPagar = cuentasPorPagar;
+		}
+
+		var response = await ventasService.Guardar(venta);
+		if (response)
+		{
+			await Pagar();
+			await RestarExistenciaProducto();
+			await Task.Delay(3000);
+			Volver();
 		}
 		else
 		{
-			mensaje = "No se pudo guardar la venta.";
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al crear",
+					Detail = "No se pudo realizar la venta",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+		}
+	}
+
+	public async Task Pagar()
+	{
+		switch(venta.MetodoPagoId)
+		{
+			case 1:
+				if(venta.MontoPagado >= venta.TotalNeto)
+				{
+					await capitalService.Modificar(capital);
+
+					var MensajeEfectivo = new NotificationMessage
+						{
+							Severity = NotificationSeverity.Success,
+							Summary = "Venta realizada con éxito",
+							Detail = $"Pago realizado con éxito $RD{venta.TotalNeto.ToString("N2")}",
+							Duration = 5_000
+						};
+					notificationService.Notify(MensajeEfectivo);
+				}
+				else
+				{
+					await capitalService.Modificar(capital);
+
+					var MensajeEfectivo = new NotificationMessage
+						{
+							Severity = NotificationSeverity.Success,
+							Summary = "Venta realizada con éxito",
+							Detail = $"Debe $RD{venta.Deuda.ToString("N2")}",
+							Duration = 5_000
+						};
+					notificationService.Notify(MensajeEfectivo);
+				}
+				break;
+
+			case 2:
+				var MensajeDeuda = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Success,
+						Summary = "Venta realizada con éxito",
+						Detail = $"Debe $RD{venta.Deuda.ToString("N2")}",
+						Duration = 5_000
+					};
+				notificationService.Notify(MensajeDeuda);
+				break;
+
+			case 3:
+				var MensajeTrasnferencia = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Success,
+						Summary = "Venta realizada con éxito",
+						Detail = $"Monto de transferencia $RD{venta.MontoPagado.ToString("N2")}",
+						Duration = 5_000
+					};
+				notificationService.Notify(MensajeTrasnferencia);
+				break;
+		}
+	}
+
+	public async Task RestarExistenciaProducto()
+	{
+		foreach (var product in venta.VentasDetalle)
+		{
+			var buscarProducto = productos.FirstOrDefault(p => p.ProductoId == product.ProductoId);
+			buscarProducto.Existencia -= product.CantidadProducto;
+
+			await productosService.Guardar(buscarProducto);
+		}
+	}
+
+	public async Task ActualizarExistenciaProducto(Productos producto)
+	{
+		await productosService.Guardar(producto);
+	}
+
+	public void CalcularPago()
+	{
+		decimal pagar = 0;
+
+		switch (venta.MetodoPagoId)
+		{
+			case 1:
+				if (venta.MontoPagado >= venta.TotalNeto)///si el monto es mayor que el total
+				{
+					capital.Efectivo += venta.TotalNeto;
+					venta.Devuelta = Math.Round(venta.MontoPagado - venta.TotalNeto, 2);
+					venta.Deuda = 0;
+					venta.Estado = "Pagada";
+				}
+				else if (venta.MontoPagado < venta.TotalNeto)///si el monto es menor que el total
+				{
+					var montoFaltante = venta.TotalNeto - venta.MontoPagado;
+					capital.Efectivo += venta.MontoPagado;
+					venta.Devuelta = 0;
+					venta.Deuda = montoFaltante;
+					venta.Estado = "Deuda";
+				}
+				break;
+			case 2:
+				venta.Deuda = venta.TotalNeto;
+				venta.MontoPagado = 0;
+				venta.Devuelta = 0;
+				venta.Estado = "Deuda";
+				break;
+			case 3:
+				banco.Monto += venta.TotalNeto;
+				venta.MontoPagado = venta.TotalNeto;
+				venta.Deuda = 0;
+				venta.Devuelta = 0;
+				venta.Estado = "Pagada";
+				break;
 		}
 	}
 
 	public async Task AgregarDetalle()
 	{
-		if (productoSeleccionado > 0 && cantidad > 0)
+		if (await ValidarDetalle())
 		{
-			if (await ValidarDetalle())
+			var costoUnidad = precioTotal / unidades;
+			var costo = precioTotal * cantidad;
+			var itbis = (decimal)((double)costo * 0.18);
+
+			var nuevoDetalle = new VentasDetalle
+				{
+					ProductoId = producto,
+					CantidadProducto = cantidad,
+					UnidadMedidaId = unidadesMedida,
+					CantidadUnidadProducto = unidades,
+					CostoTotal = costo,
+					CostoUnidad = costoUnidad,
+					Itbis = itbis,
+					CostoTotalNeto = costo + itbis
+				};
+			venta.VentasDetalle.Add(nuevoDetalle);
+
+			venta.SubTotal += costo + itbis;
+			venta.TotalItbis += itbis;
+			venta.TotalNeto = venta.SubTotal + venta.TotalItbis;
+
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al agregar detalle",
+					Detail = "El detalle se agregó correctamente",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			if (venta.MetodoPagoId != 3 && venta.TotalNeto > 20000 && mostrarInfo)
 			{
-				var nuevoDetalle = new VentasDetalle { ProductoId = productoSeleccionado , Cantidad = cantidad };
-				venta.VentaDetalle.Add(nuevoDetalle);
-				await LimpiarPantalla();
+				var MensajeInfo = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Warning,
+						Summary = "Monto a pagar excede los $20,000.00",
+						Detail = "Se recomienda realizar la compra a través de transferencia",
+						Duration = 10_000
+					};
+				notificationService.Notify(MensajeInfo);
+
+				mostrarInfo = false;
 			}
-			else
-				mensaje = "Debe elegir un producto.";
+			await LimpiarPantalla();
 		}
 	}
 
 	public async Task<bool> ValidarDetalle()
 	{
-		var listaVentas = await ventasService.Listar(v => v.Eliminado == false);
-
-		foreach (var venta in listaVentas)
+		foreach(var productoid in venta.VentasDetalle)
 		{
-			foreach (var producto in venta.VentaDetalle)
+			if(productoid.ProductoId == producto)
 			{
-				if (producto.ProductoId == productoSeleccionado)
-					return false;
+				var Mensaje = new NotificationMessage
+					{
+						Severity = NotificationSeverity.Error,
+						Summary = "Error al agregar detalle",
+						Detail = "Este producto ya existe en el detalle",
+						Duration = 5_000
+					};
+				notificationService.Notify(Mensaje);
+				return false;
 			}
 		}
+
+		if (producto <= 0)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "Debe elegir un producto",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
+
+		if (unidadesMedida <= 0)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "Debe elegir una unidad de medida",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
+
+		if (unidades <= 0 || unidades > 12)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "Las unidades deben ser mayor a 0 y menor que 12",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
+
+		if (precioTotal <= 0 || precioTotal > 100000)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "El costo debe ser mayor a $0.00 y menor que $100,000.00",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
+
+		if (cantidad <= 0 || cantidad > 1000)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "La cantidad debe ser mayor a 0 y menor que 1,000",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
+
 		return true;
+	}
+
+	private void ActualizarDatosCliente(int clienteId)
+	{
+		var clienteSeleccionado = clientes.FirstOrDefault(c => c.ClienteId == clienteId);
+		if (clienteSeleccionado != null)
+		{
+			email = clienteSeleccionado.Email;
+		}
+		else
+		{
+			email = string.Empty;
+		}
+	}
+
+	bool unidadesDisabled = true;
+
+	void VerificarUnidades(ChangeEventArgs e)
+	{
+		var unidadesMedidaSeleccionada = (string)e.Value;
+
+		unidadesDisabled = unidadesMedidaSeleccionada == "2" || unidadesMedidaSeleccionada == "0";
+
+		if (unidadesMedidaSeleccionada == "2")
+			unidades = 1;
+		else
+			unidades = 0;
+	}
+
+	Dictionary<string, object> UnidadesAttributes => new Dictionary<string, object>
+	{
+		{ "class", "form-control" },
+		{ "bind-Value", "@unidades" },
+		{ "disabled", unidadesDisabled }
+	};
+
+	public string BuscarProducto(int id)
+	{
+		var valor = productos.FirstOrDefault(p => p.ProductoId == id);
+
+		return valor.Nombre;
+	}
+
+	public string BuscarUnidadMedida(int id)
+	{
+		var valor = unidadesMedidas.FirstOrDefault(u => u.UnidadMedidaId == id);
+
+		return valor.UnidadMedida;
 	}
 
 	public async Task EliminarDetalle(VentasDetalle detalle)
 	{
-		venta.VentaDetalle.Remove(detalle);
+		venta.SubTotal -= detalle.CostoTotalNeto;
+		venta.TotalItbis -= detalle.Itbis;
+		venta.TotalNeto -= detalle.CostoTotalNeto + detalle.Itbis;
+		venta.VentasDetalle.Remove(detalle);
+
+		var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Success,
+				Summary = "Éxito al eliminar detalle",
+				Detail = "El detalle se eliminó con éxito",
+				Duration = 5_000
+			};
+		notificationService.Notify(Mensaje);
 	}
 
 	public async Task LimpiarPantalla()
 	{
-		mensaje = string.Empty;
-		productoSeleccionado = 0;
 		cantidad = 0;
+		producto = 0;
+		unidadesMedida = 0;
+		unidades = 0;
+		precioTotal = 0;
 		StateHasChanged();
-	}
-
-	public string ObtenerNombreProducto(int id)
-	{
-		var dato = listaProductos.FirstOrDefault(p => p.ProductoId== id);
-
-		return dato.Nombre;
 	}
 
 	void Volver()
