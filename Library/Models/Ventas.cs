@@ -42,5 +42,5 @@ public class Ventas
 	[ForeignKey("VentaId")]
 	public ICollection<VentasDetalle> VentasDetalle { get; set; } = new List<VentasDetalle>();
 
-	public CuentasPorPagar CuentaPorPagar { get; set; }
+	public CuentasPorCobrar CuentaPorCobrar { get; set; }
 }

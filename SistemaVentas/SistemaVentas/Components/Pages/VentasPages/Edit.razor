@@ -278,7 +278,7 @@
 	public Ventas venta { get; set; } = new Ventas();
 	public Capital capital { get; set; } = new Capital();
 	public Banco banco { get; set; } = new Banco();
-	public CuentasPorPagar cuentasPorPagar { get; set; } = new CuentasPorPagar();
+	public CuentasPorCobrar cuentasPorCobrar { get; set; } = new CuentasPorCobrar();
 
 	public List<Clientes> clientes = new List<Clientes>();
 	public List<Productos> productos = new List<Productos>();
@@ -354,15 +354,15 @@
 
 		if (venta.Estado == "Deuda")
 		{
-			cuentasPorPagar = new CuentasPorPagar
+			cuentasPorCobrar = new CuentasPorCobrar
 				{
-					CompraId = venta.VentaId,
+					VentaId = venta.VentaId,
 					DeudaInicial = venta.Deuda,
 					DeudaRestante = venta.Deuda,
 					Estado = "Pendiente"
 				};
 
-			venta.CuentaPorPagar = cuentasPorPagar;
+			venta.CuentaPorCobrar = cuentasPorCobrar;
 		}
 
 		var response = await ventasService.Guardar(venta);
