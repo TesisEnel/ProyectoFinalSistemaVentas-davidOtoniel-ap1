@@ -88,6 +88,16 @@
                         </button>
                     </div>
                 </div>
+                @*Fila #4*@
+                <div class="row justify-content-center mb-5">
+                    @*Cuentas Por Pagar*@
+                    <div class="col-md-3 text-center">
+                        <button class="d-block mx-auto borde" @onclick="IrACuentasPorPagar">
+                            <h6><strong>Cuentas Por Pagar</strong></h6>
+                            <img src="Imagenes/cuentas-por-pagar.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="footer">
@@ -127,6 +137,10 @@
     private void IrAVentas()
     {
         navigation.NavigateTo("/Ventas");
+    }
+    private void IrACuentasPorPagar()
+    {
+        navigation.NavigateTo("/CuentasPorPagar");
     }
     private void IrAProductos()
     {
