@@ -54,6 +54,7 @@ builder.Services.AddScoped<CapitalService>();
 builder.Services.AddScoped<DevolucionesService>();
 builder.Services.AddScoped<ClientesService>();
 builder.Services.AddScoped<CuentasPorPagarService>();
+builder.Services.AddScoped<CuentasPorCobrarService>();
 
 
 //Radzen
