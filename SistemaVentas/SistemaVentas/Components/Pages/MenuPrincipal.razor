@@ -49,13 +49,6 @@
                             <img src="Imagenes/bolsa-de-valores.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
                         </button>
                     </div>
-                    @*Categorias*@
-                    <div class="col-md-3 text-center">
-                        <button type="button" class="d-block mx-auto borde" @onclick="IrACategorias">
-                            <h6><strong>Categor&iacute;as</strong></h6>
-                            <img src="Imagenes/canasta.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
-                        </button>
-                    </div>
                     @*Compras*@
                     <div class="col-md-3 text-center">
                         <button type="button" class="d-block mx-auto borde" @onclick="IrACompras">
@@ -63,13 +56,13 @@
                             <img src="Imagenes/carrito-de-supermercado.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
                         </button>
                     </div>
-                    @*Inventario*@
-                    @* <div class="col-md-3 text-center">
-                        <button class="d-block mx-auto borde" @onclick="IrAProveedores">
-                            <h6><strong>Inventario</strong></h6>
-                            <img src="Imagenes/la-gestion-del-inventario.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                    @*Categorias*@
+                    <div class="col-md-3 text-center">
+                        <button type="button" class="d-block mx-auto borde" @onclick="IrACategorias">
+                            <h6><strong>Categor&iacute;as</strong></h6>
+                            <img src="Imagenes/canasta.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
                         </button>
-                    </div> *@
+                    </div>
                 </div>
                 @*Fila #3*@
                 <div class="row justify-content-center mb-5">
@@ -80,6 +73,13 @@
                             <img src="Imagenes/cuentas-por-pagar.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
                         </button>
                     </div>
+                    @*Cuentas Por Cobrar*@
+                    <div class="col-md-3 text-center">
+                        <button class="d-block mx-auto borde" @onclick="IrACuentasPorCobrar">
+                            <h6><strong>Cuentas Por Cobrar</strong></h6>
+                            <img src="Imagenes/cuentaporcobrar.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
                     @*Devolucion*@
                     <div class="col-md-3 text-center">
                         <button class="d-block mx-auto borde" @onclick="IrADevoluciones">
@@ -87,6 +87,15 @@
                             <img src="Imagenes/devolucion-de-dinero.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
                         </button>
                     </div>
+                    @*Reportes*@
+                    @*  <div class="col-md-3 text-center">
+                    <button class="d-block mx-auto borde" @onclick="IrAVentas">
+                    <h6><strong>Reportes</strong></h6>
+                    <img src="Imagenes/reporte.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                    </button>*@
+                </div>
+                @*Fila #4*@
+                <div class="row justify-content-center mb-5">
                     @*Acerca de*@
                     <div class="col-md-3 text-center">
                         <button type="button" class="d-block mx-auto borde" @onclick="IrAAcercaDe">
@@ -94,12 +103,6 @@
                             <img src="Imagenes/acerca-de.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
                         </button>
                     </div>
-                    @*Reportes*@
-                   @*  <div class="col-md-3 text-center">
-                        <button class="d-block mx-auto borde" @onclick="IrAVentas">
-                            <h6><strong>Reportes</strong></h6>
-                            <img src="Imagenes/reporte.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
-                        </button>*@
                 </div>
             </div>
         </div>
@@ -144,6 +147,10 @@
     private void IrACuentasPorPagar()
     {
         navigation.NavigateTo("/CuentasPorPagar");
+    }
+    private void IrACuentasPorCobrar()
+    {
+        navigation.NavigateTo("/CuentasPorCobrar");
     }
     private void IrAProductos()
     {
