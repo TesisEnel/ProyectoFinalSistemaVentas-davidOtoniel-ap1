@@ -1,384 +1,327 @@
 ﻿@page "/DeleteCompras"
+@page "/DeleteCompras/compraId={compraId:int}"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject ProveedoresService proveedorService
+@inject TiposContribuyenteService tipoContribuyenteService
+@inject ContactosService contactoService
 @inject ComprasService comprasService
+@inject ProveedoresService proveedoresService
 @inject ProductosService productosService
 @inject UnidadesMedidaService unidadesMedidaService
 @inject MetodosPagoService metodosPagoService
 @inject NotificationService notificationService
 
-<PageTitle>Eliminar Compra</PageTitle>
+<PageTitle>Detalles de Compra</PageTitle>
+<RadzenNotification />
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Eliminar Compra</strong></h3>
+			<h3><strong>Detalles de Compra</strong></h3>
 		</div>
 		@*Cuerpo*@
-		<div class="card-body">
-			<div class="row">
-				<div class="col-8">
-					<div class="col-md-11">
-						<h3 class="text-center"><strong>Datos de la Compra</strong></h3>
-						<div class="border-primmary border border-2 borde">
-							<div class="card-body">
-								<div class="row">
-									@*Imagen*@
-									<div class="col-2">
-										<div class="text-center">
-											<img src="Imagenes/banca-en-linea.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
-										</div>
-									</div>
-									@*Datos de la Compra*@
-									<div class="col-9">
-										<table class="table table-bordered">
-											<tbody>
-												<tr>
-													<th>CompraId</th>
-													<td>@compra.CompraId</td>
-												</tr>
-												<tr>
-													<th>Fecha Creación</th>
-													<td>@compra.FechaCreacion.ToShortDateString()</td>
-												</tr>
-												<tr>
-													<th>Usuario Responsable</th>
-													<td>@compra.UsuarioResponsable</td>
-												</tr>
-												<tr>
-													<th>Proveedor</th>
-													<td>@compra.ProveedorId</td>
-												</tr>
-												<tr>
-													<th>M&eacute;todo de Pago</th>
-													<td>@compra.MetodoPagoId</td>
-												</tr>
-												<tr>
-													<th>SubTotal</th>
-													<td>@compra.SubTotal</td>
-												</tr>
-												<tr>
-													<th>Total ITBIS</th>
-													<td>@compra.TotalItbis</td>
-												</tr>
-												<tr>
-													<th>Total</th>
-													<td>@compra.TotalNeto</td>
-												</tr>
-												<tr>
-													<th>Nota</th>
-													<td>@compra.Nota</td>
-												</tr>
-											</tbody>
-										</table>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				@*Detalles de la proveedor*@
-				<div class="col-4">
-					<h3 class="text-center"><strong>Contactos</strong></h3>
-					<fieldset class="border-primmary border border-2 borde">
-						<div class="card-body">
-							<section>
-								@if (proveedor.ProveedoresDetalle.Count > 0)
-								{
-									<table class="table table-bordered miTabla">
-										<thead>
-											<tr>
-												<th>Tipo de Contacto</th>
-												<th>N&uacute;mero de Contacto</th>
-											</tr>
-										</thead>
-										<tbody>
-											@foreach (var detalle in proveedor.ProveedoresDetalle)
-											{
-												@*< tr>
-													<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
-													<td>@FormatPhoneNumber(detalle.Contacto)</td>
-												</tr> *@
-											}
-										</tbody>
-									</table>
-									<p><strong>Total N&uacute;meros de Contactos: </strong>@proveedor.ProveedoresDetalle.Count</p>
-								}
-								else
-								{
-									<h4>Este proveedor no tiene contactos agregados</h4>
-								}
-							</section>
-						</div>
-					</fieldset>
-				</div>
-			</div>
-		</div>
+        <div class="card-body">
+            <div class="container d-flex justify-content-center align-items-center">
+                <div class="row mb-4 col-12">
+                    <!-- Detalles Generales de la Compra -->
+                    <div class="col-md-8">
+                        <div class="col-md-11 text-center">
+                            <!-- Agregamos la clase mx-auto aquí -->
+                            <h3 class="text-center"><strong>Datos Generales de la Compra</strong></h3>
+                            <div class="border border-primary border-2 p-3 borde">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <!-- Imagen -->
+                                        <div class="col-2">
+                                            <div class="text-center">
+                                                <img src="Imagenes/carrito-de-supermercado.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+                                            </div>
+                                        </div>
+                                        <!-- Detalle General -->
+                                        <div class="col-9">
+                                            <table class="table table-bordered">
+                                                <tbody>
+                                                    <tr>
+                                                        <th>CompraId</th>
+                                                        <td>@compra.CompraId</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Fecha Creación</th>
+                                                        <td>@compra.FechaCreacion.ToShortDateString()</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Usuario Responsable</th>
+                                                        <td>@compra.UsuarioResponsable</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Proveedor</th>
+                                                        <td>@BuscarProveedor(compra.ProveedorId)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Método de Pago</th>
+                                                        <td>@BuscarMetodoPago(compra.MetodoPagoId)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Nota</th>
+                                                        <td>@compra.Nota</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body mb-3">
+                <div class="row">
+                    <!-- Totales -->
+                    <div class="col-md-4">
+                        <div class="border border-primary border-2 p-3 borde">
+                            <h3 class="text-center mb-4"><strong>Totales</strong></h3>
+                            <div class="card-body">
+                                <!-- Subtotal -->
+                                <div class="row mb-3 justify-content-center">
+                                    <div class="col-6">
+                                        <label class="form-label text-center"><strong>Subtotal</strong></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <span id="subtotal" class="form-control">@compra.SubTotal.ToString("N2")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Total ITBIS -->
+                                <div class="row mb-3 justify-content-center">
+                                    <div class="col-6">
+                                        <label class="form-label"><strong>Total ITBIS</strong></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <span id="totalItbis" class="form-control">@compra.TotalItbis.ToString("N2")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Total -->
+                                <div class="row mb-3 justify-content-center">
+                                    <div class="col-6">
+                                        <label class="form-label"><strong>Total</strong></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <span id="total" class="form-control">@compra.TotalNeto.ToString("N2")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos Financieros -->
+                    <div class="col-md-4">
+                        <div class="border border-primary border-2 p-3 mt-3 borde">
+                            <h3 class="text-center mb-4"><strong>Datos Financieros</strong></h3> <!-- Ajustado el nivel de encabezado para que coincida con la sección "Totales" -->
+                            <!-- Monto Pagado -->
+                            <div class="row mb-3 justify-content-center">
+                                <div class="col-10">
+                                    <label class="form-label text-center"><strong>Monto Pagado</strong></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <span id="montoPagado" class="form-control">@compra.MontoPagado.ToString("N2")</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Devuelta -->
+                            <div class="row mb-3 justify-content-center">
+                                <div class="col-10">
+                                    <label class="form-label text-center"><strong>Devuelta</strong></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <span id="devuelta" class="form-control">@compra.Devuelta.ToString("N2")</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Deuda -->
+                            <div class="row mb-3 justify-content-center">
+                                <div class="col-10">
+                                    <label class="form-label text-center"><strong>Deuda</strong></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <span id="deuda" class="form-control">@compra.Deuda.ToString("N2")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            @*Columnas*@
+            <h3 class="text-center"><strong>Lista de Productos Comprados</strong></h3>
+            <div class="border border-primary border-2 p-3 borde">
+                @*Table Detalles*@
+                <table class="table table-bordered miTabla">
+                    <thead>
+                        <tr>
+                            <th>Cantidad</th>
+                            <th>Descripci&oacute;n</th>
+                            <th>Uni. Medida</th>
+                            <th>Cant. por Empaque</th>
+                            <th>Costo</th>
+                            <th>C/U</th>
+                            <th>ITBIS</th>
+                            <th>Costo Total Neto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var detalle in compra.ComprasDetalle)
+                        {
+                            <tr>
+                                <td>@detalle.CantidadProducto</td>
+                                <td>@BuscarProducto(detalle.ProductoId)</td>
+                                <td>@BuscarUnidadMedida(detalle.UnidadMedidaId)</td>
+                                <td>@detalle.CantidadUnidadProducto</td>
+                                <td>@detalle.CostoTotal.ToString("N2")</td>
+                                <td>@detalle.CostoUnidad.ToString("N2")</td>
+                                <td>@detalle.Itbis.ToString("N2")</td>
+                                <td>@detalle.CostoTotalNeto.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <p><strong>Total de Productos: </strong>@compra.ComprasDetalle.Count</p>
+            </div>
+        </div>
 		@*Footer*@
-		<div class="card-footer d-flex justify-content-center">
-			<div class="px-2">
-				<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
-			</div>
-			<button type="submit" class="btn btn-outline-success"><i class="bi bi-floppy-fill" /> Crear</button>
-		</div>
+        <div class="card-footer d-flex justify-content-center">
+            <div class="px-2">
+                <button type="button" class="btn btn-outline-dark" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Cancelar</button>
+            </div>
+            <button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="bi bi-trash3-fill" /> Eliminar</button>
+        </div>
 	</div>
 </div>
-@mensaje
-@otro
 
 @code {
-	public Proveedores proveedor { get; set; } = new Proveedores();
-	public Compras compra { get; set; } = new Compras();
+    [Parameter]
+    public int compraId { get; set; }
 
-	public List<Proveedores> proveedores = new List<Proveedores>();
-	public List<Productos> productos = new List<Productos>();
-	public List<UnidadesMedida> unidadesMedidas = new List<UnidadesMedida>();
-	public List<MetodosPago> metodosPagos = new List<MetodosPago>();
+    public Compras compra { get; set; } = new Compras();
+    public Proveedores proveedor { get; set; } = new Proveedores();
+    public List<Proveedores> proveedores = new List<Proveedores>();
+    public List<Productos> productos = new List<Productos>();
+    public List<UnidadesMedida> unidadesMedidas = new List<UnidadesMedida>();
+    public List<MetodosPago> metodosPagos = new List<MetodosPago>();
 
-	public int cantidad { get; set; }
-	public int producto { get; set; }
-	public int unidadesMedida { get; set; }
-	public int unidades { get; set; }
-	public decimal precio { get; set; }
-	public decimal costoTotal { get; set; }
+    public int tipo { get; set; }
+    public string contacto { get; set; } = string.Empty;
+    public string mensaje { get; set; } = string.Empty;
 
-	public string contribuyente { get; set; }
-	public string rnc { get; set; }
-	public string direccion { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
 
-	public string mensaje { get; set; } = string.Empty;
-	public string mensajeNombre { get; set; } = string.Empty;
-	public string mensajeEmail { get; set; } = string.Empty;
-	public string mensajeRNC { get; set; } = string.Empty;
-	public string otro { get; set; } = string.Empty;
+        compra = await comprasService.BuscarId(compraId);
+        proveedores = await proveedoresService.Listar(p => p.Eliminado == false);
+        productos = await productosService.Listar(p => p.Eliminado == false);
+        unidadesMedidas = await unidadesMedidaService.Listar(um => um.UnidadMedidaId > 0);
+        metodosPagos = await metodosPagoService.Listar(um => um.MetodoPagoId > 0);
+    }
 
-	protected override async Task OnInitializedAsync()
-	{
-		await Task.Delay(500);
+    public async Task Eliminar()
+    {
+        compra.Eliminado = true;
+        //Lo que se hace aqui es que en lugar de eliminar, se cambia Eliminado a true
+        //y se llama a la funcion crear para que modifique este valor
+        var response = await comprasService.Crear(compra);
 
-		proveedores = await proveedorService.Listar(p => p.Eliminado == false);
-		productos = await productosService.Listar(p => p.Eliminado == false);
-		unidadesMedidas = await unidadesMedidaService.Listar(um => um.UnidadMedidaId > 0);
-		metodosPagos = await metodosPagoService.Listar(um => um.MetodoPagoId > 0);
-	}
+        if (response)
+        {
+            var Mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Éxito al eliminar",
+                    Detail = "Se eliminó la compra con éxito",
+                    Duration = 5_000
+                };
+            notificationService.Notify(Mensaje);
 
-	public async Task Modificar()
-	{
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
+            await Task.Delay(3000);
+            Volver();
+        }
+        else
+        {
+            var Mensaje = new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error al eliminar",
+                    Detail = "No se pudo eliminar la compra correctamente",
+                    Duration = 5_000
+                };
+            notificationService.Notify(Mensaje);
+        }
+    }
 
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
+    public string BuscarProducto(int id)
+    {
+        var producto = productos.FirstOrDefault(p => p.ProductoId == id);
 
-		if (await ValidarProveedor())
-		{
-			if (String.IsNullOrEmpty(proveedor.Nota))
-				proveedor.Nota = "----";
+        if (producto != null)
+        {
+            return producto.Nombre;
+        }
+        else
+        {
+            return "Nombre de producto no encontrado";
+        }
+    }
 
-			var response = await proveedorService.Crear(proveedor);
+    public string BuscarUnidadMedida(int id)
+    {
+        var valor = unidadesMedidas.FirstOrDefault(u => u.UnidadMedidaId == id);
 
-			// if (response.IsSuccessStatusCode)
-			// {
-			// 	mensaje = "La solicitud fue exitosa.";
-			// }
-			// else
-			// {
-			// 	mensaje = "La solicitud falló con el siguiente estado: " + response.ToString();
-			// }
-		}
-		else
-			mensaje = "Algunos datos ya existen en la base de datos.";
+        if (valor != null)
+        {
+            return valor.UnidadMedida;
+        }
+        else
+        {
+            return "Unidad de medida no encontrada";
+        }
+    }
 
-		StateHasChanged();
-		await Task.Delay(4000);
-		await LimpiarPantalla();
-	}
+    public string BuscarMetodoPago(int id)
+    {
+        if (metodosPagos != null)
+        {
+            var metodo = metodosPagos.FirstOrDefault(c => c.MetodoPagoId == id);
+            if (metodo != null)
+            {
+                return metodo.MetodoPago;
+            }
+        }
+        return "Método de pago no encontrado";
+    }
 
-	public async Task<bool> ValidarProveedor()
-	{
-		var validar = await proveedorService.Listar(p => p.Eliminado == false);
-		var nombre = validar.FirstOrDefault(p => p.Nombre == proveedor.Nombre);
-		var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
-		var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
+    public string BuscarProveedor(int id)
+    {
+        var proveedor = proveedores.FirstOrDefault(p => p.ProveedorId == id);
 
-		bool nombreValido = true;
-		bool emailValido = true;
-		bool rncValido = true;
-
-		if (nombre != null)
-		{
-			nombreValido = false;
-			mensajeNombre = "Ya existe un proveedor con este nombre";
-		}
-
-		if (email != null)
-		{
-			emailValido = false;
-			mensajeEmail = "Ya existe un proveedor con este email";
-		}
-
-		if (rnc != null)
-		{
-			rncValido = false;
-			mensajeRNC = "Ya existe un proveedor con este número de RNC";
-		}
-
-		return nombreValido && emailValido && rncValido;
-	}
-
-	public async Task AgregarDetalle()
-	{
-		var costoUnidad = costoTotal / unidades;
-		var costo = costoTotal * cantidad;
-		var itbis = (decimal)((double)costo * 0.18);
-
-		var nuevoDetalle = new ComprasDetalle
-			{
-				CantidadProducto = cantidad,
-				ProductoId = producto,
-				UnidadMedidaId = unidadesMedida,
-				CostoTotal = costo,
-				CostoUnidad = costoUnidad,
-				Itbis = itbis,
-				CostoTotalNeto = costo + itbis
-			};
-
-		compra.ComprasDetalle.Add(nuevoDetalle);
-
-		compra.SubTotal += costo + itbis;
-		compra.TotalItbis += itbis;
-		compra.TotalNeto = compra.SubTotal + compra.TotalItbis;
-
-		if (producto != 0 && unidadesMedida != 0 && precio != 0 && cantidad != 0)
-		{
-			if (costoTotal >= precio)
-			{
-				//costo no puede ser mayor que precio
-			}
-
-
-
-			if (await ValidarDetalle())
-			{
-				// var nuevoDetalle = new ProveedoresDetalle { ContactoId = tipo, Contacto = contacto };
-				// proveedor.ProveedoresDetalle.Add(nuevoDetalle);
-				// await LimpiarPantalla();
-			}
-			else
-				mensaje = "La longitud del contacto debe ser de 10 digitos";
-		}
-	}
-
-	public async Task<bool> ValidarDetalle()
-	{
-		// foreach (var detalle in compra.ComprasDetalle)
-		// {
-		// 	if (detalle.No == contacto)
-		// 		return false;
-		// }
-
-		return true;
-	}
-
-	// public string ObtenerTipoContacto(int id)
-	// {
-	// 	var dato = contactos.FirstOrDefault(c => c.ContactoId == id);
-
-	// 	return dato.Descripcion;
-	// }
-
-	// public string FormatPhoneNumber(string phoneNumber)
-	// {
-	// 	return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
-	// }
-
-	private void ActualizarDatosProveedor(int proveedorId)
-	{
-		// var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.ProveedorId == proveedorId);
-		// if (proveedorSeleccionado != null)
-		// {
-		// 	direccion = proveedorSeleccionado.Ciudad + ", " + proveedorSeleccionado.Direccion;
-		// 	contribuyente = proveedorSeleccionado.TipoContribuyente;
-		// 	rnc = proveedorSeleccionado.RNC;
-		// }
-		// else
-		// {
-		// 	// Limpiar los campos si no se selecciona un proveedor válido
-		// 	direccion = string.Empty;
-		// 	contribuyente = string.Empty;
-		// 	rnc = string.Empty;
-		// }
-	}
-
-	bool unidadesDisabled = true;
-
-	void VerificarUnidades(ChangeEventArgs e)
-	{
-		var unidadesMedidaSeleccionada = (string)e.Value;
-
-		unidadesDisabled = unidadesMedidaSeleccionada == "2" || unidadesMedidaSeleccionada == "0";
-
-		if (unidadesMedidaSeleccionada == "2")
-			unidades = 1;
-		else
-			unidades = 0;
-	}
-
-	Dictionary<string, object> UnidadesAttributes => new Dictionary<string, object>
-	{
-		{ "class", "form-control" },
-		{ "bind-Value", "@unidades" },
-		{ "disabled", unidadesDisabled }
-	};
-
-	public string BuscarProducto(int id)
-	{
-		var valor = productos.FirstOrDefault(p => p.ProductoId == id);
-
-		return valor.Nombre;
-	}
-
-	public string BuscarUnidadMedida(int id)
-	{
-		var valor = unidadesMedidas.FirstOrDefault(u => u.UnidadMedidaId == id);
-
-		return valor.UnidadMedida;
-	}
-
-	public async Task EliminarDetalle(ComprasDetalle detalle)
-	{
-		compra.ComprasDetalle.Remove(detalle);
-	}
-
-	public async Task LimpiarPantalla()
-	{
-		mensaje = string.Empty;
-		mensajeNombre = string.Empty;
-		mensajeEmail = string.Empty;
-		mensajeRNC = string.Empty;
-
-		cantidad = 0;
-		precio = 0;
-		producto = 0;
-		unidadesMedida = 0;
-		StateHasChanged();
-	}
+        if (proveedor != null)
+        {
+            return proveedor.Nombre;
+        }
+        else
+        {
+            return "Nombre de proveedor no encontrado";
+        }
+    }
 
 	void Volver()
 	{
-		navigation.NavigateTo("/Proveedores");
+        navigation.NavigateTo("/Compras");
 	}
 }

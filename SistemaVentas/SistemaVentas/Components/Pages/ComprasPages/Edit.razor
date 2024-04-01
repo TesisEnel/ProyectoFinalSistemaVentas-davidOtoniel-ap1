@@ -1,5 +1,5 @@
 ﻿@page "/EditCompras"
-@page "/EditCompras/compraId = {compraId:int}"
+@page "/EditCompras/compraId={compraId:int}"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject ProveedoresService proveedorService
@@ -12,7 +12,7 @@
 @inject TiposContribuyenteService tiposContribuyenteService
 @inject NotificationService notificationService
 
-<PageTitle>Crear Nueva Compra</PageTitle>
+<PageTitle>Modificar Compra</PageTitle>
 <RadzenNotification />
 <EditForm Model="compra" OnValidSubmit="Crear" FormName="RegistroCompras">
 	<DataAnnotationsValidator />
@@ -20,7 +20,7 @@
 		<div class="card shadow-lg">
 			@*Header*@
 			<div class="card-header">
-				<h3><strong>Crear Nueva Compra</strong></h3>
+				<h3><strong>Modificar Compra</strong></h3>
 			</div>
 			@*Cuerpo*@
 			<div class="card-body">
@@ -152,7 +152,7 @@
 											<th>Cant. por Empaque</th>
 											<th>Costo</th>
 											<th>C/U</th>
-											<th>ITBIS</th>
+											<th>ITBIS (18%)</th>
 											<th>Costo Total Neto</th>
 											<th></th>
 										</tr>
@@ -181,132 +181,130 @@
 				</fieldset>
 				<div class="row">
 					<div class="col-md-6">
-						<div class="col-6 mb-3">
-							<label class="form-label" for="pago"><strong>Método de Pago</strong></label>
-							<InputSelect id="pago" class="form-select" @bind-Value="compra.MetodoPagoId">
-								<option value="">Elige una opción</option>
-								@foreach (var metodoPago in metodosPagos)
-								{
-									<option value="@metodoPago.MetodoPagoId">@metodoPago.MetodoPago</option>
-								}
-							</InputSelect>
-							<ValidationMessage For="@(() => compra.MetodoPagoId)"></ValidationMessage>
+						<div class="col-4 mb-3">
+							<label class="form-label" for="monto"><strong>Monto Pagado</strong></label>
+							<div class="d-flex align-items-center">
+								<InputNumber id="monto" class="form-control me-2" @bind-Value="compra.MontoPagado" readonly></InputNumber>
+								<img class="miImagen me-2" src="/Imagenes/pago-en-efectivo.png" alt="imagen-tarjeta-visa" />
+							</div>
+						</div>
+						<div class="col-4 mb-3">
+							<label class="form-label" for="monto"><strong>Monto Modificación</strong></label>
+							<div class="d-flex align-items-center">
+								<InputNumber id="monto" class="form-control me-2" @bind-Value="dinero"></InputNumber>
+								<img class="miImagen me-2" src="/Imagenes/dinero.png" alt="imagen-tarjeta-visa" />
+							</div>
+						</div>
+						<div class="col-4 mb-3">
+							<label class="form-label" for="devolucion"><strong>Devolución</strong></label>
+							<div class="d-flex align-items-center">
+								<InputNumber id="devolucion" class="form-control me-2" @bind-Value="compra.Devuelta" readonly />
+								<img class="miImagen me-2" src="/Imagenes/devolucion-de-dinero.png" alt="imagen-tarjeta-visa" />
+							</div>
+						</div>
+						<div class="col-4 mb-3">
+							<label class="form-label" for="debe"><strong>Debe</strong></label>
+							<div class="d-flex align-items-center">
+								<InputNumber id="debe" class="form-control me-2" @bind-Value="compra.Deuda" readonly />
+								<img class="miImagen me-2" src="/Imagenes/doument.png" alt="imagen-tarjeta-visa" />
+							</div>
 						</div>
 
-						@if (compra.MetodoPagoId == 1)
-						{
-							<div class="col-4 mb-3">
-								<label class="form-label" for="monto"><strong>Monto</strong></label>
-								<div class="d-flex align-items-center">
-									<InputNumber id="monto" class="form-control me-2" @bind-Value="compra.MontoPagado"></InputNumber>
-									<img class="miImagen me-2" src="/Imagenes/pago-en-efectivo.png" alt="imagen-tarjeta-visa" />
-								</div>
-							</div>
-							<div class="col-4 mb-3">
-								<label class="form-label" for="devolucion"><strong>Devolución</strong></label>
-								<div class="d-flex align-items-center">
-									<InputNumber id="devolucion" class="form-control me-2" @bind-Value="compra.Devuelta" readonly />
-									<img class="miImagen me-2" src="/Imagenes/devolucion-de-dinero.png" alt="imagen-tarjeta-visa" />
-								</div>
-							</div>
-							<div class="col-4 mb-3">
-								<label class="form-label" for="debe"><strong>Debe</strong></label>
-								<div class="d-flex align-items-center">
-									<InputNumber id="debe" class="form-control me-2" @bind-Value="compra.Deuda" readonly />
-									<img class="miImagen me-2" src="/Imagenes/doument.png" alt="imagen-tarjeta-visa" />
-								</div>
-							</div>
-
-							<div class="col-auto d-flex align-items-end">
-								<button type="button" class="btn btn-outline-success" @onclick="CalcularPago"><i class="bi bi-check-lg" /> Verificar</button>
-							</div>
-						}
-
-						@if (compra.MetodoPagoId == 2)
-						{
-							<div class="col-4 mb-3">
-								<label class="form-label" for="debe"><strong>Debe</strong></label>
-								<div class="d-flex align-items-center">
-									<InputNumber id="debe" class="form-control me-2" @bind-Value="compra.Deuda" readonly />
-									<img class="miImagen me-2" src="/Imagenes/doument.png" alt="imagen-tarjeta-visa" />
-								</div>
-							</div>
-							<div class="col-auto d-flex align-items-end">
-								<button type="button" class="btn btn-outline-success" @onclick="CalcularPago"><i class="bi bi-check-lg" /> Verificar</button>
-							</div>
-						}
-
-						@if (compra.MetodoPagoId == 3)
-						{
-							@*Numero de Cuenta Proveedor*@
-							<div class="col-6 mb-3">
-								<label class="form-label" for="tarjeta"><strong>N&uacute;mero de Cuenta del Proveedor</strong></label>
-								<div class="d-flex align-items-center">
-									<InputText id="tarjeta" class="form-control me-2" @bind-Value="cuenta" readonly />
-									<img class="miImagen me-2" src="/Imagenes/tarjeta-codigo.png" alt="imagen-tarjeta-visa" />
-								</div>
-							</div>
-							@*Banco*@
-							<div class="col-6 mb-3">
-								<label class="form-label" for="banco"><strong>Banco</strong></label>
-								<div class="d-flex align-items-center">
-									<InputText id="banco" class="form-control me-2" @bind-Value="bancoProveedor" readonly />
-									<img class="miImagen me-2" src="/Imagenes/banco.png" alt="imagen-tarjeta-visa" />
-								</div>
-							</div>
-							@*Monto transferencia*@
-							<div class="col-4 mb-3">
-								<label class="form-label" for="codigo"><strong>Monto de Transferencia</strong></label>
-								<div class="d-flex align-items-center">
-									<InputNumber id="codigo" class="form-control me-2" @bind-Value="compra.MontoPagado" readonly />
-									<img class="miImagen" src="/Imagenes/transferencia-movil.png" alt="imagen-tarjeta-codigo" />
-								</div>
-							</div>
-							<div class="col-auto d-flex align-items-end">
-								<button type="button" class="btn btn-outline-success" @onclick="CalcularPago"><i class="bi bi-check-lg" /> Verificar</button>
-							</div>
-							@*
-						<div class="mensajeCorrecto mb-3">
-						@mensajeValidacionTarjeta
+						<div class="col-auto d-flex align-items-end">
+							<button type="button" class="btn btn-outline-success" @onclick="CalcularPago"><i class="bi bi-check-lg" /> Verificar</button>
 						</div>
-						<div class="mensajeError mb-3">
-						@mensajeErrorTarjeta
-						</div>
-
-						*@
-						}
 					</div>
 					<div class="col-md-6">
 						<div class="card">
 							<div class="card-body">
-								<h3 class="text-center"><strong>Totales</strong></h3>
-								<!-- Subtotal -->
-								<div class="row mb-3 justify-content-center">
-									<div class="col-6">
-										<label class="form-label text-center"><strong>Subtotal</strong></label>
-										<div class="input-group">
-											<span class="input-group-text">$</span>
-											<span id="subtotal" class="form-control">@compra.SubTotal.ToString("N2")</span>
+								<div class="border border-primary rounded p-2 mb-3">
+									<h3 class="text-center mb-0"><strong>Totales</strong></h3>
+								</div>
+								<div class="row">
+									<!-- Total Antes -->
+									<div class="col-6 border-end border-secondary">
+										<div class="border border-secondary rounded p-3">
+											<h4 class="text-center mb-3"><strong>Total Antes</strong></h4>
+											<!-- Subtotal -->
+											<div class="row mb-3 justify-content-center">
+												<div class="col-10">
+													<label class="form-label text-center"><strong>Subtotal</strong></label>
+													<div class="input-group">
+														<span class="input-group-text">$</span>
+														<span id="subtotalAntes" class="form-control">@compra.SubTotal.ToString("N2")</span>
+													</div>
+												</div>
+											</div>
+											<!-- Total ITBIS -->
+											<div class="row mb-3 justify-content-center">
+												<div class="col-10">
+													<label class="form-label"><strong>Total ITBIS</strong></label>
+													<div class="input-group">
+														<span class="input-group-text">$</span>
+														<span id="totalItbisAntes" class="form-control">@compra.TotalItbis.ToString("N2")</span>
+													</div>
+												</div>
+											</div>
+											<!-- Total -->
+											<div class="row mb-3 justify-content-center">
+												<div class="col-10">
+													<label class="form-label"><strong>Total</strong></label>
+													<div class="input-group">
+														<span class="input-group-text">$</span>
+														<span id="totalAntes" class="form-control">@compra.TotalNeto.ToString("N2")</span>
+													</div>
+												</div>
+											</div>
 										</div>
 									</div>
-								</div>
-								<!-- Total ITBIS -->
-								<div class="row mb-3 justify-content-center">
+									<!-- Total Después -->
 									<div class="col-6">
-										<label class="form-label"><strong>Total ITBIS</strong></label>
-										<div class="input-group">
-											<span class="input-group-text">$</span>
-											<span id="totalItbis" class="form-control">@compra.TotalItbis.ToString("N2")</span>
+										<div class="border border-secondary rounded p-3">
+											<h4 class="text-center mb-3"><strong>Total Ahora</strong></h4>
+											<!-- Subtotal -->
+											<div class="row mb-3 justify-content-center">
+												<div class="col-10">
+													<label class="form-label text-center"><strong>Subtotal</strong></label>
+													<div class="input-group">
+														<span class="input-group-text">$</span>
+														<span id="subtotalDespues" class="form-control">@subTotalAhora.ToString("N2")</span>
+													</div>
+												</div>
+											</div>
+											<!-- Total ITBIS -->
+											<div class="row mb-3 justify-content-center">
+												<div class="col-10">
+													<label class="form-label"><strong>Total ITBIS</strong></label>
+													<div class="input-group">
+														<span class="input-group-text">$</span>
+														<span id="totalItbisDespues" class="form-control">@totalItbisAhora.ToString("N2")</span>
+													</div>
+												</div>
+											</div>
+											<!-- Total -->
+											<div class="row mb-3 justify-content-center">
+												<div class="col-10">
+													<label class="form-label"><strong>Total</strong></label>
+													<div class="input-group">
+														<span class="input-group-text">$</span>
+														<span id="totalDespues" class="form-control">@totalAhora.ToString("N2")</span>
+													</div>
+												</div>
+											</div>
 										</div>
 									</div>
-								</div>
-								<!-- Total -->
-								<div class="row mb-3 justify-content-center">
-									<div class="col-6">
-										<label class="form-label"><strong>Total</strong></label>
-										<div class="input-group">
-											<span class="input-group-text">$</span>
-											<span id="total" class="form-control">@compra.TotalNeto.ToString("N2")</span>
+									<!-- Total General -->
+									<div class="col-12 mt-3">
+										<div class="border border-secondary rounded p-3">
+											<h4 class="text-center mb-3"><strong>Total General</strong></h4>
+											<div class="row mb-3 justify-content-center">
+												<div class="col-8">
+													<div class="input-group">
+														<span class="input-group-text">$</span>
+														<span id="totalDespues" class="form-control">@totalGeneral.ToString("N2")</span>
+													</div>
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -314,17 +312,13 @@
 						</div>
 					</div>
 				</div>
-
-
-
-
 			</div>
 			@*Footer*@
 			<div class="card-footer d-flex justify-content-center">
 				<div class="px-2">
 					<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
 				</div>
-				<button type="submit" class="btn btn-outline-success"><i class="bi bi-floppy-fill" /> Crear</button>
+				<button type="submit" class="btn btn-outline-success"><i class="bi bi-floppy-fill" /> Modificar</button>
 			</div>
 		</div>
 	</div>
@@ -351,6 +345,16 @@
 	public int unidades { get; set; }
 	public decimal precio { get; set; }
 	public decimal costoTotal { get; set; }
+
+	//modificacion
+	public decimal dinero { get; set; }
+	public decimal devolucion { get; set; }
+	public decimal comparacionTotal { get; set; }
+	public decimal subTotalAhora { get; set; }
+	public decimal totalItbisAhora { get; set; }
+	public decimal totalAhora { get; set; }
+	public decimal totalGeneral { get; set; } = 0;
+
 
 	public string contribuyente { get; set; }
 	public string rnc { get; set; }
@@ -394,6 +398,15 @@
 
 		///compra
 		compra = await comprasService.BuscarId(compraId);
+
+		comparacionTotal = compra.TotalNeto;
+
+		subTotalAhora = compra.ComprasDetalle.Sum(d => d.CostoTotalNeto);
+		totalItbisAhora = compra.ComprasDetalle.Sum(d => d.Itbis);
+		totalAhora = subTotalAhora + totalItbisAhora;
+
+		//totalgeneral
+		totalGeneral = totalAhora;
 	}
 
 	public async Task Crear()
@@ -414,6 +427,8 @@
 		if (String.IsNullOrEmpty(compra.Nota))
 			compra.Nota = "----";
 
+
+		//quitar para probar algo
 		if (compra.Estado == "Deuda")
 		{
 			cuentasPorPagar = new CuentasPorPagar
@@ -426,6 +441,8 @@
 
 			compra.CuentaPorPagar = cuentasPorPagar;
 		}
+
+		ActualizarDatosDeCompra();
 
 		var response = await comprasService.Crear(compra);
 		if (response)
@@ -450,58 +467,60 @@
 
 	public async Task Pagar()
 	{
-		switch (compra.MetodoPagoId)
+		if (compra.Estado == "Pagada")
 		{
-			case 1:
-				if (compra.MontoPagado >= compra.TotalNeto)
+			await capitalService.Modificar(capital);
+
+			var MensajeEfectivo = new NotificationMessage
 				{
-					await capitalService.Modificar(capital);
+					Severity = NotificationSeverity.Success,
+					Summary = "Compra realizada con éxito",
+					Detail = $"Pago realizado con éxito $RD{totalGeneral.ToString("N2")}",
+					Duration = 5_000
+				};
+			notificationService.Notify(MensajeEfectivo);
 
-					var MensajeEfectivo = new NotificationMessage
-						{
-							Severity = NotificationSeverity.Success,
-							Summary = "Compra realizada con éxito",
-							Detail = $"Pago realizado con éxito $RD{compra.TotalNeto.ToString("N2")}",
-							Duration = 5_000
-						};
-					notificationService.Notify(MensajeEfectivo);
-				}
-				else
+			//Buscar cuenta por pagar y pagarla
+			//await cuentasPorPagarService.BuscarCompra(compra.CompraId);
+			// if(response)
+			// {
+			///	cuentasPorPagar.Estado = Pagada;
+			///	cuentasPorPagar.DeudaRestante = 0;
+			//	
+			// }
+		}
+		else
+		{
+			await capitalService.Modificar(capital);
+
+			var MensajeEfectivo = new NotificationMessage
 				{
-					await capitalService.Modificar(capital);
+					Severity = NotificationSeverity.Success,
+					Summary = "Compra realizada con éxito",
+					Detail = $"Debe $RD{compra.Deuda.ToString("N2")}",
+					Duration = 5_000
+				};
+			notificationService.Notify(MensajeEfectivo);
 
-					var MensajeEfectivo = new NotificationMessage
-						{
-							Severity = NotificationSeverity.Success,
-							Summary = "Compra realizada con éxito",
-							Detail = $"Debe $RD{compra.Deuda.ToString("N2")}",
-							Duration = 5_000
-						};
-					notificationService.Notify(MensajeEfectivo);
-				}
-				break;
+			//Buscar cuenta por pagar y actualizarla
+			//await cuentasPorPagarService.BuscarCompra(compra.CompraId);
+			// if(response)
+			// {
+			///	cuentasPorPagar.DeudaInicial = totalGeneral;
+			//	if(comparacionTotal > totalGeneral)
+			//	{
+			//		cuentasPorPagar.DeudaRestante -= totalAhora - comparacionTotal;
+			//	}
+			// }
+			// cuentasPorPagar = new CuentasPorPagar
+			// 	{
+			// 		CompraId = compra.CompraId,
+			// 		DeudaInicial = compra.Deuda,
+			// 		DeudaRestante = compra.Deuda,
+			// 		Estado = "Pendiente"
+			// 	};
 
-			case 2:
-				var MensajeDeuda = new NotificationMessage
-					{
-						Severity = NotificationSeverity.Success,
-						Summary = "Compra realizada con éxito",
-						Detail = $"Debe $RD{compra.Deuda.ToString("N2")}",
-						Duration = 5_000
-					};
-				notificationService.Notify(MensajeDeuda);
-				break;
-
-			case 3:
-				var MensajeTrasnferencia = new NotificationMessage
-					{
-						Severity = NotificationSeverity.Success,
-						Summary = "Compra realizada con éxito",
-						Detail = $"Monto de transferencia $RD{compra.MontoPagado.ToString("N2")}",
-						Duration = 5_000
-					};
-				notificationService.Notify(MensajeTrasnferencia);
-				break;
+			// compra.CuentaPorPagar = cuentasPorPagar;
 		}
 	}
 
@@ -523,73 +542,34 @@
 
 	public void CalcularPago()
 	{
-		decimal pagar = 0;
-
-		switch (compra.MetodoPagoId)
+		if (capital.Efectivo < compra.MontoPagado)///si no hay suficiente efectivo
 		{
-			case 1:
-				if (capital.Efectivo < compra.MontoPagado)///si no hay suficiente efectivo
+			var Mensaje = new NotificationMessage
 				{
-					var Mensaje = new NotificationMessage
-						{
-							Severity = NotificationSeverity.Error,
-							Summary = "Error al pagar con efectivo",
-							Detail = "El dinero no es suficiente para realizar el pago",
-							Duration = 5_000
-						};
-					notificationService.Notify(Mensaje);
-					return;
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al pagar con efectivo",
+					Detail = "El dinero no es suficiente para realizar el pago",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			return;
+		}
 
-					// var montoFaltante = compra.TotalNeto - capital.Efectivo;
-					// compra.Devuelta = 0;
-					// compra.Deuda = montoFaltante;
-					// // compra.Estado = "Pendiente";
-
-				}
-				if (compra.MontoPagado >= compra.TotalNeto)///si el monto es mayor que el total
-				{
-					capital.Efectivo -= compra.TotalNeto;
-					compra.Devuelta = Math.Round(compra.MontoPagado - compra.TotalNeto, 2);
-					compra.Deuda = 0;
-					compra.Estado = "Pagada";
-				}
-				else if (compra.MontoPagado < compra.TotalNeto)///si el monto es menor que el total
-				{
-					var montoFaltante = compra.TotalNeto - compra.MontoPagado;
-					capital.Efectivo -= compra.MontoPagado;
-					compra.Devuelta = 0;
-					compra.Deuda = montoFaltante;
-					compra.Estado = "Deuda";
-				}
-				break;
-			case 2:
-				compra.Deuda = compra.TotalNeto;
-				compra.MontoPagado = 0;
-				compra.Devuelta = 0;
-				compra.Estado = "Deuda";
-
-				break;
-			case 3:
-				if (banco.Monto < compra.TotalNeto)
-				{
-					var Mensaje = new NotificationMessage
-						{
-							Severity = NotificationSeverity.Error,
-							Summary = "Error al pagar a través de transferencia",
-							Detail = "Fondos insuficientes",
-							Duration = 5_000
-						};
-					notificationService.Notify(Mensaje);
-				}
-				else
-				{
-					banco.Monto -= compra.TotalNeto;
-					compra.MontoPagado = compra.TotalNeto;
-					compra.Deuda = 0;
-					compra.Devuelta = 0;
-					compra.Estado = "Pagada";
-				}
-				break;
+		if (dinero + compra.MontoPagado >= totalGeneral)///si el monto es mayor que el total
+		{
+			var cobro = totalGeneral - compra.MontoPagado;
+			capital.Efectivo -= cobro;
+			compra.Devuelta = Math.Round(dinero - cobro, 2);
+			compra.Deuda = 0;
+			compra.Estado = "Pagada";
+		}
+		else ///si el monto es menor que el total
+		{
+			var montoFaltante = totalGeneral - dinero;
+			capital.Efectivo -= dinero;
+			compra.Devuelta = 0;
+			compra.Deuda = montoFaltante - compra.MontoPagado;
+			compra.Estado = "Deuda";
 		}
 	}
 
@@ -616,9 +596,10 @@
 
 			compra.ComprasDetalle.Add(nuevoDetalle);
 
-			compra.SubTotal += costo + itbis;
-			compra.TotalItbis += itbis;
-			compra.TotalNeto = compra.SubTotal + compra.TotalItbis;
+			subTotalAhora += costo + itbis;
+			totalItbisAhora += itbis;
+			totalAhora = subTotalAhora + totalItbisAhora;
+			totalGeneral = totalAhora;
 
 			var Mensaje = new NotificationMessage
 				{
@@ -733,6 +714,18 @@
 		return true;
 	}
 
+	public void ActualizarDatosDeCompra()
+	{
+		if (compra.Estado == "Pagada")
+			compra.MontoPagado = totalGeneral;
+		else
+			compra.MontoPagado = dinero;
+
+		compra.SubTotal = subTotalAhora;
+		compra.TotalItbis = totalItbisAhora;
+		compra.TotalNeto = totalAhora;
+	}
+
 	private void ActualizarDatosProveedor(int proveedorId)
 	{
 		var proveedorSeleccionado = proveedores.FirstOrDefault(p => p.ProveedorId == proveedorId);
@@ -794,9 +787,10 @@
 
 	public async Task EliminarDetalle(ComprasDetalle detalle)
 	{
-		compra.SubTotal -= detalle.CostoTotalNeto;
-		compra.TotalItbis -= detalle.Itbis;
-		compra.TotalNeto -= detalle.CostoTotalNeto + detalle.Itbis;
+		subTotalAhora -= detalle.CostoTotalNeto;
+		totalItbisAhora -= detalle.Itbis;
+		totalAhora -= detalle.CostoTotalNeto + detalle.Itbis;
+		totalGeneral = totalAhora;
 		compra.ComprasDetalle.Remove(detalle);
 
 		var Mensaje = new NotificationMessage
