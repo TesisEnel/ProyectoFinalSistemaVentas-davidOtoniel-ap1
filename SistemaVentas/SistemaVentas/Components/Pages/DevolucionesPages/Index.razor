@@ -1,0 +1,356 @@
+﻿@page "/Devoluciones"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ProveedoresService proveedorService
+@inject TiposContribuyenteService tiposContribuyenteService
+@inject CuentasPorPagarService cuentasPorPagarService
+@inject ComprasService comprasService
+@inject DevolucionesService devolucionesService
+@inject NotificationService notificationService
+
+<PageTitle>Devoluciones</PageTitle>
+<RadzenNotification />
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Devoluciones</strong></h3>
+			<div class="d-flex align-items-start">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="button" class="btn btn-outline-primary" @onclick="IrACrear"><i class="bi bi-plus-circle" /> Crear</button>
+			</div>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			@if (loading)
+			{
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border text-info">
+					</div>
+				</div>
+			}
+			else if (devoluciones.Count == 0)
+			{
+				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay devoluciones creadas</h1>
+			}
+			else
+			{
+
+				@*Fechas*@
+				<div class="row align-items-center mb-3">
+					<div class="row">
+						<div class="col-3">
+							<label class="form-label" for="desde"><strong>Desde:</strong></label>
+							<InputDate id="desde" class="form-control" @bind-Value="desde"></InputDate>
+						</div>
+						<div class="col-3">
+							<label class="form-label" for="hasta"><strong>Hasta:</strong></label>
+							<InputDate id="hasta" class="form-control" @bind-Value="hasta"></InputDate>
+						</div>
+					</div>
+				</div>
+
+				<div class="row align-items-center mb-3">
+					<label class="form-label" for="filtro"><strong>Campo a Filtrar:</strong></label>
+					<div class="col-3">
+						<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+							<option>Elige una opción</option>
+							<option value="id">Id</option>
+							<option value="devolucion">Monto Devuelto</option>
+						</InputSelect>
+					</div>
+
+					@if (filtro != "devolucion")
+					{
+						<div class="col-4">
+							<div class="row align-items-center">
+								<div class="col-auto miFlecha">
+									<p>→</p>
+								</div>
+								<div class="col">
+									<div class="input-group">
+										<InputText class="form-control" @bind-Value="valorFiltro" placeholder="Ingrese un dato para filtrar"></InputText>
+										<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search"></i></button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-3">
+							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise"></i> Restablecer</button>
+						</div>
+					}
+					else
+					{
+						<div class="col-3">
+							<div class="row align-items-center">
+								<div class="col">
+									<InputNumber id="inicial" class="form-control" @bind-Value="devolucionInicial"></InputNumber>
+								</div>
+							</div>
+						</div>
+						<div class="col-auto miFlecha">
+							<p>y</p>
+						</div>
+						<div class="col">
+							<div class="row align-items-center">
+								<div class="col-auto">
+									<InputNumber id="final" class="form-control" @bind-Value="devolucionFinal"></InputNumber>
+								</div>
+							</div>
+						</div>
+						<div class="col-auto">
+							<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search"></i></button>
+						</div>
+						<div class="col-3">
+							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise"></i> Restablecer</button>
+						</div>
+					}
+				</div>
+
+
+				<table class="table table-bordered miTabla">
+					<thead>
+						<tr>
+							<th>Devoluci&oacute;nId</th>
+							<th>Fecha de Devoluci&oacute;n</th>
+							<th>Cantidad de Producto Devuelto</th>
+							<th>Monto Devuelto</th>
+							<th>Nota</th>
+							<th>Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var devolucion in devoluciones)
+						{
+							<tr>
+								<td>@devolucion.DevolucionId</td>
+								<td>@devolucion.FechaDevolucion.ToShortDateString()</td>
+								<td>@devolucion.DevolucionesDetalle.Count</td>
+								<td>@devolucion.MontoDevolucion</td>
+								<td>@devolucion.Observacion</td>
+								<td>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(devolucion.DevolucionId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
+											<i class="bi bi-eye"></i>
+										</button>
+
+										<button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(devolucion.DevolucionId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+											<i class="bi bi-pencil-square"></i>
+										</button>
+										<button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(devolucion.DevolucionId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar">
+											<i class="bi bi-trash3-fill"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+		</div>
+		<div class="card-footer">
+			<p><strong>Total de Devoluciones:</strong> @devoluciones.Count</p>
+		</div>
+	</div>
+</div>
+
+@code {
+	public List<Devoluciones> devoluciones = new List<Devoluciones>();
+	public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
+
+	public string filtro { get; set; }
+	public string valorFiltro { get; set; }
+	public string mensaje { get; set; }
+	public bool loading { get; set; } = true;
+	public DateTime desde { get; set; } = DateTime.Today;
+	public DateTime hasta { get; set; } = DateTime.Today;
+	public decimal devolucionInicial { get; set; }
+	public decimal devolucionFinal { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		// await Task.Delay(500);
+		devoluciones = await devolucionesService.Listar(d => d.Eliminado == false);
+		tiposContribuyente = await tiposContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
+
+		loading = false;
+
+		if (devoluciones.Count == 0)
+			StateHasChanged();
+	}
+
+	public async Task Buscar()
+	{
+		if (desde > hasta)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "La fecha inicial no puede ser mayor a la fecha final",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			return;
+		}
+
+		else if (filtro == null)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "Debe elegir un método parar filtrar",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			return;
+		}
+
+		else if (valorFiltro == null && (devolucionInicial == 0 || devolucionFinal == 0))
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "Debe ingresar un dato",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			return;
+		}
+
+		List<Proveedores> listaFiltro = new List<Proveedores>();
+
+		switch (filtro)
+		{
+			case "id":
+				if (int.TryParse(valorFiltro, out int id))
+				{
+					var resultadoId = devoluciones.FirstOrDefault(p => p.DevolucionId == id);
+					if (resultadoId != null &&
+						(resultadoId.FechaDevolucion >= desde && resultadoId.FechaDevolucion <= hasta))
+					{
+						devoluciones.Clear();
+						devoluciones.Add(resultadoId);
+						VerificarMensajeFiltro(true);
+					}
+					else
+						VerificarMensajeFiltro(false);
+				}
+				else
+				{
+					var Mensaje = new NotificationMessage
+						{
+							Severity = NotificationSeverity.Error,
+							Summary = "Error al filtrar",
+							Detail = "El valor ingresado para DevolucionId no es válido",
+							Duration = 5_000
+						};
+					notificationService.Notify(Mensaje);
+					return;
+				}
+				break;
+
+			case "devolucion":
+				var resultados = devoluciones
+				.Where(d => d.FechaDevolucion >= desde && d.FechaDevolucion <= hasta
+						&& d.MontoDevolucion >= devolucionInicial && d.MontoDevolucion <= devolucionFinal);
+				if (resultados.Any())
+				{
+					devoluciones = resultados.ToList();
+					VerificarMensajeFiltro(true);
+				}
+				else
+				{
+					VerificarMensajeFiltro(false);
+				}
+				break;
+		}
+	}
+
+	public void VerificarMensajeFiltro(bool valor)
+	{
+		if (valor)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al filtrar",
+					Detail = "Se encontraron resultados",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+		}
+		else
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "No se encontraron resultados",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+		}
+	}
+
+	public string FormatRNCNumber(string rnc)
+	{
+		return $"{rnc.Substring(0, 3)}-{rnc.Substring(3, 7)}-{rnc.Substring(10)}";
+	}
+
+	public string BuscarTipoContribuyente(int id)
+	{
+		var contribuyente = tiposContribuyente.FirstOrDefault(p => p.TipoContribuyenteId == id);
+		return contribuyente.Descripcion;
+	}
+
+	public async Task Restablecer()
+	{
+		devoluciones = await devolucionesService.Listar(p => p.Eliminado == false);
+
+		var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Success,
+				Summary = "Éxito al restablecer",
+				Detail = "Los datos fueron restablecidos con éxito",
+				Duration = 5_000
+			};
+		notificationService.Notify(Mensaje);
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		await Task.Delay(2000);
+		mensaje = string.Empty;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/");
+	}
+
+	void IrACrear()
+	{
+		navigation.NavigateTo("/CreateDevoluciones");
+	}
+
+	void IrADetalles(int id)
+	{
+		navigation.NavigateTo($"/ViewDevoluciones/devolucionId={id}");
+	}
+	void IrAEditar(int id)
+	{
+		navigation.NavigateTo($"/EditDevoluciones/devolucionId={id}");
+	}
+	void IrAEliminar(int id)
+	{
+		navigation.NavigateTo($"/DeleteDevoluciones/devolucionId={id}");
+	}
+}

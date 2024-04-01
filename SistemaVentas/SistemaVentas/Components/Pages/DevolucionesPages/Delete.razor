@@ -1,0 +1,203 @@
+﻿@page "/DeleteDevoluciones"
+@page "/DeleteDevoluciones/devolucionId={devolucionId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ProveedoresService proveedorService
+@inject TiposContribuyenteService tipoContribuyenteService
+@inject ContactosService contactoService
+@inject VentasService ventasService
+@inject DevolucionesService devolucionesService
+@inject ClientesService clientesService
+@inject ProductosService productosService
+@inject NotificationService notificationService
+
+<PageTitle>Eliminar Devoluci&oacute;n</PageTitle>
+<RadzenNotification />
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Eliminar Devoluci&oacute;n</strong></h3>
+		</div>
+		@*Cuerpo*@
+		<div class="card-body">
+			<div class="row">
+				<div class="col-8 mb-3">
+					<div class="col-md-11">
+						<h3 class="text-center"><strong>Datos de la Devoluci&oacute;</strong></h3>
+						<div class="border border-primary border-2 p-3 borde">
+							<div class="card-body">
+								<div class="row">
+									@*Imagen*@
+									<div class="col-2">
+										<div class="text-center">
+											<img src="Imagenes/devolucion-de-dinero.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+										</div>
+									</div>
+									@*Datos de la devolucion*@
+									<div class="col-9">
+										<table class="table table-bordered">
+											<tbody>
+												<tr>
+													<th>DevolucionId</th>
+													<td>@devolucion.DevolucionId</td>
+												</tr>
+												<tr>
+													<th>Fecha de Devoluci&oacute;n</th>
+													<td>@devolucion.FechaDevolucion.ToShortDateString()</td>
+												</tr>
+												<tr>
+													<th>Cliente</th>
+													<td>@BuscarCliente(devolucion.ClienteId)</td>
+												</tr>
+												<tr>
+													<th>Monto de Devoluci&oacute;n</th>
+													<td>@devolucion.MontoDevolucion</td>
+												</tr>
+												<tr>
+													<th>Observaci&oacute;n</th>
+													<td>@devolucion.Observacion</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				@* Devoluciones Detalles *@
+				<fieldset class="border-primmary border border-2">
+					@* Body *@
+					<div class="card-body">
+						<section class="row mb-4">
+							<h3><strong>Detalles</strong></h3>
+						</section>
+						<section>
+							@if (devolucion.DevolucionesDetalle.Count > 0)
+							{
+								@* Table Detalles *@
+								<table class="table table-bordered miTabla">
+									<thead>
+										<tr>
+											<th>Cantidad</th>
+											<th>Producto</th>
+											<th>Precio de Producto</th>
+											<th>Motivo</th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										@foreach (var detalle in devolucion.DevolucionesDetalle)
+										{
+											<tr>
+												<td>@detalle.CantidadDevuelta</td>
+												<td>@BuscarProducto(detalle.ProductoId)</td>
+												<td>@detalle.PrecioTotal</td>
+												<td>@detalle.Motivo</td>
+											</tr>
+										}
+									</tbody>
+								</table>
+								<p><strong>Total de Devoluciones: </strong>@devolucion.DevolucionesDetalle.Count</p>
+							}
+
+							<!-- Mostrar el MontoDevuelto en una etiqueta más grande -->
+							<div style="font-size: larger;">
+								<strong>Monto Devuelto:</strong> @devolucion.MontoDevolucion
+							</div>
+
+						</section>
+					</div>
+				</fieldset>
+			</div>
+		</div>
+		@*Footer*@
+		<div class="card-footer d-flex justify-content-center">
+			<div class="px-2">
+				<button type="button" class="btn btn-outline-dark" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Cancelar</button>
+			</div>
+			<button type="button" class="btn btn-outline-danger" @onclick="Eliminar"><i class="bi bi-trash3-fill" /> Eliminar</button>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public int devolucionId { get; set; }
+	public Devoluciones devolucion { get; set; } = new Devoluciones();
+
+	public List<Clientes> clientes = new List<Clientes>();
+	public List<Productos> productos = new List<Productos>();
+	public int tipo { get; set; }
+	public string contacto { get; set; } = string.Empty;
+	public string mensaje { get; set; } = string.Empty;
+	public string mensajeNombre { get; set; } = string.Empty;
+	public string mensajeEmail { get; set; } = string.Empty;
+	public string mensajeRNC { get; set; } = string.Empty;
+	public string mensajeCuenta { get; set; } = string.Empty;
+
+	public int productoDetalle { get; set; }
+	public int cantidad { get; set; }
+	public string motivo { get; set; }
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		// await Task.Delay(500);
+
+		clientes = await clientesService.Listar(c => c.Eliminado == false);
+		productos = await productosService.Listar(p => p.Eliminado == false);
+
+		if(devolucionId > 0)
+			devolucion = await devolucionesService.BuscarId(devolucionId);
+	}
+
+	public async Task Eliminar()
+	{
+		//Cambiamos el estado de la devolucion a eliminado
+		devolucion.Eliminado = true;
+		await devolucionesService.Crear(devolucion);
+
+		var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Success,
+				Summary = "Éxito al eliminar",
+				Detail = "La devolución se eliminó con éxito",
+				Duration = 5_000
+			};
+		notificationService.Notify(Mensaje);
+
+		await Task.Delay(3000);
+		Volver();
+	}
+
+	public string BuscarCliente(int id)
+	{
+		var clienteId = devolucion.ClienteId;
+
+		if (clienteId != null)
+		{
+			var cliente = clientes.FirstOrDefault(c => c.ClienteId == clienteId);
+
+			if (cliente != null)
+			{
+				return cliente.Nombre;
+			}
+		}
+
+		return "No se encontro clente";
+	}
+
+	public string BuscarProducto(int id)
+	{
+		var valor = productos.FirstOrDefault(p => p.ProductoId == id);
+
+		return valor.Nombre;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Devoluciones");
+	}
+}
