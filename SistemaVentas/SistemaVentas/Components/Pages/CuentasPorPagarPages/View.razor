@@ -1,0 +1,228 @@
+﻿@page "/ViewCuentasPorPagar"
+@page "/ViewCuentasPorPagar/cuentaPorPagarId={cuentaPorPagarId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ProveedoresService proveedorService
+@inject ComprasService comprasService
+@inject CuentasPorPagarService cuentasPorPagarService
+@inject TiposContribuyenteService tipoContribuyenteService
+@inject ContactosService contactoService
+@inject NotificationService notificationService
+
+<PageTitle>Detalles de Cuenta Por pagar</PageTitle>
+<RadzenNotification />
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Detalles de Cuenta Por pagar</strong></h3>
+		</div>
+		@*Cuerpo*@
+		<div class="card-body">
+			<div class="row">
+				<div class="col-8 mb-3">
+					<div class="col-md-11">
+						<h3 class="text-center"><strong>Datos de la CxP</strong></h3>
+						<div class="border border-primary border-2 p-3 borde">
+							<div class="card-body">
+								<div class="row">
+									@*Imagen*@
+									<div class="col-2">
+										<div class="text-center">
+											<img src="Imagenes/doument.png" alt="Imagen" class="img-fluid img-thumbnail" style="width: 100px; height: auto;">
+										</div>
+									</div>
+									@*Datos de la cuenta*@
+									<div class="col-9">
+										<table class="table table-bordered">
+											<tbody>
+												<tr>
+													<th>CxPId</th>
+													<td>@cuentasPorPagar.CuentaPorPagarId</td>
+												</tr>
+												<tr>
+													<th>Fecha de Compra</th>
+													<td>@BuscarFechaCompra(cuentasPorPagar.CompraId).ToShortDateString()</td>
+												</tr>
+												<tr>
+													<th>Usuario Responsable</th>
+													<td>@BuscarUsuarioResponsable(cuentasPorPagar.CompraId)</td>
+												</tr>
+												<tr>
+													<th>Proveedor</th>
+													<td>@BuscarProveedor(cuentasPorPagar.CompraId)</td>
+												</tr>
+												<tr>
+													<th>Cantidad de Productos</th>
+													<td>@BuscarCantidadProducto(cuentasPorPagar.CompraId)</td>
+												</tr>
+												<tr>
+													<th>Total de Compra</th>
+													<td>@CalcularMontoTotal(cuentasPorPagar.CompraId)</td>
+												</tr>
+												<tr>
+													<th>Deuda Inicial</th>
+													<td>@cuentasPorPagar.DeudaInicial</td>
+												</tr>
+												<tr>
+													<th>Deuda Pendiente</th>
+													<td>@cuentasPorPagar.DeudaRestante</td>
+												</tr>
+												<tr>
+													<th>Estado</th>
+													<td>@cuentasPorPagar.Estado</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				@*Detalle*@
+				<div class="col-4">
+					<h3 class="text-center"><strong>Detalles</strong></h3>
+					<fieldset class="border border-primary border-2 p-3 borde">
+						@*Body*@
+						<div class="card-body">
+							<section class="row mb-4">
+							</section>
+							<section>
+								@if (cuentasPorPagar.CuentasPorPagarDetalle.Count > 0)
+								{
+									@*Table Detalles*@
+									<table class="table table-bordered miTabla">
+										<thead>
+											<tr>
+												<th>Fecha de pago</th>
+												<th>Concepto</th>
+												<th>Abono</th>
+											</tr>
+										</thead>
+										<tbody>
+											@foreach (var detalle in cuentasPorPagar.CuentasPorPagarDetalle)
+											{
+												<tr>
+													<td>@detalle.FechaPago.ToShortDateString()</td>
+													<td>@detalle.Concepto</td>
+													<td>@detalle.Abono.ToString("N2")</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+									<p><strong>Total de Abonos: </strong>@cuentasPorPagar.CuentasPorPagarDetalle.Count</p>
+								}
+							</section>
+						</div>
+					</fieldset>
+				</div>
+			</div>
+		</div>
+		@*Footer*@
+		<div class="card-footer">
+			<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+		</div>
+	</div>
+</div>
+
+@mensaje
+
+@code {
+	[Parameter]
+	public int cuentaPorPagarId { get; set; }
+
+	public Proveedores proveedor { get; set; } = new Proveedores();
+	public CuentasPorPagar cuentasPorPagar { get; set; } = new CuentasPorPagar();
+	public List<Compras> compras = new List<Compras>();
+	public List<Proveedores> proveedores = new List<Proveedores>();
+	public int tipo { get; set; }
+	public string contacto { get; set; } = string.Empty;
+	public string mensaje { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+
+		cuentasPorPagar = await cuentasPorPagarService.BuscarId(cuentaPorPagarId);
+		compras = await comprasService.Listar(c => c.Eliminado == false);
+		proveedores = await proveedorService.Listar(c => c.Eliminado == false);
+	}
+
+	public DateTime BuscarFechaCompra(int id)
+	{
+		var compra = compras.FirstOrDefault(c => c.CompraId == id);
+		if (compra != null)
+		{
+			return compra.FechaCreacion;
+		}
+		else
+		{
+			return DateTime.MinValue; // Valor predeterminado
+		}
+	}
+
+	public string BuscarUsuarioResponsable(int id)
+	{
+		var compra = compras.FirstOrDefault(c => c.CompraId == id);
+		if (compra != null)
+		{
+			return compra.UsuarioResponsable;
+		}
+		else
+		{
+			return null;		}
+	}
+
+	public string BuscarProveedor(int id)
+	{
+		var compra = compras.FirstOrDefault(c => c.CompraId == id);
+		if (compra != null)
+		{
+			var proveedor = proveedores.FirstOrDefault(p => p.ProveedorId == compra.ProveedorId);
+			if (proveedor != null)
+			{
+				return proveedor.Nombre;
+			}
+			else
+			{
+				return null;
+			}
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	public int BuscarCantidadProducto(int id)
+	{
+		var compra = compras.FirstOrDefault(c => c.CompraId == id);
+		if (compra != null && compra.ComprasDetalle != null)
+		{
+			return compra.ComprasDetalle.Count;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	public decimal CalcularMontoTotal(int id)
+	{
+		var compra = compras.FirstOrDefault(c => c.CompraId == id);
+		if (compra != null)
+		{
+			return compra.TotalNeto;
+		}
+		else
+		{
+			return 0; 
+		}
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/CuentasPorPagar");
+	}
+}
