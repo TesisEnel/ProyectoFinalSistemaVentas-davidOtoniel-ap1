@@ -1,9 +1,10 @@
 ﻿@page "/AbonarCuentasPorPagar"
-@page "/AbonarCuentasPorPagar/compraId={compraId:int}"
+@page "/AbonarCuentasPorPagar/cuentaPorPagarId={cuentaPorPagarId:int}"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject ComprasService comprasService
 @inject ProveedoresService proveedoresService
+@inject CuentasPorPagarService cuentasPorPagarService
 @inject NotificationService notificationService
 
 <PageTitle>Abonar Cuenta por Pagar</PageTitle>
@@ -56,9 +57,66 @@
 					<InputNumber id="cantidad" class="form-control" @bind-Value="cantidad" readonly></InputNumber>
 				</div>
 			</div>
+
+			@*Detalle*@
+			<fieldset class="border-primmary border border-2">
+				@*Body*@
+				<div class="card-body">
+					<section class="row mb-4">
+						<h3><strong>Detalles</strong></h3>
+						<div class="row align-content-center">
+							@*Concepto*@
+							<div class="col-4">
+								<label class="form-label" for="Concepto"><strong>Concepto</strong></label>
+								<InputText id="concepto" class="form-control" @bind-Value="concepto"></InputText>
+							</div>
+							@*Abono*@
+							<div class="col-4">
+								<label class="form-label" for="abono"><strong>Abono</strong></label>
+								<InputNumber id="abono" class="form-control" @bind-Value="abono"></InputNumber>
+							</div>
+							@*Boton*@
+							<div class="col-4 d-flex align-items-end">
+								<button type="button" class="btn btn-outline-success" @onclick="AgregarDetalle"><i class="bi bi-plus-circle" /> Agregar</button>
+							</div>
+						</div>
+					</section>
+					<section>
+						@if (cuentaPorPagar.CuentasPorPagarDetalle.Count > 0)
+						{
+							@*Table Detalles*@
+							<table class="table table-bordered miTabla">
+								<thead>
+									<tr>
+										<th>Fecha de pago</th>
+										<th>Concepto</th>
+										<th>Abono</th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									@foreach (var detalle in cuentaPorPagar.CuentasPorPagarDetalle)
+									{
+										<tr>
+											<td>@detalle.FechaPago.ToShortDateString()</td>
+											<td>@detalle.Concepto</td>
+											<td>@detalle.Abono.ToString("N2")</td>
+											<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
+										</tr>
+									}
+								</tbody>
+							</table>
+							<p><strong>Total de Abonos: </strong>@cuentaPorPagar.CuentasPorPagarDetalle.Count</p>
+						}
+					</section>
+				</div>
+			</fieldset>
 		</div>
-		<div class="card-footer">
-			<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+		<div class="card-footer d-flex justify-content-center">
+			<div class="px-2">
+					<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="submit" class="btn btn-outline-success" @onclick="Guardar"><i class="bi bi-floppy-fill" /> Guardar</button>
 		</div>
 	</div>
 </div>
@@ -66,10 +124,11 @@
 
 @code {
 	[Parameter]
-	public int compraId { get; set; }
+	public int cuentaPorPagarId { get; set; }
 	public List<Compras> compras = new List<Compras>();
 	public List<Proveedores> proveedores = new List<Proveedores>();
 	public Compras compra { get; set; } = new Compras();
+	public CuentasPorPagar cuentaPorPagar { get; set; } = new CuentasPorPagar();
 	public string filtro { get; set; }
 	public string valorFiltro { get; set; }
 	public string mensaje { get; set; }
@@ -79,89 +138,190 @@
 	public decimal deuda { get; set; }
 	public int cantidad { get; set; }
 
+	public string concepto { get; set; }
+	public decimal abono { get; set; }
+
 	protected override async Task OnInitializedAsync()
 	{
-		await Task.Delay(500);
+		// await Task.Delay(500);
 		compras = await comprasService.Listar(c => c.Eliminado == false);
 		proveedores = await proveedoresService.Listar(p => p.Eliminado == false);
-		compra = await comprasService.BuscarId(compraId);
 
-		if (compra != null)
-		{
-			proveedor = BuscarProveedor(compra.ProveedorId);
-			deuda = CalcularDeudaPendiente(compra);
-			cantidad = compra.ComprasDetalle.Count;
-		}
+		cuentaPorPagar = await cuentasPorPagarService.BuscarId(cuentaPorPagarId);
+		compra = compras.FirstOrDefault(c => c.CompraId == cuentaPorPagar.CompraId);
+		cantidad = compra.ComprasDetalle.Count();
+		deuda = compra.Deuda - cuentaPorPagar.CuentasPorPagarDetalle.Sum(d => d.Abono);
+
+		proveedor = BuscarProveedor(compra.ProveedorId);
 
 		loading = false;
 
 		if (compras.Count == 0)
 			StateHasChanged();
+	}
 
-		// var Mensaje = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Error,
-		// 		Summary = "Error al guardar",
-		// 		Detail = "Ha ocurrido un error",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Mensaje);
+	public async Task Guardar()
+	{
+		if (deuda == 0)
+		{
+			cuentaPorPagar.Estado = "Pagada";
+			compra.Estado = "Pagada";
+			await comprasService.Crear(compra);
+		}
 
-		// var Otro = new NotificationMessage
-		// 	{
-		// 		Severity = NotificationSeverity.Success,
-		// 		Summary = "Guardo",
-		// 		Detail = "Guardo correctamente",
-		// 		Duration = 5_000
-		// 	};
-		// notificationService.Notify(Otro);
+		var response = await cuentasPorPagarService.Crear(cuentaPorPagar);
+
+		if(response)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al guardar",
+					Detail = "El pago se ha guardado con éxito",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			await Task.Delay(3000);
+			Volver();
+		}
+		else
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Error al guardar",
+					Detail = "No se pudo guardar el pago correctamente",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+		}
+
 	}
 
 	public string BuscarProveedor(int id)
 	{
-		var proveedor = proveedores.FirstOrDefault(c => c.ProveedorId == id);
-		return proveedor.Nombre;
+		var proveedor = proveedores.FirstOrDefault(p => p.ProveedorId == id);
+
+		if (proveedor != null)
+		{
+			return proveedor.Nombre;
+		}
+		else
+		{
+			return "Nombre de proveedor no encontrado";
+		}
 	}
 
-	public decimal CalcularDeudaPendiente(Compras compra)
+	public async Task AgregarDetalle()
 	{
-		// var deudaTotal = compra.TotalNeto;
-		// var sumaAbonos = compra.CuentasPorPagar.Sum(c => c.Abono);
-		// return deudaTotal - sumaAbonos;
-		return 0;
+		if (!String.IsNullOrEmpty(concepto) && abono != 0)
+		{
+			if (await ValidarDetalle())
+			{
+				var nuevoDetalle = new CuentasPorPagarDetalle 
+				{ FechaPago = DateTime.Today, Concepto = concepto, Abono = abono };
+
+				cuentaPorPagar.CuentasPorPagarDetalle.Add(nuevoDetalle);
+				deuda = compra.Deuda - cuentaPorPagar.CuentasPorPagarDetalle.Sum(p => p.Abono);
+				cuentaPorPagar.DeudaRestante = deuda;
+
+				var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al agregar detalle",
+					Detail = "Abono agregado al detalle correctamente",
+					Duration = 5_000
+				};
+				notificationService.Notify(Mensaje);
+
+				await LimpiarPantalla();
+			}
+		}
+		else
+		{
+			var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al agregar detalle",
+				Detail = "No pueden haber campos vacíos",
+				Duration = 5_000
+			};
+			notificationService.Notify(Mensaje);
+		}
 	}
 
-	public async Task Restablecer()
+	public async Task<bool> ValidarDetalle()
 	{
-		proveedores = await proveedoresService.Listar(p => p.Eliminado == false);
+		var validarConcepto = cuentaPorPagar.CuentasPorPagarDetalle
+			.FirstOrDefault(d => d.Concepto == concepto);
+
+		if(validarConcepto != null)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "Este concepto ya existe en el detalle",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
+
+		if(abono <= 0)
+		{
+			var Mensaje1 = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "El abono no puede ser 0",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje1);
+			return false;
+		}
+
+		if(abono > deuda)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "El abono no puede ser mayor a la deuda",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			return false;
+		}
+
+		return true;
+	}
+
+	public async Task EliminarDetalle(CuentasPorPagarDetalle detalle)
+	{
+		cuentaPorPagar.CuentasPorPagarDetalle.Remove(detalle);
+		deuda = compra.Deuda - cuentaPorPagar.CuentasPorPagarDetalle.Sum(p => p.Abono);
+		cuentaPorPagar.DeudaRestante = deuda;
+
+		var Mensaje = new NotificationMessage
+		{
+			Severity = NotificationSeverity.Success,
+			Summary = "Éxito al eleminar detalle",
+			Detail = "Detalle eliminado  con éxito",
+			Duration = 5_000
+		};
+		notificationService.Notify(Mensaje);
 	}
 
 	public async Task LimpiarPantalla()
 	{
-		await Task.Delay(2000);
-		mensaje = string.Empty;
+		concepto = string.Empty;	
+		abono = 0;
 	}
 
 	void Volver()
 	{
 		navigation.NavigateTo("/");
-	}
-
-	void IrACrear()
-	{
-		navigation.NavigateTo("/CreateProveedores");
-	}
-
-	void IrADetalles(int id)
-	{
-		navigation.NavigateTo($"/ViewProveedores/proveedorId={id}");
-	}
-	void IrAEditar(int id)
-	{
-		navigation.NavigateTo($"/EditProveedores/proveedorId={id}");
-	}
-	void IrAEliminar(int id)
-	{
-		navigation.NavigateTo($"/DeleteProveedores/proveedorId={id}");
 	}
 }

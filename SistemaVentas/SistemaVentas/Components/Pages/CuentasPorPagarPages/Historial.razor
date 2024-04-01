@@ -1,4 +1,4 @@
-﻿@page "/CuentasPorPagar"
+﻿@page "/HitorialCuentasPorPagar"
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject ComprasService comprasService
@@ -6,32 +6,18 @@
 @inject CuentasPorPagarService cuentasPorPagarService
 @inject NotificationService notificationService
 
-<PageTitle>Cuentas por Pagar</PageTitle>
-<RadzenNotification/>
+<PageTitle>Historial de Cuentas Por Pagar</PageTitle>
+<RadzenNotification />
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Cuentas por Pagar</strong></h3>
+			<h3><strong>Historial de Cuentas Por Pagar</strong></h3>
 			<div class="d-flex align-items-start">
 				@* <div class="px-2">
-					<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
 				</div> *@
-				<div class="container">
-					<div class="row">
-						<div class="col text-start">
-							<button type="button" class="btn btn-outline-secondary" @onclick="Volver">
-								<i class="bi bi-box-arrow-left"></i> Volver
-							</button>
-						</div>
-						<div class="col text-end">
-							<button type="button" class="btn btn-back-to-history" @onclick="IrAHistorial">
-								<i class="bi bi-newspaper"></i> Historial
-							</button>
-						</div>
-					</div>
-				</div>
-
+				<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
 				@* <button type="button" class="btn btn-outline-primary" @onclick="IrACrear"><i class="bi bi-plus-circle" /> Crear</button> *@
 			</div>
 		</div>
@@ -75,7 +61,7 @@
 							<option value="responsable">Responsable</option>
 							<option value="proveedor">Proveedor</option>
 							<option value="compra">Monto de Compra</option>
-							<option value="deuda">Deuda</option>
+							<option value="deuda">Deuda Inicial</option>
 						</InputSelect>
 					</div>
 
@@ -103,7 +89,7 @@
 						<div class="col-3">
 							<div class="row align-items-center">
 								<div class="col">
-									<InputNumber id="inicial" class="form-control" @bind-Value="montoDesde" placeholder="Ingrese un dato para filtrar"></InputNumber>
+									<InputNumber id="inicial" class="form-control" @bind-Value="montoDesde"></InputNumber>
 								</div>
 							</div>
 						</div>
@@ -137,7 +123,6 @@
 							<th>Total de Compra</th>
 							<th>Deuda Inicial</th>
 							<th>Deuda Pendiente</th>
-							<th>Acciones</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -152,17 +137,6 @@
 								<td>@CalcularMontoTotal(cuenta.CompraId)</td>
 								<td>@cuenta.DeudaInicial</td>
 								<td>@cuenta.DeudaRestante</td>
-								<td>
-									<div class="btn-group" role="group">
-										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(cuenta.CuentaPorPagarId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
-											<i class="bi bi-eye"></i>
-										</button>
-
-										<button type="button" class="btn btn-outline-success" @onclick="()=> IrAAbonar(cuenta.CuentaPorPagarId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Abonar">
-											<i class="bi bi-piggy-bank-fill"></i>
-										</button>
-									</div>
-								</td>
 							</tr>
 						}
 					</tbody>
@@ -193,7 +167,7 @@
 		await Task.Delay(500);
 		compras = await comprasService.Listar(c => c.Eliminado == false);
 		proveedores = await proveedoresService.Listar(p => p.Eliminado == false);
-		cuentasPorPagar = await cuentasPorPagarService.Listar(p => p.Estado == "Pendiente");
+		cuentasPorPagar = await cuentasPorPagarService.Listar(p => p.CuentaPorPagarId > 0);
 
 		loading = false;
 
@@ -254,7 +228,7 @@
 				{
 					var resultadoId = cuentasPorPagar.FirstOrDefault(c => c.CuentaPorPagarId == id);
 
-					if (resultadoId != null)
+					if(resultadoId != null)
 					{
 						var compra = compras.FirstOrDefault(c => c.CompraId == resultadoId.CompraId);
 
@@ -310,12 +284,12 @@
 						}
 					}
 
-					// Limpiar la lista original y luego agregar los elementos únicos del conjunto
-					cuentasPorPagar.Clear();
-					cuentasPorPagar.AddRange(cuentasPorPagarUnicas);
-
-					if (cuentasPorPagar.Any())
+					// Solo limpiar y actualizar la lista original si hay elementos únicos en la lista
+					if (cuentasPorPagarUnicas.Any())
 					{
+						// Limpiar la lista original y luego agregar los elementos únicos del conjunto
+						cuentasPorPagar.Clear();
+						cuentasPorPagar.AddRange(cuentasPorPagarUnicas);
 						VerificarMensajeFiltro(true);
 					}
 					else
@@ -399,7 +373,7 @@
 				{
 					var compra = compras.FirstOrDefault(c => c.CompraId == cp.CompraId);
 					return compra != null &&
-							compra.TotalNeto >= montoDesde && compra.TotalNeto <= montoHasta &&
+							compra.Deuda >= montoDesde && compra.Deuda <= montoHasta &&
 							compra.FechaCreacion >= desde && compra.FechaCreacion <= hasta;
 				})
 				.ToList();
@@ -408,7 +382,7 @@
 				{
 					cuentasPorPagar.Clear();
 					cuentasPorPagar.AddRange(cuentasFiltradas);
-					VerificarMensajeFiltro(true);
+					VerificarMensajeFiltro(true);	
 				}
 				else
 				{
@@ -492,7 +466,7 @@
 
 	public async Task Restablecer()
 	{
-		cuentasPorPagar = await cuentasPorPagarService.Listar(p => p.Estado == "Pendiente");
+		cuentasPorPagar = await cuentasPorPagarService.Listar(p => p.CuentaPorPagarId > 0);
 
 		var Mensaje = new NotificationMessage
 			{
@@ -513,17 +487,5 @@
 	void Volver()
 	{
 		navigation.NavigateTo("/");
-	}
-	void IrAHistorial()
-	{
-		navigation.NavigateTo("/HitorialCuentasPorPagar");
-	}
-	void IrADetalles(int id)
-	{
-		navigation.NavigateTo($"/ViewCuentasPorPagar/cuentaPorPagarId={id}");
-	}
-	void IrAAbonar(int id)
-	{
-		navigation.NavigateTo($"/AbonarCuentasPorPagar/cuentaPorPagarId={id}");
 	}
 }
