@@ -9,5 +9,7 @@ Características
 * Consultas de existencias: Verifica rápidamente los productos en inventario.
 
 **Cuenta para login:**
+
 **Usuario**: enelramon@yahoo.com
+
 **Contraseña**: Enel#123
