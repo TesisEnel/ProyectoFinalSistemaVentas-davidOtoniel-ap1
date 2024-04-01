@@ -8,6 +8,15 @@ Características
 * Cuentas por pagar y por cobrar: Mantén un seguimiento de lo que debes y de lo que te deben para mantener tus finanzas en orden.
 * Consultas de existencias: Verifica rápidamente los productos en inventario.
 
+<h2>¿Cómo empezar?</h2>
+1- Obtener el repositorio: Para empezar, necesitarás una copia de este repositorio en tu computadora. Si usas Visual Studio, puedes clonar el repositorio directamente desde el menú "Team Explorer".
+
+
+2- Preparar tu entorno: Es importante que tu entorno de desarrollo tenga soporte para Blazor. Si aún no has instalado Visual Studio o necesitas actualizarlo, puedes obtener la última versión desde su página oficial.
+
+
+3- Correr la aplicación: Después de clonar el repositorio y preparar tu entorno, estás listo para ejecutar la aplicación. Abre el proyecto en Visual Studio, selecciona el perfil de depuración correcto (generalmente, es el nombre del proyecto) en la barra de herramientas y luego haz clic en "Iniciar depuración" o presiona F5. Una vez que la aplicación esté corriendo, puedes comenzar a explorarla. Si tienes alguna duda sobre su funcionamiento, no dudes en abrir un issue o ponerte en contacto con nosotros directamente.
+
 **Cuenta para login:**
 
 **Usuario**: enelramon@yahoo.com
