@@ -1,0 +1,491 @@
+﻿@page "/HistorialCuentasPorCobrar"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject VentasService ventasService
+@inject ClientesService clientesService
+@inject CuentasPorCobrarService cuentasPorCobrarService
+@inject NotificationService notificationService
+
+<PageTitle>Historial de Cuentas Por Cobrar</PageTitle>
+<RadzenNotification />
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Historial de Cuentas Por Cobrar</strong></h3>
+			<div class="d-flex align-items-start">
+				@* <div class="px-2">
+				<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div> *@
+				<button type="button" class="btn btn-outline-secondary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				@* <button type="button" class="btn btn-outline-primary" @onclick="IrACrear"><i class="bi bi-plus-circle" /> Crear</button> *@
+			</div>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			@if (loading)
+			{
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border text-info">
+					</div>
+				</div>
+			}
+			else if (cuentasPorCobrar.Count == 0)
+			{
+				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay cuentas por cobrar pendientes</h1>
+			}
+			else
+			{
+
+				@*Fechas*@
+				<div class="mb-3">
+					<div class="row">
+						<div class="col-3">
+							<label class="form-label" for="desde"><strong>Desde:</strong></label>
+							<InputDate id="desde" class="form-control" @bind-Value="desde"></InputDate>
+						</div>
+						<div class="col-3">
+							<label class="form-label" for="hasta"><strong>Hasta:</strong></label>
+							<InputDate id="hasta" class="form-control" @bind-Value="hasta"></InputDate>
+						</div>
+					</div>
+				</div>
+
+				@*Campos a Filtrar*@
+				<div class="row align-items-center mb-3">
+					<label class="form-label" for="filtro"><strong>Campo a Filtrar:</strong></label>
+					<div class="col-3">
+						<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+							<option>Elige una opci&oacute;n</option>
+							<option value="id">Id</option>
+							<option value="responsable">Responsable</option>
+							<option value="cliente">Cliente</option>
+							<option value="venta">Monto de Venta</option>
+							<option value="deuda">Deuda Inicial</option>
+						</InputSelect>
+					</div>
+
+					@if (filtro != "deuda" && filtro != "compra")
+					{
+						<div class="col-4">
+							<div class="row align-items-center">
+								<div class="col-auto miFlecha">
+									<p>→</p>
+								</div>
+								<div class="col">
+									<div class="input-group">
+										<InputText class="form-control" @bind-Value="valorFiltro" placeholder="Ingrese un dato para filtrar"></InputText>
+										<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search" /></button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-3">
+							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
+						</div>
+					}
+					else
+					{
+						<div class="col-3">
+							<div class="row align-items-center">
+								<div class="col">
+									<InputNumber id="inicial" class="form-control" @bind-Value="montoDesde"></InputNumber>
+								</div>
+							</div>
+						</div>
+						<div class="col-auto miFlecha">
+							<p>y</p>
+						</div>
+						<div class="col">
+							<div class="row align-items-center">
+								<div class="col-auto">
+									<InputNumber id="final" class="form-control" @bind-Value="montoHasta"></InputNumber>
+								</div>
+							</div>
+						</div>
+						<div class="col-auto">
+							<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search" /></button>
+						</div>
+						<div class="col-3">
+							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
+						</div>
+					}
+				</div>
+
+				<table class="table table-bordered miTabla">
+					<thead>
+						<tr>
+							<th>CXCId</th>
+							<th>Fecha de Venta</th>
+							<th>Empleado Responsable</th>
+							<th>Cliente</th>
+							<th>Cantidad Productos</th>
+							<th>Total de Venta</th>
+							<th>Deuda Inicial</th>
+							<th>Deuda Pendiente</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var cuenta in cuentasPorCobrar)
+						{
+							<tr>
+								<td>@cuenta.CuentaPorCobrarId</td>
+								<td>@BuscarFechaCompra(cuenta.VentaId).ToShortDateString()</td>
+								<td>@BuscarEmpleadoResponsable(cuenta.VentaId)</td>
+								<td>@BuscarCliente(cuenta.VentaId)</td>
+								<td>@BuscarCantidadProducto(cuenta.VentaId)</td>
+								<td>@CalcularMontoTotal(cuenta.VentaId)</td>
+								<td>@cuenta.DeudaInicial</td>
+								<td>@cuenta.DeudaRestante</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+		</div>
+		<div class="card-footer">
+			<p><strong>Total de Cuentas por Pagar:</strong> @cuentasPorCobrar.Count</p>
+		</div>
+	</div>
+</div>
+
+@code {
+	public List<Ventas> ventas = new List<Ventas>();
+	public List<Clientes> clientes = new List<Clientes>();
+	public List<CuentasPorCobrar> cuentasPorCobrar = new List<CuentasPorCobrar>();
+	public string filtro { get; set; }
+	public string valorFiltro { get; set; }
+	public string mensaje { get; set; }
+	public bool loading { get; set; } = true;
+	public DateTime desde { get; set; } = DateTime.Today;
+	public DateTime hasta { get; set; } = DateTime.Today;
+	public decimal montoDesde { get; set; }
+	public decimal montoHasta { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		ventas = await ventasService.Listar(c => c.Eliminado == false);
+		clientes = await clientesService.Listar(p => p.Eliminado == false);
+		cuentasPorCobrar = await cuentasPorCobrarService.Listar(p => p.CuentaPorCobrarId > 0);
+
+		loading = false;
+
+		if (ventas.Count == 0)
+			StateHasChanged();
+	}
+
+	public async Task Buscar()
+	{
+		if (desde > hasta)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "La fecha inicial no puede ser mayor a la fecha final",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			return;
+		}
+
+		else if (filtro == null)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "Debe elegir un método parar filtrar",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			return;
+		}
+
+		else if (valorFiltro == null && (montoDesde == 0 || montoHasta == 0))
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "Debe ingresar un dato",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			return;
+		}
+
+		List<CuentasPorCobrar> listaFiltro = new List<CuentasPorCobrar>();
+
+		switch (filtro)
+		{
+			case "id":
+				if (int.TryParse(valorFiltro, out int id))
+				{
+					var resultadoId = cuentasPorCobrar.FirstOrDefault(c => c.CuentaPorCobrarId == id);
+
+					if(resultadoId != null)
+					{
+						var compra = ventas.FirstOrDefault(c => c.VentaId == resultadoId.VentaId);
+
+						if (compra != null &&
+						(compra.FechaCreacion >= desde && compra.FechaCreacion <= hasta))
+						{
+							cuentasPorCobrar.Clear();
+							cuentasPorCobrar.Add(resultadoId);
+							VerificarMensajeFiltro(true);
+						}
+						else
+							VerificarMensajeFiltro(false);
+					}
+					else
+						VerificarMensajeFiltro(false);
+				}
+				else
+				{
+					var Mensaje = new NotificationMessage
+						{
+							Severity = NotificationSeverity.Error,
+							Summary = "Error al filtrar",
+							Detail = "El valor ingresado para CXCId no es válido",
+							Duration = 5_000
+						};
+					notificationService.Notify(Mensaje);
+					return;
+				}
+				break;
+
+			case "responsable":
+				var ventasEmpleadoResponsable = ventas
+				.Where(c => c.EmpleadoResponsable.ToLower().Contains(valorFiltro.ToLower()))
+				.ToList();
+
+				if (ventasEmpleadoResponsable.Any())
+				{
+					var cuentasPorCobrarUnicas = new HashSet<CuentasPorCobrar>(); // Usamos un HashSet para evitar duplicados
+
+					foreach (var venta in ventasEmpleadoResponsable)
+					{
+						if (venta.FechaCreacion >= desde && venta.FechaCreacion <= hasta)
+						{
+							var cuentasPorCobrarAsociadas = cuentasPorCobrar
+								.Where(cp => cp.VentaId == venta.VentaId)
+								.ToList();
+
+							// Agregar todas las cuentas por pagar asociadas al conjunto
+							foreach (var cxc in cuentasPorCobrarAsociadas)
+							{
+								cuentasPorCobrarUnicas.Add(cxc);
+							}
+						}
+					}
+
+					// Solo limpiar y actualizar la lista original si hay elementos únicos en la lista
+					if (cuentasPorCobrarUnicas.Any())
+					{
+						// Limpiar la lista original y luego agregar los elementos únicos del conjunto
+						cuentasPorCobrar.Clear();
+						cuentasPorCobrar.AddRange(cuentasPorCobrarUnicas);
+						VerificarMensajeFiltro(true);
+					}
+					else
+					{
+						VerificarMensajeFiltro(false);
+					}
+				}
+				else
+					VerificarMensajeFiltro(false);
+				break;
+
+			case "cliente":
+				var resultadoCliente = clientes
+				.FirstOrDefault(p => p.Nombre.ToLower().Contains(valorFiltro.ToLower()));
+
+				if (resultadoCliente != null)
+				{
+					var clienteId = resultadoCliente.ClienteId;
+
+					var ventasCliente = ventas
+						.Where(c => c.ClienteId == clienteId && c.FechaCreacion >= desde && c.FechaCreacion <= hasta)
+						.ToList();
+
+					if (ventasCliente.Any())
+					{
+						// Obtener todas las cuentas por pagar asociadas a las compras del proveedor
+						var cuentasPorCobrarCliente = cuentasPorCobrar
+							.Where(cp => ventasCliente.Any(venta => venta.VentaId == cp.VentaId))
+							.ToList();
+
+						// Usamos un HashSet para evitar duplicados
+						var cuentasPorCobrarUnicas = new HashSet<CuentasPorCobrar>(cuentasPorCobrar);
+
+						// Agregar todas las cuentas por pagar únicas asociadas a la lista general
+						cuentasPorCobrarUnicas.UnionWith(cuentasPorCobrarCliente);
+
+						// Limpiar la lista original y luego agregar los elementos únicos del conjunto
+						cuentasPorCobrar.Clear();
+						cuentasPorCobrar.AddRange(cuentasPorCobrarUnicas);
+
+						VerificarMensajeFiltro(true);
+					}
+					else
+					{
+						VerificarMensajeFiltro(false);
+					}
+				}
+				else
+				{
+					VerificarMensajeFiltro(false);
+				}
+
+				break;
+
+			case "venta":
+				var cuentasFiltradasVenta = cuentasPorCobrar
+				.Where(cp =>
+				{
+					var venta = ventas.FirstOrDefault(c => c.VentaId == cp.VentaId);
+					return venta != null &&
+							venta.TotalNeto >= montoDesde && venta.TotalNeto <= montoHasta &&
+							venta.FechaCreacion >= desde && venta.FechaCreacion <= hasta;
+				})
+				.ToList();
+
+				if (cuentasFiltradasVenta.Any())
+				{
+					cuentasPorCobrar.Clear();
+					cuentasPorCobrar.AddRange(cuentasFiltradasVenta);
+					VerificarMensajeFiltro(true);
+				}
+				else
+				{
+					VerificarMensajeFiltro(false);
+				}
+				break;
+
+			case "deuda":
+				var cuentasFiltradas = cuentasPorCobrar
+				.Where(cp =>
+				{
+					var compra = ventas.FirstOrDefault(c => c.VentaId == cp.VentaId);
+					return compra != null &&
+							compra.Deuda >= montoDesde && compra.Deuda <= montoHasta &&
+							compra.FechaCreacion >= desde && compra.FechaCreacion <= hasta;
+				})
+				.ToList();
+
+				if (cuentasFiltradas.Any())
+				{
+					cuentasPorCobrar.Clear();
+					cuentasPorCobrar.AddRange(cuentasFiltradas);
+					VerificarMensajeFiltro(true);	
+				}
+				else
+				{
+					VerificarMensajeFiltro(false);
+				}
+				break;
+		}
+	}
+
+	public void VerificarMensajeFiltro(bool valor)
+	{
+		if (valor)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al filtrar",
+					Detail = "Se encontraron resultados",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+		}
+		else
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "No se encontraron resultados",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+		}
+	}
+
+	public DateTime BuscarFechaCompra(int id)
+	{
+		var ventaId = cuentasPorCobrar.FirstOrDefault(c => c.VentaId == id);
+		var venta = ventas.FirstOrDefault(c => c.VentaId == ventaId.VentaId);
+		return venta.FechaCreacion;
+	}
+
+	public string BuscarEmpleadoResponsable(int id)
+	{
+		var ventaId = cuentasPorCobrar.FirstOrDefault(c => c.VentaId == id);
+		var venta = ventas.FirstOrDefault(c => c.VentaId == ventaId.VentaId);
+		return venta.EmpleadoResponsable;
+	}
+
+	public string BuscarCliente(int id)
+	{
+		var ventaId = cuentasPorCobrar.FirstOrDefault(c => c.VentaId == id);
+		var venta = ventas.FirstOrDefault(c => c.VentaId == ventaId.VentaId);
+		var cliente = clientes.FirstOrDefault(p => p.ClienteId == venta.ClienteId);
+		return cliente.Nombre;
+	}
+
+	public int BuscarCantidadProducto(int id)
+	{
+		var ventaId = cuentasPorCobrar.FirstOrDefault(c => c.VentaId == id);
+		var venta = ventas.FirstOrDefault(c => c.VentaId == ventaId.VentaId);
+
+		return venta.VentasDetalle.Count;
+	}
+
+	public decimal CalcularMontoTotal(int id)
+	{
+		var ventaId = cuentasPorCobrar.FirstOrDefault(c => c.VentaId == id);
+		var venta = ventas.FirstOrDefault(c => c.VentaId == ventaId.VentaId);
+
+		return venta.TotalNeto;
+	}
+
+	public decimal CalcularDeudaPendiente(Ventas venta)
+	{
+		// var deudaTotal = compra.TotalNeto;
+		// var sumaAbonos = compra.CuentasPorPagar.Sum(c => c.Abono);
+		// return deudaTotal - sumaAbonos;
+		return 0;
+	}
+
+	public async Task Restablecer()
+	{
+		cuentasPorCobrar = await cuentasPorCobrarService.Listar(p => p.CuentaPorCobrarId > 0);
+
+		var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Success,
+				Summary = "Éxito al restablecer",
+				Detail = "Los datos fueron restablecidos con éxito",
+				Duration = 5_000
+			};
+		notificationService.Notify(Mensaje);
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		await Task.Delay(2000);
+		mensaje = string.Empty;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/");
+	}
+}
