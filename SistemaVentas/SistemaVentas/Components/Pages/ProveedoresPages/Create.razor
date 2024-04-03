@@ -33,12 +33,26 @@
 				</div>
 				<div class="row mb-3">
 					<div class="col-4">
-						@*Nombre*@
-						<label class="form-label" for="nombre"><strong>Nombre</strong></label>
-						<InputText id="nombre" class="form-control" @bind-Value="proveedor.Encargado" placeholder="Ej: Juan Pérez"></InputText>
-						<spam class="mensajeError">@mensajeNombre</spam>
+						@*NombreEmpresa*@
+						<label class="form-label" for="empresa"><strong>Nombre de la Empresa</strong></label>
+						<InputText id="empresa" class="form-control" @bind-Value="proveedor.NombreEmpresa" placeholder="Ej: Coca-Cola"></InputText>
+						<spam class="mensajeError">@mensajeNombreEmpresa</spam>
+						<ValidationMessage For="@(() => proveedor.NombreEmpresa)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Encargado*@
+						<label class="form-label" for="encargado"><strong>Encargado</strong></label>
+						<InputText id="encargado" class="form-control" @bind-Value="proveedor.Encargado" placeholder="Ej: Juan Pérez"></InputText>
 						<ValidationMessage For="@(() => proveedor.Encargado)"></ValidationMessage>
 					</div>
+					<div class="col-4">
+						@*Cedula*@
+						<label class="form-label" for="cedula"><strong>cedula de Encargado</strong></label>
+						<InputText id="cedula" class="form-control" @bind-Value="proveedor.CedulaEncargado" placeholder="Ej: 402-3457365-3"></InputText>
+						<ValidationMessage For="@(() => proveedor.CedulaEncargado)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="row mb-3">
 					<div class="col-4">
 						@*Direccion*@
 						<label class="form-label" for="direccion"><strong>Direcci&oacute;n</strong></label>
@@ -51,8 +65,6 @@
 						<InputText id="ciudad" class="form-control" @bind-Value="proveedor.Ciudad" placeholder="Ej: San Francisco de Macorís"></InputText>
 						<ValidationMessage For="@(() => proveedor.Ciudad)"></ValidationMessage>
 					</div>
-				</div>
-				<div class="row mb-3">
 					<div class="col-4">
 						@*Email*@
 						<label class="form-label" for="email"><strong>Email</strong></label>
@@ -60,6 +72,8 @@
 						<spam class="mensajeError">@mensajeEmail</spam>
 						<ValidationMessage For="@(() => proveedor.Email)"></ValidationMessage>
 					</div>
+				</div>
+				<div class="row mb-3">
 					<div class="col-4">
 						@*Numero de Cuenta*@
 						<label class="form-label" for="cuenta"><strong>N&uacute;mero de Cuenta</strong></label>
@@ -74,11 +88,9 @@
 						<InputText id="banco" class="form-control" @bind-Value="proveedor.Banco" placeholder="BHD"></InputText>
 						<ValidationMessage For="@(() => proveedor.Banco)"></ValidationMessage>
 					</div>
-				</div>
-				<div class="row mb-3">
 					<div class="col-4">
 						@*TipoContribuyente*@
-						<label class="form-label" for="ipoContribuyente"><strong>Tipo de Contribuyente</strong></label>
+						<label class="form-label" for="ipoContribuyente"><strong>Contribuyente</strong></label>
 						<InputSelect id="tipoContribuyente" class="form-select" @bind-Value="proveedor.TipoContribuyenteId">
 							<option value="0">Elige una opci&oacute;n</option>
 							@foreach (var tipo in tiposContribuyente)
@@ -88,7 +100,6 @@
 						</InputSelect>
 						<ValidationMessage For="@(() => proveedor.TipoContribuyenteId)"></ValidationMessage>
 					</div>
-
 					<div class="col-4">
 						@*RNC*@
 						<label class="form-label" for="rnc"><strong>RNC</strong></label>
@@ -213,7 +224,7 @@
 	public int tipo { get; set; }
 	public string contacto { get; set; } = string.Empty;
 	public string mensaje { get; set; } = string.Empty;
-	public string mensajeNombre { get; set; } = string.Empty;
+	public string mensajeNombreEmpresa { get; set; } = string.Empty;
 	public string mensajeEmail { get; set; } = string.Empty;
 	public string mensajeRNC { get; set; } = string.Empty;
 	public string mensajeCuenta { get; set; } = string.Empty;
@@ -297,7 +308,7 @@
 		if (nombre != null)
 		{
 			nombreValido = false;
-			mensajeNombre = "Ya existe un proveedor con este nombre";
+			mensajeNombreEmpresa = "Ya existe un proveedor con este nombre";
 		}
 
 		if (email != null)
@@ -451,10 +462,41 @@
 		notificationService.Notify(Mensaje);
 	}
 
+	public void PonerGuionCedula(ChangeEventArgs e)
+	{
+		var cedula = (string)e.Value!;
+
+		if (cedula.Length == 3 && cedula.EndsWith("-") || cedula.Length == 11 && cedula.EndsWith("-"))
+		{
+			proveedor.CedulaEncargado = cedula + "-";
+		}
+
+		else
+		{
+			
+		}
+	}
+
+	public void PonerGuionRNC(ChangeEventArgs e)
+	{
+		var rnc = (string)e.Value!;
+
+		if (rnc.Length == 3 && rnc.EndsWith("-") || rnc.Length == 11 && rnc.EndsWith("-"))
+		{
+			proveedor.RNC = rnc + "-";
+		}
+
+		else
+		{
+
+		}
+	}
+
+
 	public async Task LimpiarPantalla()
 	{
 		mensaje = string.Empty;
-		mensajeNombre = string.Empty;
+		mensajeNombreEmpresa = string.Empty;
 		mensajeEmail = string.Empty;
 		mensajeRNC = string.Empty;
 		mensajeCuenta = string.Empty;
