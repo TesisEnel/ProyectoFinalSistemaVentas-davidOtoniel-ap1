@@ -24,9 +24,10 @@ public class CuentasPorPagarService
 
     public async Task<bool> Insertar(CuentasPorPagar cuentaPorPagar)
     {
-        _contexto.CuentasPorPagar.Add(cuentaPorPagar);
-        return await _contexto.SaveChangesAsync() > 0;
-    }
+		//_contexto.CuentasPorPagar.Add(cuentaPorPagar);
+		//return await _contexto.SaveChangesAsync() > 0;
+		return true;
+	}
 
     public async Task<bool> Modificar(CuentasPorPagar cuentaPorPagar)
     {
@@ -38,25 +39,29 @@ public class CuentasPorPagarService
 
     public async Task<bool> Existe(int id)
     {
-        return await _contexto.CuentasPorPagar
-            .AnyAsync(p => p.CuentaPorPagarId == id);
-    }
+		//return await _contexto.CuentasPorPagar
+		//    .AnyAsync(p => p.CuentaPorPagarId == id);
+		return true;
+	}
 
     public async Task<bool> Eliminar(int id)
     {
-        var eliminar = await _contexto.CuentasPorPagar
-            .Where(p => p.CuentaPorPagarId == id)
-            .ExecuteDeleteAsync();
+		//var eliminar = await _contexto.CuentasPorPagar
+		//    .Where(p => p.CuentaPorPagarId == id)
+		//    .ExecuteDeleteAsync();
 
-        return eliminar > 0;
-    }
+		//return eliminar > 0;
+		return true;
+	}
 
     public async Task<CuentasPorPagar?> BuscarId(int id)
     {
-        return await _contexto.CuentasPorPagar
-            .Include(p => p.CuentasPorPagarDetalle)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.CuentaPorPagarId == id);
+        //return await _contexto.CuentasPorPagar
+        //    .Include(p => p.CuentasPorPagarDetalle)
+        //    .AsNoTracking()
+        //    .FirstOrDefaultAsync(p => p.CuentaPorPagarId == id);
+        CuentasPorPagar cuentasPorPagar = null;
+        return cuentasPorPagar;
     }
 
     //public async Task<CuentasPorPagar?> BuscarNombre(string nombre)
@@ -79,10 +84,12 @@ public class CuentasPorPagarService
     //}
     public async Task<List<CuentasPorPagar>>? Listar(Expression<Func<CuentasPorPagar, bool>> criterio)
     {
-        return _contexto.CuentasPorPagar
-            .Include(p => p.CuentasPorPagarDetalle)
-            .AsNoTracking()
-            .Where(criterio)
-            .ToList();
+        //return _contexto.CuentasPorPagar
+        //    .Include(p => p.CuentasPorPagarDetalle)
+        //    .AsNoTracking()
+        //    .Where(criterio)
+        //    .ToList();
+        List<CuentasPorPagar> cuentasPorPagar = null;
+        return cuentasPorPagar;
     }
 }

@@ -18,7 +18,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	public DbSet<UnidadesMedida> UnidadesMedida { get; set; }
 	public DbSet<Banco> Banco { get; set; }
 	public DbSet<Capital> Capital { get; set; }
-	public DbSet<CuentasPorPagar> CuentasPorPagar { get; set; }
+	//public DbSet<CuentasPorPagar> CuentasPorPagar { get; set; }
 	public DbSet<Devoluciones> Devoluciones { get; set; }
 	public DbSet<Clientes> Clientes { get; set; }
 	public DbSet<CuentasPorCobrar> CuentasPorCobrar { get; set; }
@@ -139,6 +139,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 			.Property(cd => cd.Monto)
 			.HasPrecision(18, 2);
 
+
+		//Modificar esto mas tarde
 		modelBuilder.Entity<Banco>().HasData(new List<Banco>
 		{
 			new Banco 
@@ -174,16 +176,16 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 			.HasPrecision(18, 2);
 
 
-		modelBuilder.Entity<CuentasPorPagar>()
-			.Property(cd => cd.DeudaRestante)
-			.HasPrecision(18, 2);
+		//modelBuilder.Entity<CuentasPorPagar>()
+		//	.Property(cd => cd.DeudaRestante)
+		//	.HasPrecision(18, 2);
 
-		modelBuilder.Entity<CuentasPorPagar>()
-			.Property(cd => cd.DeudaInicial)
-			.HasPrecision(18, 2);
+		//modelBuilder.Entity<CuentasPorPagar>()
+		//	.Property(cd => cd.DeudaInicial)
+		//	.HasPrecision(18, 2);
 
-		modelBuilder.Entity<CuentasPorPagarDetalle>()
-			.Property(cd => cd.Abono)
-			.HasPrecision(18, 2);
+		//modelBuilder.Entity<CuentasPorPagarDetalle>()
+		//	.Property(cd => cd.Abono)
+		//	.HasPrecision(18, 2);
 	}
 }
