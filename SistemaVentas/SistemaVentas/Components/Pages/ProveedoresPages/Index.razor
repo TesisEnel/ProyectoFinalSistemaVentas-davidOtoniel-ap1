@@ -100,7 +100,7 @@
 							<tr>
 								<td>@proveedor.ProveedorId</td>
 								<td>@proveedor.FechaCreacion.ToShortDateString()</td>
-								<td>@proveedor.Nombre</td>
+								<td>@proveedor.Encargado</td>
 								<td>@proveedor.Direccion</td>
 								<td>@proveedor.Ciudad</td>
 								<td>@FormatRNCNumber(proveedor.RNC)</td>
@@ -233,7 +233,7 @@
 
 			case "nombre":
 				var resultadoNombre = proveedores
-				.FirstOrDefault(p => p.Nombre.ToLower().Contains(valorFiltro.ToLower()));
+				.FirstOrDefault(p => p.Encargado.ToLower().Contains(valorFiltro.ToLower()));
 
 				if (resultadoNombre != null &&
 					(resultadoNombre.FechaCreacion >= desde && resultadoNombre.FechaCreacion <= hasta))

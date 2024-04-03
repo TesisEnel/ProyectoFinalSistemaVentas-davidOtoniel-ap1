@@ -64,7 +64,7 @@ public class ProveedoresService
 	{
 		return await _contexto.Proveedores
 			.AsNoTracking()
-			.FirstOrDefaultAsync(p => p.Nombre.ToLower() == nombre.ToLower());
+			.FirstOrDefaultAsync(p => p.Encargado.ToLower() == nombre.ToLower());
 	}
 	public async Task<Proveedores?> BuscarEmail(string email)
 	{

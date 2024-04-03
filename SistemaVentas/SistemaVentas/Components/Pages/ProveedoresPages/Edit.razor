@@ -35,9 +35,9 @@
 					<div class="col-4">
 						@*Nombre*@
 						<label class="form-label" for="nombre"><strong>Nombre</strong></label>
-						<InputText id="nombre" class="form-control" @bind-Value="proveedor.Nombre" placeholder="Ej: Juan Pérez"></InputText>
+						<InputText id="nombre" class="form-control" @bind-Value="proveedor.Encargado" placeholder="Ej: Juan Pérez"></InputText>
 						<spam class="mensajeError">@mensajeNombre</spam>
-						<ValidationMessage For="@(() => proveedor.Nombre)"></ValidationMessage>
+						<ValidationMessage For="@(() => proveedor.Encargado)"></ValidationMessage>
 					</div>
 					<div class="col-4">
 						@*Direccion*@
@@ -246,7 +246,7 @@
 		contactos = await contactoService.Listar(c => c.ContactoId > 0);
 		proveedor = await proveedorService.BuscarId(proveedorId);
 
-		nombreLast = proveedor.Nombre;
+		nombreLast = proveedor.Encargado;
 		direccionLast = proveedor.Direccion;
 		ciudadLast = proveedor.Ciudad;
 		emailLast = proveedor.Email;
@@ -311,7 +311,7 @@
 	public async Task<bool> ValidarProveedor()
 	{
 		var validar = await proveedorService.Listar(p => p.Eliminado == false);
-		var nombre = validar.FirstOrDefault(p => p.Nombre == proveedor.Nombre);
+		var nombre = validar.FirstOrDefault(p => p.Encargado == proveedor.Encargado);
 		var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
 		var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
 		var numeroCuenta = validar.FirstOrDefault(p => p.NumeroCuenta == proveedor.NumeroCuenta);
@@ -321,7 +321,7 @@
 		bool rncValido = true;
 		bool numeroCuentaValido = true;
 
-		if (nombre != null && nombre.Nombre != nombreLast)
+		if (nombre != null && nombre.Encargado != nombreLast)
 		{
 			nombreValido = false;
 			mensajeNombre = "Ya existe un proveedor con este nombre";
@@ -492,7 +492,7 @@
 
 	void Volver()
 	{
-		if (proveedor.Nombre != nombreLast || proveedor.Direccion != direccionLast
+		if (proveedor.Encargado != nombreLast || proveedor.Direccion != direccionLast
 			|| proveedor.Ciudad != ciudadLast || proveedor.Email != emailLast
 			|| proveedor.NumeroCuenta != numeroCuentaLast || proveedor.Banco != bancoLast
 			|| proveedor.RNC != rncLast || proveedor.Nota != notaLast)

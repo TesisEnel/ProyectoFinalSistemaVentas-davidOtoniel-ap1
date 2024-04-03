@@ -35,9 +35,9 @@
 					<div class="col-4">
 						@*Nombre*@
 						<label class="form-label" for="nombre"><strong>Nombre</strong></label>
-						<InputText id="nombre" class="form-control" @bind-Value="proveedor.Nombre" placeholder="Ej: Juan Pérez"></InputText>
+						<InputText id="nombre" class="form-control" @bind-Value="proveedor.Encargado" placeholder="Ej: Juan Pérez"></InputText>
 						<spam class="mensajeError">@mensajeNombre</spam>
-						<ValidationMessage For="@(() => proveedor.Nombre)"></ValidationMessage>
+						<ValidationMessage For="@(() => proveedor.Encargado)"></ValidationMessage>
 					</div>
 					<div class="col-4">
 						@*Direccion*@
@@ -284,7 +284,7 @@
 	public async Task<bool> ValidarProveedor()
 	{
 		var validar = await proveedorService.Listar(p => p.Eliminado == false);
-		var nombre = validar.FirstOrDefault(p => p.Nombre == proveedor.Nombre);
+		var nombre = validar.FirstOrDefault(p => p.Encargado == proveedor.Encargado);
 		var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
 		var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
 		var numeroCuenta = validar.FirstOrDefault(p => p.NumeroCuenta == proveedor.NumeroCuenta);
@@ -465,7 +465,7 @@
 
 	void Volver()
 	{
-		if (proveedor.Nombre != null || proveedor.Direccion != null
+		if (proveedor.Encargado != null || proveedor.Direccion != null
 			|| proveedor.Ciudad != null || proveedor.Email != null
 			|| proveedor.NumeroCuenta != null || proveedor.Banco != null
 			|| proveedor.RNC != null || proveedor.Nota != null)
