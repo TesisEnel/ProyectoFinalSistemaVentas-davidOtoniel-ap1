@@ -140,7 +140,7 @@
 
 	public Proveedores proveedor { get; set; } = new Proveedores();
 	public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
-	public List<Contactos> contactos = new List<Contactos>();
+	public List<Numeros> contactos = new List<Numeros>();
 	public int tipo { get; set; }
 	public string contacto { get; set; } = string.Empty;
 	public string mensaje { get; set; } = string.Empty;
@@ -150,7 +150,7 @@
 		await Task.Delay(500);
 
 		tiposContribuyente = await tipoContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
-		contactos = await contactoService.Listar(c => c.ContactoId > 0);
+		contactos = await contactoService.Listar(c => c.NumeroId > 0);
 		proveedor = await proveedorService.BuscarId(proveedorId);
 	}
 
