@@ -10,7 +10,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	public DbSet<Productos> Productos { get; set; }
 	public DbSet<Categorias> Categorias { get; set; }
 	public DbSet<TiposContribuyente> TiposContribuyente { get; set; }
-	public DbSet<Contactos> Contactos { get; set; }
+	public DbSet<Numeros> Contactos { get; set; }
 	public DbSet<Proveedores> Proveedores { get; set; }
 	public DbSet<Ventas> Ventas { get; set; }
 	public DbSet<Compras> Compras { get; set; }
@@ -26,10 +26,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);
-		modelBuilder.Entity<Contactos>().HasData(new List<Contactos>
+		modelBuilder.Entity<Numeros>().HasData(new List<Numeros>
 		{
-			new Contactos { ContactoId = 1, Descripcion = "Teléfono"},
-			new Contactos { ContactoId = 2, Descripcion = "Fax"}
+			new Numeros { NumeroId = 1, TipoNumero = "Teléfono"},
+			new Numeros { NumeroId = 2, TipoNumero = "Fax"}
 		});
 
 		modelBuilder.Entity<TiposContribuyente>().HasData(new List<TiposContribuyente>

@@ -14,7 +14,7 @@ public class ContactosService
 		_contexto = contexto;
 	}
 
-	public async Task<List<Contactos>>? Listar(Expression<Func<Contactos, bool>> criterio)
+	public async Task<List<Numeros>>? Listar(Expression<Func<Numeros, bool>> criterio)
 	{
 		return _contexto.Contactos
 			.AsNoTracking()

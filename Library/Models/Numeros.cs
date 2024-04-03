@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Library.Models;
 
-public class Contactos
+public class Numeros
 {
 	[Key]
-	public int ContactoId { get; set; }
+	public int NumeroId { get; set; }
 
-	public string Descripcion { get; set; }
+	public string TipoNumero { get; set; }
 }
