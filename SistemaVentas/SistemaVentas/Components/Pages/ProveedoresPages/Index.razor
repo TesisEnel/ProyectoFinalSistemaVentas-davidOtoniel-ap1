@@ -86,11 +86,12 @@
 						<tr>
 							<th>ProveedorId</th>
 							<th>Fecha de Creaci&oacute;n</th>
-							<th>Nombre</th>
+							<th>&Uacute;ltima Modificaci&oacute;n</th>
+							<th>Empresa</th>
+							<th>Encargado</th>
 							<th>Direcci&oacute;n</th>
-							<th>Ciudad</th>
+							<th>Contribuyente</th>
 							<th>RNC</th>
-							<th>Tipo de Contribuyente</th>
 							<th>Acciones</th>
 						</tr>
 					</thead>
@@ -100,11 +101,12 @@
 							<tr>
 								<td>@proveedor.ProveedorId</td>
 								<td>@proveedor.FechaCreacion.ToShortDateString()</td>
+								<td>@proveedor.UltimaModificacion.ToShortDateString()</td>
+								<td>@proveedor.NombreEmpresa</td>
 								<td>@proveedor.Encargado</td>
 								<td>@proveedor.Direccion</td>
-								<td>@proveedor.Ciudad</td>
-								<td>@FormatRNCNumber(proveedor.RNC)</td>
 								<td>@BuscarTipoContribuyente(proveedor.TipoContribuyenteId)</td>
+								<td>proveedor.RNC</td>
 								<td>
 									<div class="btn-group" role="group">
 										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(proveedor.ProveedorId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
@@ -367,11 +369,6 @@
 			};
 			notificationService.Notify(Mensaje);
 		}
-	}
-
-	public string FormatRNCNumber(string rnc)
-	{
-		return $"{rnc.Substring(0, 3)}-{rnc.Substring(3, 7)}-{rnc.Substring(10)}";
 	}
 
 	public string BuscarTipoContribuyente(int id)
