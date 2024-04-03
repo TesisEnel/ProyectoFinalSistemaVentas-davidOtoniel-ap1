@@ -313,7 +313,7 @@
 
 			case "contribuyente":
 				var contribuyentes = tiposContribuyente
-				.FirstOrDefault(tc => tc.Descripcion.ToLower().Contains(valorFiltro.ToLower()));
+				.FirstOrDefault(tc => tc.TipoContribuyente.ToLower().Contains(valorFiltro.ToLower()));
 
 				if(contribuyentes != null)
 				{
@@ -377,7 +377,7 @@
 	public string BuscarTipoContribuyente(int id)
 	{
 		var contribuyente = tiposContribuyente.FirstOrDefault(p => p.TipoContribuyenteId == id);
-		return contribuyente.Descripcion;
+		return contribuyente.TipoContribuyente;
 	}
 
 	public async Task Restablecer()

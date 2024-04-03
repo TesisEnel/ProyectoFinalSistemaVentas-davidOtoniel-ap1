@@ -308,7 +308,7 @@
 	public string BuscarTipoContribuyente(int id)
 	{
 		var contribuyente = tiposContribuyente.FirstOrDefault(p => p.TipoContribuyenteId == id);
-		return contribuyente.Descripcion;
+		return contribuyente.TipoContribuyente;
 	}
 
 	public async Task Restablecer()

@@ -12,5 +12,5 @@ public class TiposContribuyente
 	[Key]
 	public int TipoContribuyenteId { get; set; }
 
-	public string Descripcion { get; set; }
+	public string TipoContribuyente { get; set; }
 }
