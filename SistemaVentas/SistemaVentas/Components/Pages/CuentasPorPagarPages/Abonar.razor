@@ -120,7 +120,34 @@
 		</div>
 	</div>
 </div>
-@mensaje
+
+<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Datos sin guardar</strong></h1>
+				</div>
+				<div class="modal-body">
+					¿Estás seguro de que quieres salir sin guardar?
+					<em>Si deseas salir pulsa "Salir"</em>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="CerrarModal">Cerrar</button>
+					<button type="button" class="btn btn-primary" @onclick="VolverAtras">Salir</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@if (mostrarModal)
+	{
+		<script>
+			var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+			myModal.show();
+		</script>
+	}
+
 
 @code {
 	[Parameter]
@@ -140,6 +167,9 @@
 
 	public string concepto { get; set; }
 	public decimal abono { get; set; }
+
+	public bool mostrarModal { get; set; }
+	public bool cuentaActualizada { get; set; } = false;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -183,7 +213,7 @@
 			notificationService.Notify(Mensaje);
 
 			await Task.Delay(3000);
-			Volver();
+			VolverAtras();
 		}
 		else
 		{
@@ -225,6 +255,8 @@
 				cuentaPorPagar.CuentasPorPagarDetalle.Add(nuevoDetalle);
 				deuda = compra.Deuda - cuentaPorPagar.CuentasPorPagarDetalle.Sum(p => p.Abono);
 				cuentaPorPagar.DeudaRestante = deuda;
+
+				cuentaActualizada = true;
 
 				var Mensaje = new NotificationMessage
 				{
@@ -304,6 +336,8 @@
 		deuda = compra.Deuda - cuentaPorPagar.CuentasPorPagarDetalle.Sum(p => p.Abono);
 		cuentaPorPagar.DeudaRestante = deuda;
 
+		cuentaActualizada = true;
+
 		var Mensaje = new NotificationMessage
 		{
 			Severity = NotificationSeverity.Success,
@@ -322,6 +356,22 @@
 
 	void Volver()
 	{
-		navigation.NavigateTo("/MenuPrincipal");
+		 // Verificar si hay cambios en la lista de CuentasPorPagarDetalle
+		if (cuentaActualizada)
+		{
+			mostrarModal = true; // Mostrar el modal si la condición se cumple
+		}
+		else
+			VolverAtras();
+	}
+
+	public void CerrarModal()
+	{
+		mostrarModal = false;
+	}
+
+	public void VolverAtras()
+	{
+		navigation.NavigateTo("/CuentasPorPagar");
 	}
 }
