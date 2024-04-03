@@ -21,16 +21,20 @@ public class Proveedores
 
 
 	[Required(ErrorMessage = "Debe ingresar el nombre de la empresa.")]
-	[StringLength(50, ErrorMessage = "El límite es de 50 caracteres.")]
+	[StringLength(32, ErrorMessage = "El límite es de 32 caracteres.")]
 	public string NombreEmpresa { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar un nombre.")]
 	[RegularExpression(@"^[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+$", ErrorMessage = "Este campo no acepta números ni caracteres especiales.")]
-	[StringLength(25, ErrorMessage = "El límite es de 25 caracteres.")]
+	[StringLength(18, ErrorMessage = "El límite es de 18 caracteres.")]
 	public string Encargado { get; set; }
 
+	[Required(ErrorMessage = "Debe ingresar un número de Cédula")]
+	[RegularExpression(@"^\d{3}-\d{7}-\d{1}$", ErrorMessage = "La cédula debe tener el formato adecuado. (xxx-xxxxxxx-x")]
+	public string CedulaEncargado { get; set; }
+
 	[Required(ErrorMessage = "Debe ingresar una dirección.")]
-	[StringLength(70, ErrorMessage = "El límite es de 70 caracteres.")]
+	[StringLength(32, ErrorMessage = "El límite es de 32 caracteres.")]
 	public string Direccion { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar una ciudad.")]
