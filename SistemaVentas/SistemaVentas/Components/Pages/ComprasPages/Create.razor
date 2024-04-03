@@ -736,7 +736,7 @@
 			var contribuyenteId = tiposContribuyente
 			.FirstOrDefault(tc => tc.TipoContribuyenteId == proveedorSeleccionado.TipoContribuyenteId);
 
-			contribuyente = contribuyenteId.Descripcion;
+			contribuyente = contribuyenteId.TipoContribuyente;
 		}
 		else
 		{

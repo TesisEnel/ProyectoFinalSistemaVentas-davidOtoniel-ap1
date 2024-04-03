@@ -83,7 +83,7 @@
 							<option value="0">Elige una opci&oacute;n</option>
 							@foreach (var tipo in tiposContribuyente)
 							{
-								<option value="@tipo.TipoContribuyenteId">@tipo.Descripcion</option>
+								<option value="@tipo.TipoContribuyenteId">@tipo.TipoContribuyente</option>
 							}
 						</InputSelect>
 						<ValidationMessage For="@(() => proveedor.TipoContribuyenteId)"></ValidationMessage>
