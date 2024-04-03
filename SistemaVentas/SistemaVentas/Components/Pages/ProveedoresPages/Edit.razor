@@ -1,6 +1,6 @@
 ﻿@page "/EditProveedores"
 @page "/EditProveedores/proveedorId={proveedorId:int}"
-@rendermode InteractiveAuto
+@rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject ProveedoresService proveedorService
 @inject TiposContribuyenteService tipoContribuyenteService
@@ -8,7 +8,7 @@
 @inject NotificationService notificationService
 
 <PageTitle>Editar Proveedor</PageTitle>
-<RadzenNotification/>
+<RadzenNotification />
 <EditForm Model="proveedor" OnValidSubmit="Modificar" FormName="EditarProveedores">
 	<DataAnnotationsValidator />
 	<div class="container">
@@ -152,7 +152,7 @@
 									<tbody>
 										@foreach (var detalle in proveedor.ProveedoresDetalle)
 										{
-											@if(detalle.Eliminado == false)
+											@if (detalle.Eliminado == false)
 											{
 												<tr>
 													<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
@@ -178,6 +178,34 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Datos sin guardar</strong></h1>
+				</div>
+				<div class="modal-body">
+					¿Estás seguro de que quieres salir sin guardar?
+					<em>Si deseas salir pulsa "Salir"</em>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="CerrarModal">Cerrar</button>
+					<button type="button" class="btn btn-primary" @onclick="VolverAtras">Salir</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@if (mostrarModal)
+	{
+		<script>
+			var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+			myModal.show();
+		</script>
+	}
+
 </EditForm>
 @mensaje
 
@@ -198,9 +226,16 @@
 	public string mensajeRNC { get; set; } = string.Empty;
 	public string mensajeCuenta { get; set; } = string.Empty;
 
+
+	public bool mostrarModal { get; set; }
+
 	public string nombreLast { get; set; } = string.Empty;
+	public string direccionLast { get; set; } = string.Empty;
+	public string ciudadLast { get; set; } = string.Empty;
+	public string bancoLast { get; set; } = string.Empty;
 	public string emailLast { get; set; } = string.Empty;
 	public string rncLast { get; set; } = string.Empty;
+	public string notaLast { get; set; } = string.Empty;
 	public string numeroCuentaLast { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
@@ -212,8 +247,12 @@
 		proveedor = await proveedorService.BuscarId(proveedorId);
 
 		nombreLast = proveedor.Nombre;
+		direccionLast = proveedor.Direccion;
+		ciudadLast = proveedor.Ciudad;
 		emailLast = proveedor.Email;
+		bancoLast = proveedor.Banco;
 		rncLast = proveedor.RNC;
+		notaLast = proveedor.Nota;
 		numeroCuentaLast = proveedor.NumeroCuenta;
 	}
 
@@ -229,12 +268,12 @@
 			if (response)
 			{
 				var Mensaje = new NotificationMessage
-				{
-					Severity = NotificationSeverity.Success,
-					Summary = "Éxito al modificar",
-					Detail = "El proveedor se modificó con éxito",
-					Duration = 5_000
-				};
+					{
+						Severity = NotificationSeverity.Success,
+						Summary = "Éxito al modificar",
+						Detail = "El proveedor se modificó con éxito",
+						Duration = 5_000
+					};
 				notificationService.Notify(Mensaje);
 
 				await Task.Delay(3000);
@@ -243,24 +282,24 @@
 			else
 			{
 				var Mensaje = new NotificationMessage
-				{
-					Severity = NotificationSeverity.Error,
-					Summary = "Error al modificar",
-					Detail = "El proveedor no se pudo modificar correctamente",
-					Duration = 5_000
-				};
+					{
+						Severity = NotificationSeverity.Error,
+						Summary = "Error al modificar",
+						Detail = "El proveedor no se pudo modificar correctamente",
+						Duration = 5_000
+					};
 				notificationService.Notify(Mensaje);
 			}
 		}
 		else
 		{
 			var Mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Summary = "Error al crear",
-				Detail = "Algunos datos ya existen",
-				Duration = 5_000
-			};
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al crear",
+					Detail = "Algunos datos ya existen",
+					Duration = 5_000
+				};
 			notificationService.Notify(Mensaje);
 		}
 
@@ -319,12 +358,12 @@
 				proveedor.ProveedoresDetalle.Add(nuevoDetalle);
 
 				var Mensaje = new NotificationMessage
-				{
-					Severity = NotificationSeverity.Success,
-					Summary = "Éxito al agregar detalle",
-					Detail = "Número agregado al detalle correctamente",
-					Duration = 5_000
-				};
+					{
+						Severity = NotificationSeverity.Success,
+						Summary = "Éxito al agregar detalle",
+						Detail = "Número agregado al detalle correctamente",
+						Duration = 5_000
+					};
 				notificationService.Notify(Mensaje);
 
 				await LimpiarPantalla();
@@ -333,12 +372,12 @@
 		else
 		{
 			var Mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Summary = "Error al agregar detalle",
-				Detail = "No pueden haber campos vacíos",
-				Duration = 5_000
-			};
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "No pueden haber campos vacíos",
+					Duration = 5_000
+				};
 			notificationService.Notify(Mensaje);
 		}
 	}
@@ -362,12 +401,12 @@
 		if (!contacto.All(char.IsDigit))
 		{
 			var Mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Summary = "Error al agregar detalle",
-				Detail = "El número no debe contener letras o caracteres especiales",
-				Duration = 5_000
-			};
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "El número no debe contener letras o caracteres especiales",
+					Duration = 5_000
+				};
 			notificationService.Notify(Mensaje);
 
 			return false;
@@ -376,12 +415,12 @@
 		if (contacto.Length != 10)
 		{
 			var Mensaje = new NotificationMessage
-			{
-				Severity = NotificationSeverity.Error,
-				Summary = "Error al agregar detalle",
-				Detail = "La longitud del número debe ser de 10 dígitos",
-				Duration = 5_000
-			};
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al agregar detalle",
+					Detail = "La longitud del número debe ser de 10 dígitos",
+					Duration = 5_000
+				};
 			notificationService.Notify(Mensaje);
 
 			return false;
@@ -394,12 +433,12 @@
 				if (contactos.Contacto == contacto)
 				{
 					var Mensaje = new NotificationMessage
-					{
-						Severity = NotificationSeverity.Error,
-						Summary = "Error al agregar detalle",
-						Detail = "Este número ya existe",
-						Duration = 5_000
-					};
+						{
+							Severity = NotificationSeverity.Error,
+							Summary = "Error al agregar detalle",
+							Detail = "Este número ya existe",
+							Duration = 5_000
+						};
 					notificationService.Notify(Mensaje);
 					return false;
 				}
@@ -411,12 +450,12 @@
 			if (detalle.Contacto == contacto && detalle.Eliminado == false)
 			{
 				var Mensaje = new NotificationMessage
-				{
-					Severity = NotificationSeverity.Error,
-					Summary = "Error al agregar detalle",
-					Detail = "Este número ya existe",
-					Duration = 5_000
-				};
+					{
+						Severity = NotificationSeverity.Error,
+						Summary = "Error al agregar detalle",
+						Detail = "Este número ya existe",
+						Duration = 5_000
+					};
 				notificationService.Notify(Mensaje);
 				return false;
 			}
@@ -431,12 +470,12 @@
 		detalle.Eliminado = true;
 
 		var Mensaje = new NotificationMessage
-		{
-			Severity = NotificationSeverity.Success,
-			Summary = "Éxito al eleminar detalle",
-			Detail = "Detalle eliminado  con éxito",
-			Duration = 5_000
-		};
+			{
+				Severity = NotificationSeverity.Success,
+				Summary = "Éxito al eleminar detalle",
+				Detail = "Detalle eliminado  con éxito",
+				Duration = 5_000
+			};
 		notificationService.Notify(Mensaje);
 	}
 
@@ -452,6 +491,24 @@
 	}
 
 	void Volver()
+	{
+		if (proveedor.Nombre != nombreLast || proveedor.Direccion != direccionLast
+			|| proveedor.Ciudad != ciudadLast || proveedor.Email != emailLast
+			|| proveedor.NumeroCuenta != numeroCuentaLast || proveedor.Banco != bancoLast
+			|| proveedor.RNC != rncLast || proveedor.Nota != notaLast)
+		{
+			mostrarModal = true; // Mostrar el modal si la condición se cumple
+		}
+		else
+			VolverAtras();
+	}
+
+	public void CerrarModal()
+	{
+		mostrarModal = false;
+	}
+
+	public void VolverAtras()
 	{
 		navigation.NavigateTo("/Proveedores");
 	}
