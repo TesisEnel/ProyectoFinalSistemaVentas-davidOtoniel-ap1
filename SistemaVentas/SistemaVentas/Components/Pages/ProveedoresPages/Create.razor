@@ -47,8 +47,8 @@
 					</div>
 					<div class="col-4">
 						@*Cedula*@
-						<label class="form-label" for="cedula"><strong>cedula de Encargado</strong></label>
-						<InputText id="cedula" class="form-control" @bind-Value="proveedor.CedulaEncargado" placeholder="Ej: 402-3457365-3"></InputText>
+						<label class="form-label" for="cedula"><strong>Cedula de Encargado</strong></label>
+						<InputText id="cedula" class="form-control" @bind-Value="proveedor.CedulaEncargado" @oninput="PonerGuionCedula" placeholder="Ej: 402-3457365-3"></InputText>
 						<ValidationMessage For="@(() => proveedor.CedulaEncargado)"></ValidationMessage>
 					</div>
 				</div>
@@ -77,7 +77,6 @@
 					<div class="col-4">
 						@*Numero de Cuenta*@
 						<label class="form-label" for="cuenta"><strong>N&uacute;mero de Cuenta</strong></label>
-						<label>(Sin guiones)</label>
 						<InputText id="cuenta" class="form-control" @bind-Value="proveedor.NumeroCuenta" placeholder="9123456789"></InputText>
 						<spam class="mensajeError">@mensajeCuenta</spam>
 						<ValidationMessage For="@(() => proveedor.NumeroCuenta)"></ValidationMessage>
@@ -100,11 +99,12 @@
 						</InputSelect>
 						<ValidationMessage For="@(() => proveedor.TipoContribuyenteId)"></ValidationMessage>
 					</div>
+				</div>
+				<div class="row mb-3">
 					<div class="col-4">
 						@*RNC*@
 						<label class="form-label" for="rnc"><strong>RNC</strong></label>
-						<label>(Sin guiones)</label>
-						<InputText id="rnc" class="form-control" @bind-Value="proveedor.RNC" placeholder="40234573653"></InputText>
+						<InputText id="rnc" class="form-control" @bind-Value="proveedor.RNC" @oninput="PonerGuionRNC" placeholder="40234573653"></InputText>
 						<spam class="mensajeError">@mensajeRNC</spam>
 						<ValidationMessage For="@(() => proveedor.RNC)"></ValidationMessage>
 					</div>
@@ -118,6 +118,7 @@
 						<ValidationMessage For="@(() => proveedor.Nota)"></ValidationMessage>
 					</div>
 				</div>
+
 				@*ProveedoresDetalles*@
 				<fieldset class="border-primmary border border-2">
 					@*Body*@
@@ -466,14 +467,14 @@
 	{
 		var cedula = (string)e.Value!;
 
-		if (cedula.Length == 3 && cedula.EndsWith("-") || cedula.Length == 11 && cedula.EndsWith("-"))
+		if (cedula.Length == 3 && !cedula.EndsWith("-") || cedula.Length == 11 && !cedula.EndsWith("-"))
 		{
 			proveedor.CedulaEncargado = cedula + "-";
 		}
 
 		else
 		{
-			
+			proveedor.CedulaEncargado = cedula;
 		}
 	}
 
@@ -481,14 +482,14 @@
 	{
 		var rnc = (string)e.Value!;
 
-		if (rnc.Length == 3 && rnc.EndsWith("-") || rnc.Length == 11 && rnc.EndsWith("-"))
+		if (rnc.Length == 3 && !rnc.EndsWith("-") || rnc.Length == 11 && !rnc.EndsWith("-"))
 		{
 			proveedor.RNC = rnc + "-";
 		}
 
 		else
 		{
-
+			proveedor.RNC = rnc;
 		}
 	}
 
