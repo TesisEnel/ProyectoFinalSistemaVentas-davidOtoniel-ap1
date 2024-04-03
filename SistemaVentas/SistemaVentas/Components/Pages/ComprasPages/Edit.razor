@@ -322,6 +322,34 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Datos sin guardar</strong></h1>
+				</div>
+				<div class="modal-body">
+					¿Estás seguro de que quieres salir sin guardar?
+					<em>Si deseas salir pulsa "Salir"</em>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="CerrarModal">Cerrar</button>
+					<button type="button" class="btn btn-primary" @onclick="VolverAtras">Salir</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@if (mostrarModal)
+	{
+		<script>
+			var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+			myModal.show();
+		</script>
+	}
+
 </EditForm>
 
 @code {
@@ -383,6 +411,9 @@
 
 	public bool mostrarInfo { get; set; } = true;
 
+	public bool compraActualizada { get; set; } = false;
+	public bool mostrarModal { get; set; }
+	public string usuarioResponsbleLast { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -401,12 +432,15 @@
 
 		comparacionTotal = compra.TotalNeto;
 
+		//Mover mas tarde
 		subTotalAhora = compra.ComprasDetalle.Sum(d => d.CostoTotalNeto);
 		totalItbisAhora = compra.ComprasDetalle.Sum(d => d.Itbis);
 		totalAhora = subTotalAhora + totalItbisAhora;
 
 		//totalgeneral
 		totalGeneral = totalAhora;
+
+		usuarioResponsbleLast = compra.UsuarioResponsable;
 	}
 
 	public async Task Crear()
@@ -814,6 +848,23 @@
 	}
 
 	void Volver()
+	{
+		if (compra.UsuarioResponsable != usuarioResponsbleLast 
+			|| cantidad != 0 || producto != 0
+			|| costoTotal != 0 || compraActualizada)
+		{
+			mostrarModal = true; // Mostrar el modal si la condición se cumple
+		}
+		else
+			VolverAtras();
+	}
+
+	public void CerrarModal()
+	{
+		mostrarModal = false;
+	}
+
+	public void VolverAtras()
 	{
 		navigation.NavigateTo("/Compras");
 	}

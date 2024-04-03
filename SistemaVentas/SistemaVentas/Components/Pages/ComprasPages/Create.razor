@@ -323,6 +323,34 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Datos sin guardar</strong></h1>
+				</div>
+				<div class="modal-body">
+					¿Estás seguro de que quieres salir sin guardar?
+					<em>Si deseas salir pulsa "Salir"</em>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="CerrarModal">Cerrar</button>
+					<button type="button" class="btn btn-primary" @onclick="VolverAtras">Salir</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@if (mostrarModal)
+	{
+		<script>
+			var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+			myModal.show();
+		</script>
+	}
+
 </EditForm>
 
 @code {
@@ -342,7 +370,6 @@
 	public int producto { get; set; }
 	public int unidadesMedida { get; set; }
 	public int unidades { get; set; }
-	public decimal precio { get; set; }
 	public decimal costoTotal { get; set; }
 
 	public string contribuyente { get; set; }
@@ -351,6 +378,9 @@
 	public string cuenta { get; set; }
 	public string bancoProveedor { get; set; }
 
+
+	public bool mostrarModal { get; set; }
+	public bool compraActualizada { get; set; } = false;
 
 	// public string mensajeNombre { get; set; } = string.Empty;
 	// public string mensajeEmail { get; set; } = string.Empty;
@@ -610,6 +640,8 @@
 			compra.TotalItbis += itbis;
 			compra.TotalNeto = compra.SubTotal + compra.TotalItbis;
 
+			compraActualizada = true;
+
 			var Mensaje = new NotificationMessage
 				{
 					Severity = NotificationSeverity.Success,
@@ -789,6 +821,8 @@
 		compra.TotalNeto -= detalle.CostoTotalNeto + detalle.Itbis;
 		compra.ComprasDetalle.Remove(detalle);
 
+		compraActualizada = true;
+
 		var Mensaje = new NotificationMessage
 			{
 				Severity = NotificationSeverity.Success,
@@ -810,6 +844,23 @@
 	}
 
 	void Volver()
+	{
+		if (compra.UsuarioResponsable != null || compra.ProveedorId != 0
+			|| compra.MetodoPagoId != 0 || cantidad != 0 || producto != 0 
+			|| costoTotal != 0 || compraActualizada)
+	{
+			mostrarModal = true; // Mostrar el modal si la condición se cumple
+		}
+		else
+			VolverAtras();
+	}
+
+	public void CerrarModal()
+	{
+		mostrarModal = false;
+	}
+
+	public void VolverAtras()
 	{
 		navigation.NavigateTo("/Compras");
 	}
