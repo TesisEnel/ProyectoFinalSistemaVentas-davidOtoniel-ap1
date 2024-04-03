@@ -37,7 +37,7 @@
 						@*Cliente*@
 						<label class="form-label" for="cliente"><strong>Cliente</strong></label>
 						<InputSelect id="cliente" class="form-select" @bind-Value="devolucion.ClienteId">
-							<option value="">Elige una opci&oacute;n</option>
+							<option>Elige una opci&oacute;n</option>
 							@foreach (var cliente in clientes)
 							{
 								<option value="@cliente.ClienteId">@cliente.Nombre</option>
@@ -72,7 +72,7 @@
 								<div class="col-3">
 									<label class="form-label" for="producto"><strong>Producto</strong></label>
 									<InputSelect id="producto" class="form-select" @bind-Value="productoDetalle">
-										<option value="">Elige una opción</option>
+										<option>Elige una opci&oacute;n</option>
 										@foreach (var producto in productos)
 										{
 											<option value="@producto.ProductoId">@producto.Nombre</option>
@@ -143,6 +143,34 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Datos sin guardar</strong></h1>
+				</div>
+				<div class="modal-body">
+					¿Estás seguro de que quieres salir sin guardar?
+					<em>Si deseas salir pulsa "Salir"</em>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="CerrarModal">Cerrar</button>
+					<button type="button" class="btn btn-primary" @onclick="VolverAtras">Salir</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@if (mostrarModal)
+	{
+		<script>
+			var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+			myModal.show();
+		</script>
+	}
+
 </EditForm>
 
 @code {
@@ -164,6 +192,8 @@
 	public decimal precio { get; set; }
 	public string motivo { get; set; }
 
+	public bool mostrarModal { get; set; }
+	public bool devolucionActualizada { get; set; } = false;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -261,6 +291,8 @@
 				devolucion.MontoDevolucion += precio * cantidad;
 				devolucion.DevolucionesDetalle.Add(nuevoDetalle);
 
+				devolucionActualizada = true;
+
 				var Mensaje = new NotificationMessage
 					{
 						Severity = NotificationSeverity.Success,
@@ -340,6 +372,8 @@
 		devolucion.MontoDevolucion -= detalle.PrecioTotal * detalle.CantidadDevuelta;
 		devolucion.DevolucionesDetalle.Remove(detalle);
 
+		devolucionActualizada = true;
+
 		var Mensaje = new NotificationMessage
 			{
 				Severity = NotificationSeverity.Success,
@@ -370,6 +404,22 @@
 	}
 
 	void Volver()
+	{
+		if (devolucion.ClienteId != 0 || devolucion.Observacion != null 
+			|| productoDetalle != 0 || cantidad != 0 || motivo != null || devolucionActualizada)
+		{
+			mostrarModal = true; // Mostrar el modal si la condición se cumple
+		}
+		else
+			VolverAtras();
+	}
+
+	public void CerrarModal()
+	{
+		mostrarModal = false;
+	}
+
+	public void VolverAtras()
 	{
 		navigation.NavigateTo("/Devoluciones");
 	}

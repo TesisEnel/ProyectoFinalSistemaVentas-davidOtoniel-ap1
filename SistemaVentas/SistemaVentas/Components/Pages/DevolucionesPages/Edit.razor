@@ -130,6 +130,34 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel"><strong>Datos sin guardar</strong></h1>
+				</div>
+				<div class="modal-body">
+					¿Estás seguro de que quieres salir sin guardar?
+					<em>Si deseas salir pulsa "Salir"</em>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="CerrarModal">Cerrar</button>
+					<button type="button" class="btn btn-primary" @onclick="VolverAtras">Salir</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@if (mostrarModal)
+	{
+		<script>
+			var myModal = new bootstrap.Modal(document.getElementById('exampleModal'));
+			myModal.show();
+		</script>
+	}
+
 </EditForm>
 
 @code {
@@ -139,18 +167,15 @@
 
 	public List<Clientes> clientes = new List<Clientes>();
 	public List<Productos> productos = new List<Productos>();
-	public int tipo { get; set; }
-	public string contacto { get; set; } = string.Empty;
-	public string mensaje { get; set; } = string.Empty;
-	public string mensajeNombre { get; set; } = string.Empty;
-	public string mensajeEmail { get; set; } = string.Empty;
-	public string mensajeRNC { get; set; } = string.Empty;
-	public string mensajeCuenta { get; set; } = string.Empty;
 
 	public int productoDetalle { get; set; }
 	public int cantidad { get; set; }
 	public string motivo { get; set; }
 
+	public int clienteLast { get; set; }
+	public string observacionLast { get; set; }
+	public bool mostrarModal { get; set; }
+	public bool devolucionActualizada { get; set; } = false;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -160,6 +185,9 @@
 		productos = await productosService.Listar(p => p.Eliminado == false);
 
 		devolucion = await devolucionesService.BuscarId(devolucionId);
+
+		clienteLast = devolucion.ClienteId;
+		observacionLast = devolucion.Observacion;
 	}
 
 	public async Task Crear()
@@ -326,17 +354,26 @@
 
 	public async Task LimpiarPantalla()
 	{
-		mensaje = string.Empty;
-		mensajeNombre = string.Empty;
-		mensajeEmail = string.Empty;
-		mensajeRNC = string.Empty;
-		mensajeCuenta = string.Empty;
-		tipo = 0;
-		contacto = string.Empty;
 		StateHasChanged();
 	}
 
 	void Volver()
+	{
+		if (devolucion.ClienteId != clienteLast || devolucion.Observacion != observacionLast
+			|| productoDetalle != 0 || cantidad != 0 || motivo != null || devolucionActualizada)
+		{
+			mostrarModal = true; // Mostrar el modal si la condición se cumple
+		}
+		else
+			VolverAtras();
+	}
+
+	public void CerrarModal()
+	{
+		mostrarModal = false;
+	}
+
+	public void VolverAtras()
 	{
 		navigation.NavigateTo("/Devoluciones");
 	}
