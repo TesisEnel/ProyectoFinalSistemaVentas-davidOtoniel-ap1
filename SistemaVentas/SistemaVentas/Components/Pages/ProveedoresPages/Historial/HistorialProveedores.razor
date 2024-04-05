@@ -1,0 +1,605 @@
+﻿@page "/HistorialProveedores"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ProveedoresService proveedorService
+@inject TiposContribuyenteService tiposContribuyenteService
+@inject CuentasPorPagarService cuentasPorPagarService
+@inject ComprasService comprasService
+@inject NotificationService notificationService
+
+<PageTitle>Historial de Proveedores</PageTitle>
+<RadzenNotification />
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Historial de Proveedores</strong></h3>
+			<div class="d-flex align-items-start">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-secondary" @onclick="VolverAtras"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+			</div>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			@if (loading)
+			{
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border text-info">
+					</div>
+				</div>
+			}
+			else if (proveedores.Count == 0)
+			{
+				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay proveedores creados</h1>
+			}
+			else
+			{
+
+				@*Fechas*@
+				<div class="mb-3">
+					<div class="row">
+						<div class="col-3">
+							<label class="form-label" for="desde"><strong>Desde:</strong></label>
+							<InputDate id="desde" class="form-control" @bind-Value="desde"></InputDate>
+						</div>
+						<div class="col-3">
+							<label class="form-label" for="hasta"><strong>Hasta:</strong></label>
+							<InputDate id="hasta" class="form-control" @bind-Value="hasta"></InputDate>
+						</div>
+					</div>
+				</div>
+
+				@*Campos a Filtrar*@
+				<div class="mb-3">
+					<div class="row align-items-center">
+						<label class="form-label" for="filtro"><strong>Campo a Filtrar:</strong></label>
+						<div class="col-3">
+							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+								<option>Elige una opci&oacute;n</option>
+								<option value="id">Id</option>
+								<option value="nombre">Nombre</option>
+								<option value="direccion">Direcci&oacute;n</option>
+								<option value="ciudad">Ciudad</option>
+								<option value="rnc">RNC</option>
+								<option value="contribuyente">Tipo de Contribuyente</option>
+							</InputSelect>
+						</div>
+						<div class="col-auto miFlecha">
+							<p>→</p>
+						</div>
+						<div class="col-4">
+							<div class="input-group">
+								<InputText class="form-control" @bind-Value="valorFiltro" placeholder="Ingrese un dato para filtrar"></InputText>
+								<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search" /></button>
+							</div>
+						</div>
+						<div class="col-3">
+							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="row mb-3">
+					<div class="col-auto">
+						<button type="button" class="btn btn-outline-primary" @onclick="FiltrarTodos"> Todos</button>
+						<button type="button" class="btn btn-outline-danger" @onclick="FiltrarEliminados"> Eliminados</button>
+					</div>
+				</div>
+
+				<table class="table table-bordered miTabla">
+					<thead>
+						<tr>
+							<th>ProveedorId</th>
+							<th>Fecha de Creaci&oacute;n</th>
+							<th>&Uacute;ltima Modificaci&oacute;n</th>
+							<th>Empresa</th>
+							<th>Encargado</th>
+							<th>Direcci&oacute;n</th>
+							<th>Contribuyente</th>
+							<th>RNC</th>
+							<th>Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var proveedor in proveedores)
+						{
+							<tr>
+								<td>@proveedor.ProveedorId</td>
+								<td>@proveedor.FechaCreacion.ToShortDateString()</td>
+								<td>@proveedor.UltimaModificacion.ToShortDateString()</td>
+								<td>@proveedor.NombreEmpresa</td>
+								<td>@proveedor.Encargado</td>
+								<td>@proveedor.Direccion</td>
+								<td>@BuscarTipoContribuyente(proveedor.TipoContribuyenteId)</td>
+								<td>@proveedor.RNC</td>
+								<td>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(proveedor.ProveedorId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
+											<i class="bi bi-eye"></i>
+										</button>
+										@if(proveedor.Eliminado == true)
+										{
+											<button type="button" class="btn btn-outline-success" @onclick="()=> Restaurar(proveedor.ProveedorId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Restaurar">
+												<i class="bi bi-clock-history"></i>
+											</button>
+										}
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+		</div>
+		<div class="card-footer">
+			<p><strong>Total de Proveedores:</strong> @proveedores.Count</p>
+		</div>
+	</div>
+</div>
+
+<!-- mostrarModal1 -->
+@if (mostrarModal1)
+{
+	<div class="modal fade show" id="restaurarProveedor" tabindex="-1" aria-labelledby="restaurarProveedorLabel" aria-hidden="true" style="display: block;">
+		<div class="modal-dialog custom-modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="restaurarProveedorLabel"><strong>Restauración de Datos</strong></h1>
+				</div>
+				<div class="modal-body">
+					¿Estás seguro de que quieres restaurar a este proveedor?
+
+					<ul>
+						<li><strong>ProveedorId:</strong> @proveedor.ProveedorId</li>
+						<li><strong>Empresa:</strong> @proveedor.NombreEmpresa</li>
+						<li><strong>Encargado:</strong> @proveedor.Encargado</li>
+					</ul>
+
+					<em>Si deseas restaurar pulsa "Aceptar"</em>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cerrar</button>
+					<button type="button" class="btn btn-primary" @onclick="()=>ProveedorRestaurado(proveedor.ProveedorId)">Aceptar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="custom-backdrop"></div>
+
+	<!-- JavaScript para desplazar hacia abajo -->
+	<script>
+		document.body.classList.add('modal-open');
+		document.body.style.paddingRight = '15px'; // Ajusta según sea necesario para evitar el desplazamiento lateral
+	</script>
+}
+
+
+
+<!-- mostrarModal2 -->
+<div class="modal fade" id="errorRestaurar" tabindex="-1" aria-labelledby="errorRestaurarLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="errorRestaurarLabel"><strong>Restauraci&oacute;n de Datos</strong></h1>
+			</div>
+			<div class="modal-body">
+				Error, este proveedor no se puede restaurar porque ya hay otro proveedor que contiene estos datos:
+
+				@if (empresaModal)
+				{
+					<ul>
+						<li><strong>Empresa:</strong> @proveedor.NombreEmpresa</li>
+					</ul>
+				}
+
+				@if (cedulaModal)
+				{
+					<ul>
+						<li><strong>Cedula del Encargado:</strong> @proveedor.CedulaEncargado</li>
+					</ul>
+				}
+
+				@if (emailModal)
+				{
+					<ul>
+						<li><strong>Email:</strong> @proveedor.Email</li>
+					</ul>
+				}
+
+				@if (cuentaModal)
+				{
+					<ul>
+						<li><strong>N&uacute;mero de Cuenta:</strong> @proveedor.NumeroCuenta</li>
+					</ul>
+				}
+
+				@if (rncModal)
+				{
+					<ul>
+						<li><strong>RNC:</strong> @proveedor.RNC</li>
+					</ul>
+				}
+
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @onclick="CerrarModal">Cerrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@if (mostrarModal2)
+{
+	<script>
+		var myModal = new bootstrap.Modal(document.getElementById('errorRestaurar'));
+		myModal.show();
+	</script>
+}
+
+@code {
+	public List<Proveedores> proveedores = new List<Proveedores>();
+	public List<Proveedores> listaTemporal = new List<Proveedores>();
+	public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
+	public Proveedores proveedor { get; set; } = new Proveedores();
+
+	public string filtro { get; set; }
+	public string valorFiltro { get; set; }
+	public string mensaje { get; set; }
+	public bool loading { get; set; } = true;
+	public DateTime desde { get; set; } = DateTime.Today;
+	public DateTime hasta { get; set; } = DateTime.Today;
+
+	public bool mostrarModal1 { get; set; }
+	public bool mostrarModal2 { get; set; }
+
+	//modal 2
+	public bool empresaModal { get; set; } = false;
+	public bool cedulaModal { get; set; } = false;
+	public bool emailModal { get; set; } = false;
+	public bool cuentaModal { get; set; } = false;
+	public bool rncModal { get; set; } = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+		// await Task.Delay(500);
+		proveedores = await proveedorService.Listar(p => p.ProveedorId > 0);
+		tiposContribuyente = await tiposContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
+
+		listaTemporal = proveedores;
+
+		loading = false;
+
+		if (proveedores.Count == 0)
+			StateHasChanged();
+	}
+
+	public async Task Buscar()
+	{
+		if (desde > hasta)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "La fecha inicial no puede ser mayor a la fecha final",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			return;
+		}
+
+		else if (filtro == null)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "Debe elegir un método parar filtrar",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			return;
+		}
+
+		else if (valorFiltro == null)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "Debe ingresar un dato",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+
+			return;
+		}
+
+		List<Proveedores> listaFiltro = new List<Proveedores>();
+
+		switch (filtro)
+		{
+			case "id":
+				if (int.TryParse(valorFiltro, out int id))
+				{
+					var resultadoId = proveedores.FirstOrDefault(p => p.ProveedorId == id);
+					if (resultadoId != null &&
+						(resultadoId.FechaCreacion >= desde && resultadoId.FechaCreacion <= hasta))
+					{
+						proveedores.Clear();
+						proveedores.Add(resultadoId);
+						VerificarMensajeFiltro(true);
+					}
+					else
+						VerificarMensajeFiltro(false);
+				}
+				else
+				{
+					var Mensaje = new NotificationMessage
+						{
+							Severity = NotificationSeverity.Error,
+							Summary = "Error al filtrar",
+							Detail = "El valor ingresado para ProveedorId no es válido",
+							Duration = 5_000
+						};
+					notificationService.Notify(Mensaje);
+					return;
+				}
+				break;
+
+			case "nombre":
+				var resultadoNombre = proveedores
+				.FirstOrDefault(p => p.Encargado.ToLower().Contains(valorFiltro.ToLower()));
+
+				if (resultadoNombre != null &&
+					(resultadoNombre.FechaCreacion >= desde && resultadoNombre.FechaCreacion <= hasta))
+				{
+					proveedores.Clear();
+					proveedores.Add(resultadoNombre);
+					VerificarMensajeFiltro(true);
+				}
+				else
+					VerificarMensajeFiltro(false);
+				break;
+
+			case "direccion":
+				var resultadoDireccion = proveedores
+				.Where(p => p.Direccion.ToLower().Contains(valorFiltro.ToLower())).ToList();
+
+				if (resultadoDireccion != null)
+				{
+					foreach (var result in resultadoDireccion)
+					{
+						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+							listaFiltro.Add(result);
+					}
+
+					if (listaFiltro.Count > 0)
+					{
+						proveedores = listaFiltro;
+						VerificarMensajeFiltro(true);
+					}
+					else
+						VerificarMensajeFiltro(false);
+				}
+				break;
+
+			case "ciudad":
+				var resultadoCiudad = proveedores
+				.Where(p => p.Ciudad.ToLower().Contains(valorFiltro.ToLower())).ToList();
+
+				if (resultadoCiudad != null)
+				{
+					foreach (var result in resultadoCiudad)
+					{
+						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+							listaFiltro.Add(result);
+					}
+
+					if (listaFiltro.Count > 0)
+					{
+						proveedores = listaFiltro;
+						VerificarMensajeFiltro(true);
+					}
+					else
+						VerificarMensajeFiltro(false);
+				}
+				break;
+
+			case "rnc":
+				var resultadoRNC = proveedores.Where(p => p.RNC.Contains(valorFiltro)).ToList();
+
+				if (resultadoRNC != null)
+				{
+					foreach (var result in resultadoRNC)
+					{
+						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+							listaFiltro.Add(result);
+					}
+
+					if (listaFiltro.Count > 0)
+					{
+						proveedores = listaFiltro;
+						VerificarMensajeFiltro(true);
+					}
+					else
+						VerificarMensajeFiltro(false);
+				}
+				break;
+
+			case "contribuyente":
+				var contribuyentes = tiposContribuyente
+				.FirstOrDefault(tc => tc.TipoContribuyente.ToLower().Contains(valorFiltro.ToLower()));
+
+				if (contribuyentes != null)
+				{
+					var resultadoProveedor =
+					proveedores.Where
+					(p => p.TipoContribuyenteId == contribuyentes.TipoContribuyenteId)
+					.ToList();
+
+					foreach (var result in resultadoProveedor)
+					{
+						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
+							listaFiltro.Add(result);
+					}
+
+					if (listaFiltro.Count > 0)
+					{
+						proveedores = listaFiltro;
+						VerificarMensajeFiltro(true);
+					}
+					else
+						VerificarMensajeFiltro(false);
+				}
+				else
+					VerificarMensajeFiltro(false);
+
+				break;
+		}
+	}
+
+	public void VerificarMensajeFiltro(bool valor)
+	{
+		if (valor)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al filtrar",
+					Detail = "Se encontraron resultados",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+		}
+		else
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al filtrar",
+					Detail = "No se encontraron resultados",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+		}
+	}
+
+	public string BuscarTipoContribuyente(int id)
+	{
+		var contribuyente = tiposContribuyente.FirstOrDefault(p => p.TipoContribuyenteId == id);
+		return contribuyente.TipoContribuyente;
+	}
+
+	public async Task Restablecer()
+	{
+		proveedores = await proveedorService.Listar(p => p.Eliminado == false);
+
+		var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Success,
+				Summary = "Éxito al restablecer",
+				Detail = "Los datos fueron restablecidos con éxito",
+				Duration = 5_000
+			};
+		notificationService.Notify(Mensaje);
+	}
+
+	public void Restaurar(int id)
+	{
+		proveedor = proveedores.FirstOrDefault(p => p.ProveedorId == id);
+		mostrarModal1 = true; // Mostrar el modal si la condición se cumple
+	}
+
+	public async Task ProveedorRestaurado(int id)
+	{
+		CerrarModal();
+
+		var empresa = listaTemporal.FirstOrDefault
+			(p => p.NombreEmpresa == proveedor.NombreEmpresa && p.Eliminado == false);
+
+		var cedula = listaTemporal.FirstOrDefault
+			(p => p.CedulaEncargado == proveedor.CedulaEncargado && p.Eliminado == false);
+
+		var email = listaTemporal.FirstOrDefault(p => p.Email == proveedor.Email && p.Eliminado == false);
+
+		var numCuenta = listaTemporal.FirstOrDefault
+			(p => p.NumeroCuenta == proveedor.NumeroCuenta && p.Eliminado == false);
+
+		var rnc = listaTemporal.FirstOrDefault(p => p.RNC == proveedor.RNC && p.Eliminado == false);
+
+		if (empresa != null)
+			empresaModal = true;
+
+		if (cedula != null)
+			cedulaModal = true;
+
+		if (email != null)
+			emailModal = true;
+
+		if (numCuenta != null)
+			cuentaModal = true;
+
+		if (rnc != null)
+			rncModal = true;
+
+		//mostrarModal2 = true;
+
+		if (empresaModal || cedulaModal || emailModal || cuentaModal || rncModal)
+			mostrarModal2 = true; // Mostrar el modal si la condición se cumple
+		else
+		{
+			await ActualizarLista();
+
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Success,
+					Summary = "Éxito al restablecer",
+					Detail = "El proveedor ha sido reestablecido con éxito",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+		}
+	}
+
+	public async Task ActualizarLista()
+	{
+		proveedor.Eliminado = false;
+		await proveedorService.Modificar(proveedor);
+	}
+
+	public async Task FiltrarTodos()
+	{
+		proveedores = await proveedorService.Listar(p => p.ProveedorId > 0);
+	}
+
+	public async Task FiltrarEliminados()
+	{
+		proveedores = await proveedorService.Listar(p => p.Eliminado == true);
+	}
+
+	public async Task LimpiarPantalla()
+	{
+		await Task.Delay(2000);
+		mensaje = string.Empty;
+	}
+
+	public void CerrarModal()
+	{
+		mostrarModal1 = false;
+		mostrarModal2 = false;
+	}
+
+	public void VolverAtras()
+	{
+		navigation.NavigateTo("/MenuPrincipal");
+	}
+
+	void IrADetalles(int id)
+	{
+		navigation.NavigateTo($"/ViewProveedores/proveedorId={id}");
+	}
+}
