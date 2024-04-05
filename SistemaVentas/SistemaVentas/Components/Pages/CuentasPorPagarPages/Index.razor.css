@@ -16,13 +16,13 @@
 }
 
 .btn-back-to-history {
-    background-color: #6c757d; /* Gris azulado */
-    color: #ffffff; /* Color del texto */
-    border-color: #6c757d; /* Color del borde igual al fondo para tener un aspecto uniforme */
+    background-color: #6c757d;
+    color: #ffffff; 
+    border-color: #6c757d; 
 }
 
-    /* Estilos cuando el mouse está encima */
+    
     .btn-back-to-history:hover {
-        background-color: #495057; /* Cambio de color de fondo al pasar el mouse */
-        color: #ffffff; /* Cambiar el color del texto al pasar el mouse */
+        background-color: #495057; 
+        color: #ffffff; 
     }
