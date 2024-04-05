@@ -62,7 +62,7 @@ public class Proveedores
 	public int TipoContribuyenteId { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar un número de RNC")]
-	[RegularExpression(@"^\d{3}-\d{7}-\d{1}$", ErrorMessage = "El RNC debe tener tener 11 dígitos númericos")]
+	[RegularExpression(@"^\d{3}\d{7}\d{1}$", ErrorMessage = "El RNC debe tener 11 dígitos numéricos")]
 	public string RNC { get; set; }
 
 	[StringLength(250, ErrorMessage = "El límite es de 250 caracteres.")]
