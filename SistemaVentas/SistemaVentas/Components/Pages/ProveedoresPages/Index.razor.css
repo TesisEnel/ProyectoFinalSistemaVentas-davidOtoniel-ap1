@@ -14,3 +14,15 @@
 .mensajeError {
     color: red;
 }
+
+.btn-back-to-history {
+    background-color: #6c757d;
+    color: #ffffff;
+    border-color: #6c757d;
+}
+
+
+    .btn-back-to-history:hover {
+        background-color: #495057;
+        color: #ffffff;
+    }

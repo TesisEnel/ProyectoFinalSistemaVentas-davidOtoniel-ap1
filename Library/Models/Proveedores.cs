@@ -30,7 +30,7 @@ public class Proveedores
 	public string Encargado { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar un número de Cédula")]
-	[RegularExpression(@"^\d{3}-\d{7}-\d{1}$", ErrorMessage = "La cédula debe tener el formato adecuado. (xxx-xxxxxxx-x")]
+	[RegularExpression(@"^\d{3}-\d{7}-\d{1}$", ErrorMessage = "La cédula debe tener 11 dígitos númericos")]
 	public string CedulaEncargado { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar una dirección.")]
@@ -62,7 +62,7 @@ public class Proveedores
 	public int TipoContribuyenteId { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar un número de RNC")]
-	[RegularExpression(@"^\d{3}-\d{7}-\d{1}$", ErrorMessage = "El RNC debe tener el formato adecuado. (xxx-xxxxxxx-x")]
+	[RegularExpression(@"^\d{3}-\d{7}-\d{1}$", ErrorMessage = "El RNC debe tener tener 11 dígitos númericos")]
 	public string RNC { get; set; }
 
 	[StringLength(250, ErrorMessage = "El límite es de 250 caracteres.")]
