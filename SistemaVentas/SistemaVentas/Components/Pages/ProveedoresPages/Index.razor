@@ -74,11 +74,10 @@
 							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
 								<option>Elige una opci&oacute;n</option>
 								<option value="id">Id</option>
-								<option value="nombre">Nombre</option>
-								<option value="direccion">Direcci&oacute;n</option>
-								<option value="ciudad">Ciudad</option>
+								<option value="empresa">Empresa</option>
+								<option value="representante">Representante</option>
+								<option value="contribuyente">Contribuyente</option>
 								<option value="rnc">RNC</option>
-								<option value="contribuyente">Tipo de Contribuyente</option>
 							</InputSelect>
 						</div>
 						<div class="col-auto miFlecha">
@@ -101,9 +100,8 @@
 						<tr>
 							<th>ProveedorId</th>
 							<th>Fecha de Creaci&oacute;n</th>
-							<th>&Uacute;ltima Modificaci&oacute;n</th>
 							<th>Empresa</th>
-							<th>Encargado</th>
+							<th>Representante</th>
 							<th>Direcci&oacute;n</th>
 							<th>Contribuyente</th>
 							<th>RNC</th>
@@ -116,9 +114,8 @@
 							<tr>
 								<td>@proveedor.ProveedorId</td>
 								<td>@proveedor.FechaCreacion.ToShortDateString()</td>
-								<td>@proveedor.UltimaModificacion.ToShortDateString()</td>
 								<td>@proveedor.NombreEmpresa</td>
-								<td>@proveedor.Encargado</td>
+								<td>@proveedor.Representante</td>
 								<td>@proveedor.Direccion</td>
 								<td>@BuscarTipoContribuyente(proveedor.TipoContribuyenteId)</td>
 								<td>@proveedor.RNC</td>
@@ -248,9 +245,9 @@
 				}
 				break;
 
-			case "nombre":
+			case "empresa":
 				var resultadoNombre = proveedores
-				.FirstOrDefault(p => p.Encargado.ToLower().Contains(valorFiltro.ToLower()));
+				.FirstOrDefault(p => p.NombreEmpresa.ToLower().Contains(valorFiltro.ToLower()));
 
 				if (resultadoNombre != null &&
 					(resultadoNombre.FechaCreacion >= desde && resultadoNombre.FechaCreacion <= hasta))
@@ -263,35 +260,13 @@
 					VerificarMensajeFiltro(false);
 				break;
 
-			case "direccion":
+			case "representante":
 				var resultadoDireccion = proveedores
-				.Where(p => p.Direccion.ToLower().Contains(valorFiltro.ToLower())).ToList();
+				.Where(p => p.Representante.ToLower().Contains(valorFiltro.ToLower())).ToList();
 
 				if (resultadoDireccion != null)
 				{
 					foreach (var result in resultadoDireccion)
-					{
-						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
-							listaFiltro.Add(result);
-					}
-
-					if (listaFiltro.Count > 0)
-					{
-						proveedores = listaFiltro;
-						VerificarMensajeFiltro(true);
-					}
-					else
-						VerificarMensajeFiltro(false);
-				}
-				break;
-
-			case "ciudad":
-				var resultadoCiudad = proveedores
-				.Where(p => p.Ciudad.ToLower().Contains(valorFiltro.ToLower())).ToList();
-
-				if (resultadoCiudad != null)
-				{
-					foreach (var result in resultadoCiudad)
 					{
 						if (result.FechaCreacion >= desde && result.FechaCreacion <= hasta)
 							listaFiltro.Add(result);

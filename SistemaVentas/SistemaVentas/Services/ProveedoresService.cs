@@ -1,6 +1,6 @@
-﻿using Library.Models;
+﻿
+using Library.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using SistemaVentas.Data;
 using System.Linq.Expressions;
 
@@ -64,7 +64,7 @@ public class ProveedoresService
 	{
 		return await _contexto.Proveedores
 			.AsNoTracking()
-			.FirstOrDefaultAsync(p => p.Encargado.ToLower() == nombre.ToLower());
+			.FirstOrDefaultAsync(p => p.Representante.ToLower() == nombre.ToLower());
 	}
 	public async Task<Proveedores?> BuscarEmail(string email)
 	{

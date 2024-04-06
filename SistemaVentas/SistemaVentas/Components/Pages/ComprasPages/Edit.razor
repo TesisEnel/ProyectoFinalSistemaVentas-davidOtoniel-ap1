@@ -50,7 +50,7 @@
 							<option value="">Elige una opción</option>
 							@foreach (var proveedor in proveedores)
 							{
-								<option value="@proveedor.ProveedorId">@proveedor.Encargado</option>
+								<option value="@proveedor.ProveedorId">@proveedor.Representante</option>
 							}
 						</InputSelect>
 						<ValidationMessage For="@(() => compra.ProveedorId)"></ValidationMessage>

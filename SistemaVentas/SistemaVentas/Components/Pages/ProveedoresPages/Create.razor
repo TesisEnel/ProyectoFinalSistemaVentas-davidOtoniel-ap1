@@ -9,7 +9,7 @@
 
 <PageTitle>Crear Nuevo Proveedor</PageTitle>
 <RadzenNotification />
-<EditForm Model="proveedor" OnValidSubmit="Crear" FormName="RegistroProveedores">
+<EditForm Model="proveedor" OnValidSubmit="Crear" OnInvalidSubmit="ErrorAlGuardar" FormName="RegistroProveedores">
 	<DataAnnotationsValidator />
 	<div class="container">
 		<div class="card shadow-lg">
@@ -40,14 +40,14 @@
 						<ValidationMessage For="@(() => proveedor.NombreEmpresa)"></ValidationMessage>
 					</div>
 					<div class="col-4">
-						@*Encargado*@
-						<label class="form-label" for="encargado"><strong>Encargado</strong></label>
-						<InputText id="encargado" class="form-control" @bind-Value="proveedor.Encargado" placeholder="Ej: Juan Pérez"></InputText>
-						<ValidationMessage For="@(() => proveedor.Encargado)"></ValidationMessage>
+						@*Representante*@
+						<label class="form-label" for="representante"><strong>Representante</strong></label>
+						<InputText id="representante" class="form-control" @bind-Value="proveedor.Representante" placeholder="Ej: Juan Pérez"></InputText>
+						<ValidationMessage For="@(() => proveedor.Representante)"></ValidationMessage>
 					</div>
 					<div class="col-4">
 						@*Cedula*@
-						<label class="form-label" for="cedula"><strong>Cedula de Encargado</strong></label>
+						<label class="form-label" for="cedula"><strong>C&eacute;dula del Representante</strong></label>
 						<InputText id="cedula" class="form-control" @bind-Value="proveedor.CedulaEncargado" @oninput="PonerGuionCedula" placeholder="Ej: 402-3457365-3"></InputText>
 						<ValidationMessage For="@(() => proveedor.CedulaEncargado)"></ValidationMessage>
 					</div>
@@ -90,7 +90,7 @@
 					<div class="col-4">
 						@*TipoContribuyente*@
 						<label class="form-label" for="ipoContribuyente"><strong>Contribuyente</strong></label>
-						<InputSelect id="tipoContribuyente" class="form-select" @bind-Value="proveedor.TipoContribuyenteId">
+						<InputSelect id="tipoContribuyente" class="form-select" @bind-Value="contribuyente">
 							<option value="0">Elige una opci&oacute;n</option>
 							@foreach (var tipo in tiposContribuyente)
 							{
@@ -104,7 +104,7 @@
 					<div class="col-4">
 						@*RNC*@
 						<label class="form-label" for="rnc"><strong>RNC</strong></label>
-						<InputText id="rnc" class="form-control" @bind-Value="proveedor.RNC" @oninput="PonerGuionRNC" placeholder="40234573653"></InputText>
+						<InputText id="rnc" class="form-control" @bind-Value="proveedor.RNC" placeholder="40234573653"></InputText>
 						<spam class="mensajeError">@mensajeRNC</spam>
 						<ValidationMessage For="@(() => proveedor.RNC)"></ValidationMessage>
 					</div>
@@ -124,13 +124,13 @@
 					@*Body*@
 					<div class="card-body">
 						<section class="row mb-4">
-							<h3><strong>Detalles</strong></h3>
+							<h3><strong>N&uacute;meros</strong></h3>
 							<div class="row align-content-center">
 								@*Contacto*@
 								<div class="col-4">
-									<label class="form-label" for="Tipocontacto"><strong>Tipo de N&uacute;:</strong></label>
+									<label class="form-label" for="Tipocontacto"><strong>Tipo de N&uacute;mero:</strong></label>
 									<InputSelect id="Tipocontacto" class="form-select" @bind-Value="tipo">
-										<option>Elige una opci&oacute;n</option>
+										<option value="0">Elige una opci&oacute;n</option>
 										@foreach (var contacto in contactos)
 										{
 											<option value="@contacto.NumeroId">@contacto.TipoNumero</option>
@@ -140,8 +140,7 @@
 								@*Descripcion*@
 								<div class="col-4">
 									<label class="form-label" for="descripcion"><strong>N&uacute;mero:</strong></label>
-									<label>(Sin guiones)</label>
-									<InputText id="descripcion" class="form-control" @bind-Value="contacto" placeholder="Ingrese un número"></InputText>
+									<InputText id="descripcion" class="form-control" @bind-Value="contacto" @oninput="PonerGuionNumero" placeholder="Ingrese un número"></InputText>
 								</div>
 								@*Boton*@
 								<div class="col-4 d-flex align-items-end">
@@ -166,7 +165,7 @@
 										{
 											<tr>
 												<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
-												<td>@FormatPhoneNumber(detalle.Contacto)</td>
+												<td>@detalle.Contacto</td>
 												<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
 											</tr>
 										}
@@ -231,6 +230,7 @@
 	public string mensajeCuenta { get; set; } = string.Empty;
 
 	public bool mostrarModal { get; set; }
+	public int contribuyente { get; set; }
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -243,10 +243,25 @@
 
 	public async Task Crear()
 	{
+		if (proveedor.ProveedoresDetalle.Count == 0)
+		{
+			var Mensaje = new NotificationMessage
+				{
+					Severity = NotificationSeverity.Error,
+					Summary = "Error al crear",
+					Detail = "Debe ingresar al menos un detalle",
+					Duration = 5_000
+				};
+			notificationService.Notify(Mensaje);
+			return;
+		}
+
 		if (await ValidarProveedor())
 		{
 			if (String.IsNullOrEmpty(proveedor.Nota))
 				proveedor.Nota = "----";
+
+			proveedor.TipoContribuyenteId = contribuyente;
 
 			var response = await proveedorService.Crear(proveedor);
 
@@ -296,7 +311,7 @@
 	public async Task<bool> ValidarProveedor()
 	{
 		var validar = await proveedorService.Listar(p => p.Eliminado == false);
-		var nombre = validar.FirstOrDefault(p => p.Encargado == proveedor.Encargado);
+		var nombre = validar.FirstOrDefault(p => p.Representante == proveedor.Representante);
 		var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
 		var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
 		var numeroCuenta = validar.FirstOrDefault(p => p.NumeroCuenta == proveedor.NumeroCuenta);
@@ -371,13 +386,13 @@
 	{
 		var validar = await proveedorService.Listar(p => p.Eliminado == false);
 
-		if (!contacto.All(char.IsDigit))
+		if (!contacto.All(c => char.IsDigit(c) || c == '-'))
 		{
 			var Mensaje = new NotificationMessage
 				{
 					Severity = NotificationSeverity.Error,
 					Summary = "Error al agregar detalle",
-					Detail = "El número no debe contener letras o caracteres especiales",
+					Detail = "El número no debe contener letras o caracteres especiales, excepto guiones",
 					Duration = 5_000
 				};
 			notificationService.Notify(Mensaje);
@@ -385,7 +400,7 @@
 			return false;
 		}
 
-		if (contacto.Length != 10)
+		if (contacto.Length != 12)
 		{
 			var Mensaje = new NotificationMessage
 				{
@@ -444,13 +459,10 @@
 		return dato.TipoNumero;
 	}
 
-	public string FormatPhoneNumber(string phoneNumber)
-	{
-		return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
-	}
-
 	public async Task EliminarDetalle(ProveedoresDetalle detalle)
 	{
+		contacto = detalle.Contacto;
+		tipo = detalle.ContactoId;
 		proveedor.ProveedoresDetalle.Remove(detalle);
 
 		var Mensaje = new NotificationMessage
@@ -465,34 +477,53 @@
 
 	public void PonerGuionCedula(ChangeEventArgs e)
 	{
-		var cedula = (string)e.Value!;
+		string cedula = (string)e.Value;
 
-		if (cedula.Length == 3 && !cedula.EndsWith("-") || cedula.Length == 11 && !cedula.EndsWith("-"))
+		cedula = cedula.Replace("-", "");
+
+		if (cedula.Length > 3 && cedula.Length <= 10)
 		{
-			proveedor.CedulaEncargado = cedula + "-";
+			cedula = cedula.Insert(3, "-");
+		}
+		else if (cedula.Length > 10)
+		{
+			cedula = cedula.Insert(3, "-");
+			cedula = cedula.Insert(11, "-");
 		}
 
-		else
-		{
-			proveedor.CedulaEncargado = cedula;
-		}
+		proveedor.CedulaEncargado = cedula;
 	}
 
-	public void PonerGuionRNC(ChangeEventArgs e)
+	public void PonerGuionNumero(ChangeEventArgs e)
 	{
-		var rnc = (string)e.Value!;
+		string phoneNumber = (string)e.Value;
 
-		if (rnc.Length == 3 && !rnc.EndsWith("-") || rnc.Length == 11 && !rnc.EndsWith("-"))
+		phoneNumber = phoneNumber.Replace("-", "");
+
+		if (phoneNumber.Length > 3 && phoneNumber.Length <= 6)
 		{
-			proveedor.RNC = rnc + "-";
+			phoneNumber = phoneNumber.Insert(3, "-");
+		}
+		else if (phoneNumber.Length > 6)
+		{
+			phoneNumber = phoneNumber.Insert(3, "-");
+			phoneNumber = phoneNumber.Insert(7, "-");
 		}
 
-		else
-		{
-			proveedor.RNC = rnc;
-		}
+		contacto = phoneNumber;
 	}
 
+	public void ErrorAlGuardar()
+	{
+		var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al guardar",
+				Detail = "Verifique que no hayan campos vacíos o con un formato inadecuado",
+				Duration = 5_000
+			};
+		notificationService.Notify(Mensaje);
+	}
 
 	public async Task LimpiarPantalla()
 	{
@@ -508,7 +539,7 @@
 
 	void Volver()
 	{
-		if (proveedor.Encargado != null || proveedor.Direccion != null
+		if (proveedor.Representante != null || proveedor.Direccion != null
 			|| proveedor.Ciudad != null || proveedor.Email != null
 			|| proveedor.NumeroCuenta != null || proveedor.Banco != null
 			|| proveedor.RNC != null || proveedor.Nota != null)

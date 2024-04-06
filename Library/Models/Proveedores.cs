@@ -16,10 +16,6 @@ public class Proveedores
 	[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
 	public DateTime FechaCreacion { get; set; } = DateTime.Today;
 
-	[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
-	public DateTime UltimaModificacion { get; set; } = DateTime.Today;
-
-
 	[Required(ErrorMessage = "Debe ingresar el nombre de la empresa.")]
 	[StringLength(32, ErrorMessage = "El límite es de 32 caracteres.")]
 	public string NombreEmpresa { get; set; }
@@ -27,7 +23,7 @@ public class Proveedores
 	[Required(ErrorMessage = "Debe ingresar un nombre.")]
 	[RegularExpression(@"^[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+$", ErrorMessage = "Este campo no acepta números ni caracteres especiales.")]
 	[StringLength(18, ErrorMessage = "El límite es de 18 caracteres.")]
-	public string Encargado { get; set; }
+	public string Representante { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar un número de Cédula")]
 	[RegularExpression(@"^\d{3}-\d{7}-\d{1}$", ErrorMessage = "La cédula debe tener 11 dígitos númericos")]
@@ -49,8 +45,9 @@ public class Proveedores
 	public string Email { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar un número de cuenta bancaria")]
-	[RegularExpression(@"^[0-9]{10}$", ErrorMessage = "Ingrese 10 dígitos númericos")]
+	[RegularExpression(@"^[0-9]{8,20}$", ErrorMessage = "El número de cuenta bancaria debe tener entre 8 y 20 dígitos númericos")]
 	public string NumeroCuenta { get; set; }
+
 
 	[Required(ErrorMessage = "Debe ingresar el nombre de un banco")]
 	[RegularExpression(@"^[a-zA-Z\s]*$", ErrorMessage = "El campo Banco solo puede contener letras y espacios.")]
@@ -62,7 +59,7 @@ public class Proveedores
 	public int TipoContribuyenteId { get; set; }
 
 	[Required(ErrorMessage = "Debe ingresar un número de RNC")]
-	[RegularExpression(@"^\d{3}-\d{7}-\d{1}$", ErrorMessage = "El RNC debe tener tener 11 dígitos númericos")]
+	[RegularExpression(@"^\d{3}\d{7}\d{1}$", ErrorMessage = "El RNC debe tener 11 dígitos numéricos")]
 	public string RNC { get; set; }
 
 	[StringLength(250, ErrorMessage = "El límite es de 250 caracteres.")]
