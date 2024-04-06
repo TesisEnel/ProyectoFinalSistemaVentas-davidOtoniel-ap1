@@ -43,8 +43,16 @@
 													<td>@proveedor.FechaCreacion.ToShortDateString()</td>
 												</tr>
 												<tr>
-													<th>Nombre</th>
+													<th>Empresa</th>
+													<td>@proveedor.NombreEmpresa</td>
+												</tr>
+												<tr>
+													<th>Representante</th>
 													<td>@proveedor.Representante</td>
+												</tr>
+												<tr>
+													<th>C&eacute;dula del Representante</th>
+													<td>@proveedor.CedulaEncargado</td>
 												</tr>
 												<tr>
 													<th>Dirección</th>
@@ -105,8 +113,8 @@
 											@foreach (var detalle in proveedor.ProveedoresDetalle)
 											{
 												<tr>
-													<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
-													<td>@FormatPhoneNumber(detalle.Contacto)</td>
+													<td>@ObtenerTipoNumero(detalle.ContactoId)</td>
+													<td>@detalle.Contacto</td>
 												</tr>
 											}
 										</tbody>
@@ -138,7 +146,7 @@
 
 	public Proveedores proveedor { get; set; } = new Proveedores();
 	public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
-	public List<Numeros> contactos = new List<Numeros>();
+	public List<Numeros> numeros = new List<Numeros>();
 	public int tipo { get; set; }
 	public string contacto { get; set; } = string.Empty;
 	public string mensaje { get; set; } = string.Empty;
@@ -148,22 +156,22 @@
 		await Task.Delay(500);
 
 		tiposContribuyente = await tipoContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
-		contactos = await contactoService.Listar(c => c.NumeroId > 0);
+		numeros = await contactoService.Listar(c => c.NumeroId > 0);
 		proveedor = await proveedorService.BuscarId(proveedorId);
 		int parar = 0;
 	}
 
-	public string ObtenerTipoContacto(int id)
+	public string ObtenerTipoNumero(int id)
 	{
-		var contribuyente = tiposContribuyente.FirstOrDefault(p => p.TipoContribuyenteId == id);
+		var numero = numeros.FirstOrDefault(p => p.NumeroId == id);
 
-		if (contribuyente != null)
+		if (numero != null)
 		{
-			return contribuyente.TipoContribuyente;
+			return numero.TipoNumero;
 		}
 		else
 		{
-			return "Tipo de contribuyente no encontrado";
+			return "Tipo de Número no encontrado";
 		}
 	}
 
@@ -179,22 +187,6 @@
 		{
 			return "Tipo de contribuyente no encontrado";
 		}
-	}
-
-	public string FormatPhoneNumber(string phoneNumber)
-	{
-		if (!string.IsNullOrEmpty(phoneNumber))
-			return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
-
-		return phoneNumber;
-	}
-
-	public string FormatRNCNumber(string rnc)
-	{
-		if(!string.IsNullOrEmpty(rnc))
-			return $"{rnc.Substring(0, 3)}-{rnc.Substring(3, 7)}-{rnc.Substring(10)}";
-
-		return rnc;
 	}
 
 	void Volver()

@@ -124,7 +124,7 @@
 					@*Body*@
 					<div class="card-body">
 						<section class="row mb-4">
-							<h3><strong>Detalles</strong></h3>
+							<h3><strong>N&uacute;meros</strong></h3>
 							<div class="row align-content-center">
 								@*Contacto*@
 								<div class="col-4">
@@ -461,6 +461,8 @@
 
 	public async Task EliminarDetalle(ProveedoresDetalle detalle)
 	{
+		contacto = detalle.Contacto;
+		tipo = detalle.ContactoId;
 		proveedor.ProveedoresDetalle.Remove(detalle);
 
 		var Mensaje = new NotificationMessage
@@ -517,7 +519,7 @@
 			{
 				Severity = NotificationSeverity.Error,
 				Summary = "Error al guardar",
-				Detail = "No deben haber datos vacíos",
+				Detail = "Verifique que no hayan campos vacíos o con un formato inadecuado",
 				Duration = 5_000
 			};
 		notificationService.Notify(Mensaje);

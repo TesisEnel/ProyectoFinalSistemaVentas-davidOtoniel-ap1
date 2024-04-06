@@ -1,6 +1,6 @@
-﻿using Library.Models;
+﻿
+using Library.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using SistemaVentas.Data;
 using System.Linq.Expressions;
 
