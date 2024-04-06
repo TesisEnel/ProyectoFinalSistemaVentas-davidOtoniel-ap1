@@ -33,12 +33,25 @@
 				</div>
 				<div class="row mb-3">
 					<div class="col-4">
-						@*Nombre*@
-						<label class="form-label" for="nombre"><strong>Nombre</strong></label>
-						<InputText id="nombre" class="form-control" @bind-Value="proveedor.Representante" placeholder="Ej: Juan Pérez"></InputText>
-						<spam class="mensajeError">@mensajeNombre</spam>
+						@*NombreEmpresa*@
+						<label class="form-label" for="empresa"><strong>Nombre de la Empresa</strong></label>
+						<InputText id="empresa" class="form-control" @bind-Value="proveedor.NombreEmpresa" placeholder="Ej: Coca-Cola"></InputText>
+						<ValidationMessage For="@(() => proveedor.NombreEmpresa)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Representante*@
+						<label class="form-label" for="representante"><strong>Representante</strong></label>
+						<InputText id="representante" class="form-control" @bind-Value="proveedor.Representante" placeholder="Ej: Juan Pérez"></InputText>
 						<ValidationMessage For="@(() => proveedor.Representante)"></ValidationMessage>
 					</div>
+					<div class="col-4">
+						@*Cedula*@
+						<label class="form-label" for="cedula"><strong>C&eacute;dula del Representante</strong></label>
+						<InputText id="cedula" class="form-control" @bind-Value="proveedor.CedulaEncargado" @oninput="PonerGuionCedula" placeholder="Ej: 402-3457365-3"></InputText>
+						<ValidationMessage For="@(() => proveedor.CedulaEncargado)"></ValidationMessage>
+					</div>
+				</div>
+				<div class="row mb-3">
 					<div class="col-4">
 						@*Direccion*@
 						<label class="form-label" for="direccion"><strong>Direcci&oacute;n</strong></label>
@@ -51,8 +64,6 @@
 						<InputText id="ciudad" class="form-control" @bind-Value="proveedor.Ciudad" placeholder="Ej: San Francisco de Macorís"></InputText>
 						<ValidationMessage For="@(() => proveedor.Ciudad)"></ValidationMessage>
 					</div>
-				</div>
-				<div class="row mb-3">
 					<div class="col-4">
 						@*Email*@
 						<label class="form-label" for="email"><strong>Email</strong></label>
@@ -60,10 +71,11 @@
 						<spam class="mensajeError">@mensajeEmail</spam>
 						<ValidationMessage For="@(() => proveedor.Email)"></ValidationMessage>
 					</div>
+				</div>
+				<div class="row mb-3">
 					<div class="col-4">
 						@*Numero de Cuenta*@
 						<label class="form-label" for="cuenta"><strong>N&uacute;mero de Cuenta</strong></label>
-						<label>(Sin guiones)</label>
 						<InputText id="cuenta" class="form-control" @bind-Value="proveedor.NumeroCuenta" placeholder="9123456789"></InputText>
 						<spam class="mensajeError">@mensajeCuenta</spam>
 						<ValidationMessage For="@(() => proveedor.NumeroCuenta)"></ValidationMessage>
@@ -74,12 +86,10 @@
 						<InputText id="banco" class="form-control" @bind-Value="proveedor.Banco" placeholder="BHD"></InputText>
 						<ValidationMessage For="@(() => proveedor.Banco)"></ValidationMessage>
 					</div>
-				</div>
-				<div class="row mb-3">
 					<div class="col-4">
 						@*TipoContribuyente*@
-						<label class="form-label" for="ipoContribuyente"><strong>Tipo de Contribuyente</strong></label>
-						<InputSelect id="tipoContribuyente" class="form-select" @bind-Value="proveedor.TipoContribuyenteId">
+						<label class="form-label" for="ipoContribuyente"><strong>Contribuyente</strong></label>
+						<InputSelect id="tipoContribuyente" class="form-select" @bind-Value="contribuyente">
 							<option value="0">Elige una opci&oacute;n</option>
 							@foreach (var tipo in tiposContribuyente)
 							{
@@ -88,11 +98,11 @@
 						</InputSelect>
 						<ValidationMessage For="@(() => proveedor.TipoContribuyenteId)"></ValidationMessage>
 					</div>
-
+				</div>
+				<div class="row mb-3">
 					<div class="col-4">
 						@*RNC*@
 						<label class="form-label" for="rnc"><strong>RNC</strong></label>
-						<label>(Sin guiones)</label>
 						<InputText id="rnc" class="form-control" @bind-Value="proveedor.RNC" placeholder="40234573653"></InputText>
 						<spam class="mensajeError">@mensajeRNC</spam>
 						<ValidationMessage For="@(() => proveedor.RNC)"></ValidationMessage>
@@ -107,29 +117,29 @@
 						<ValidationMessage For="@(() => proveedor.Nota)"></ValidationMessage>
 					</div>
 				</div>
+
 				@*ProveedoresDetalles*@
 				<fieldset class="border-primmary border border-2">
 					@*Body*@
 					<div class="card-body">
 						<section class="row mb-4">
-							<h3><strong>Detalles</strong></h3>
+							<h3><strong>N&uacute;meros</strong></h3>
 							<div class="row align-content-center">
 								@*Contacto*@
 								<div class="col-4">
-									<label class="form-label" for="Tipocontacto"><strong>Tipo de N&uacute;:</strong></label>
+									<label class="form-label" for="Tipocontacto"><strong>Tipo de N&uacute;mero:</strong></label>
 									<InputSelect id="Tipocontacto" class="form-select" @bind-Value="tipo">
-										<option>Elige una opci&oacute;n</option>
-										@foreach (var contacto in contactos)
+										<option value="0">Elige una opci&oacute;n</option>
+										@foreach (var numero in numeros)
 										{
-											<option value="@contacto.NumeroId">@contacto.TipoNumero</option>
+											<option value="@numero.NumeroId">@numero.TipoNumero</option>
 										}
 									</InputSelect>
 								</div>
 								@*Descripcion*@
 								<div class="col-4">
 									<label class="form-label" for="descripcion"><strong>N&uacute;mero:</strong></label>
-									<label>(Sin guiones)</label>
-									<InputText id="descripcion" class="form-control" @bind-Value="contacto" placeholder="Ingrese un número"></InputText>
+									<InputText id="descripcion" class="form-control" @bind-Value="contacto" @oninput="PonerGuionNumero" placeholder="Ingrese un número"></InputText>
 								</div>
 								@*Boton*@
 								<div class="col-4 d-flex align-items-end">
@@ -152,14 +162,11 @@
 									<tbody>
 										@foreach (var detalle in proveedor.ProveedoresDetalle)
 										{
-											@if (detalle.Eliminado == false)
-											{
-												<tr>
-													<td>@ObtenerTipoContacto(detalle.ContactoId)</td>
-													<td>@FormatPhoneNumber(detalle.Contacto)</td>
-													<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
-												</tr>
-											}
+											<tr>
+												<td>@ObtenerTipoNumero(detalle.ContactoId)</td>
+												<td>@detalle.Contacto</td>
+												<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
+											</tr>
 										}
 									</tbody>
 								</table>
@@ -215,7 +222,8 @@
 
 	public Proveedores proveedor { get; set; } = new Proveedores();
 	public List<TiposContribuyente> tiposContribuyente = new List<TiposContribuyente>();
-	public List<Numeros> contactos = new List<Numeros>();
+	public List<Numeros> numeros = new List<Numeros>();
+	public List<ProveedoresDetalle> listaTemporal = new List<ProveedoresDetalle>();
 
 	public int tipo { get; set; } = 0;
 	public string contacto { get; set; } = string.Empty;
@@ -228,6 +236,7 @@
 
 
 	public bool mostrarModal { get; set; }
+	public int contribuyente { get; set; }
 
 	public string nombreLast { get; set; } = string.Empty;
 	public string direccionLast { get; set; } = string.Empty;
@@ -243,8 +252,10 @@
 		await Task.Delay(500);
 
 		tiposContribuyente = await tipoContribuyenteService.Listar(tc => tc.TipoContribuyenteId > 0);
-		contactos = await contactoService.Listar(c => c.NumeroId > 0);
+		numeros = await contactoService.Listar(c => c.NumeroId > 0);
 		proveedor = await proveedorService.BuscarId(proveedorId);
+
+		listaTemporal = proveedor.ProveedoresDetalle.ToList();
 
 		nombreLast = proveedor.Representante;
 		direccionLast = proveedor.Direccion;
@@ -254,6 +265,7 @@
 		rncLast = proveedor.RNC;
 		notaLast = proveedor.Nota;
 		numeroCuentaLast = proveedor.NumeroCuenta;
+		contribuyente = proveedor.TipoContribuyenteId;
 	}
 
 	public async Task Modificar()
@@ -262,6 +274,10 @@
 		{
 			if (String.IsNullOrEmpty(proveedor.Nota))
 				proveedor.Nota = "----";
+
+			proveedor.TipoContribuyenteId = contribuyente;
+			proveedor.ProveedoresDetalle.Clear();
+			proveedor.ProveedoresDetalle = listaTemporal.ToList();
 
 			var response = await proveedorService.Crear(proveedor);
 
@@ -356,6 +372,7 @@
 			{
 				var nuevoDetalle = new ProveedoresDetalle { ContactoId = tipo, Contacto = contacto };
 				proveedor.ProveedoresDetalle.Add(nuevoDetalle);
+				listaTemporal.Add(nuevoDetalle);
 
 				var Mensaje = new NotificationMessage
 					{
@@ -382,29 +399,31 @@
 		}
 	}
 
-	public string ObtenerTipoContacto(int id)
+	public string ObtenerTipoNumero(int id)
 	{
-		var dato = contactos.FirstOrDefault(c => c.NumeroId == id);
+		var numero = numeros.FirstOrDefault(p => p.NumeroId == id);
 
-		return dato.TipoNumero;
-	}
-
-	public string FormatPhoneNumber(string phoneNumber)
-	{
-		return $"{phoneNumber.Substring(0, 3)}-{phoneNumber.Substring(3, 3)}-{phoneNumber.Substring(6)}";
+		if (numero != null)
+		{
+			return numero.TipoNumero;
+		}
+		else
+		{
+			return "Tipo de Número no encontrado";
+		}
 	}
 
 	public async Task<bool> ValidarDetalle()
 	{
 		var validar = await proveedorService.Listar(p => p.Eliminado == false);
 
-		if (!contacto.All(char.IsDigit))
+		if (!contacto.All(c => char.IsDigit(c) || c == '-'))
 		{
 			var Mensaje = new NotificationMessage
 				{
 					Severity = NotificationSeverity.Error,
 					Summary = "Error al agregar detalle",
-					Detail = "El número no debe contener letras o caracteres especiales",
+					Detail = "El número no debe contener letras o caracteres especiales, excepto guiones",
 					Duration = 5_000
 				};
 			notificationService.Notify(Mensaje);
@@ -412,7 +431,7 @@
 			return false;
 		}
 
-		if (contacto.Length != 10)
+		if (contacto.Length != 12)
 		{
 			var Mensaje = new NotificationMessage
 				{
@@ -430,7 +449,7 @@
 		{
 			foreach (var contactos in detalle.ProveedoresDetalle)
 			{
-				if (contactos.Contacto == contacto)
+				if (contactos.Contacto == contacto && contactos.ProveedorId != proveedor.ProveedorId)
 				{
 					var Mensaje = new NotificationMessage
 						{
@@ -445,9 +464,9 @@
 			}
 		}
 
-		foreach (var detalle in proveedor.ProveedoresDetalle)
+		foreach (var detalle in listaTemporal)
 		{
-			if (detalle.Contacto == contacto && detalle.Eliminado == false)
+			if (detalle.Contacto == contacto)
 			{
 				var Mensaje = new NotificationMessage
 					{
@@ -466,14 +485,66 @@
 
 	public async Task EliminarDetalle(ProveedoresDetalle detalle)
 	{
-		///Lo que se hace aqui es dejar de mostrar el detalle, pero no lo borramos de la base de datos
-		detalle.Eliminado = true;
+		contacto = detalle.Contacto;
+		tipo = detalle.ContactoId;
+		proveedor.ProveedoresDetalle.Remove(detalle);
+		listaTemporal.Remove(detalle);
 
 		var Mensaje = new NotificationMessage
 			{
 				Severity = NotificationSeverity.Success,
 				Summary = "Éxito al eleminar detalle",
 				Detail = "Detalle eliminado  con éxito",
+				Duration = 5_000
+			};
+		notificationService.Notify(Mensaje);
+	}
+
+	public void PonerGuionCedula(ChangeEventArgs e)
+	{
+		string cedula = (string)e.Value;
+
+		cedula = cedula.Replace("-", "");
+
+		if (cedula.Length > 3 && cedula.Length <= 10)
+		{
+			cedula = cedula.Insert(3, "-");
+		}
+		else if (cedula.Length > 10)
+		{
+			cedula = cedula.Insert(3, "-");
+			cedula = cedula.Insert(11, "-");
+		}
+
+		proveedor.CedulaEncargado = cedula;
+	}
+
+	public void PonerGuionNumero(ChangeEventArgs e)
+	{
+		string phoneNumber = (string)e.Value;
+
+		phoneNumber = phoneNumber.Replace("-", "");
+
+		if (phoneNumber.Length > 3 && phoneNumber.Length <= 6)
+		{
+			phoneNumber = phoneNumber.Insert(3, "-");
+		}
+		else if (phoneNumber.Length > 6)
+		{
+			phoneNumber = phoneNumber.Insert(3, "-");
+			phoneNumber = phoneNumber.Insert(7, "-");
+		}
+
+		contacto = phoneNumber;
+	}
+
+	public void ErrorAlGuardar()
+	{
+		var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al guardar",
+				Detail = "Verifique que no hayan campos vacíos o con un formato inadecuado",
 				Duration = 5_000
 			};
 		notificationService.Notify(Mensaje);
