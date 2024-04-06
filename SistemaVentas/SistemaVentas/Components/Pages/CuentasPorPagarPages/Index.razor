@@ -329,7 +329,7 @@
 
 			case "proveedor":
 				var resultadoProveedor = proveedores
-				.FirstOrDefault(p => p.Encargado.ToLower().Contains(valorFiltro.ToLower()));
+				.FirstOrDefault(p => p.Representante.ToLower().Contains(valorFiltro.ToLower()));
 
 				if (resultadoProveedor != null)
 				{
@@ -463,7 +463,7 @@
 		var compraId = cuentasPorPagar.FirstOrDefault(c => c.CompraId == id);
 		var compra = compras.FirstOrDefault(c => c.CompraId == compraId.CompraId);
 		var proveedor = proveedores.FirstOrDefault(p => p.ProveedorId == compra.ProveedorId);
-		return proveedor.Encargado;
+		return proveedor.Representante;
 	}
 
 	public int BuscarCantidadProducto(int id)

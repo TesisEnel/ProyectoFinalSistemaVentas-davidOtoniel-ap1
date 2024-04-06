@@ -182,7 +182,7 @@
 			var proveedor = proveedores.FirstOrDefault(p => p.ProveedorId == compra.ProveedorId);
 			if (proveedor != null)
 			{
-				return proveedor.Encargado;
+				return proveedor.Representante;
 			}
 			else
 			{

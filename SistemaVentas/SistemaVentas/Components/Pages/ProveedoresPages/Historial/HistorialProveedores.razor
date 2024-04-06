@@ -109,7 +109,7 @@
 								<td>@proveedor.FechaCreacion.ToShortDateString()</td>
 								<td>@proveedor.UltimaModificacion.ToShortDateString()</td>
 								<td>@proveedor.NombreEmpresa</td>
-								<td>@proveedor.Encargado</td>
+								<td>@proveedor.Representante</td>
 								<td>@proveedor.Direccion</td>
 								<td>@BuscarTipoContribuyente(proveedor.TipoContribuyenteId)</td>
 								<td>@proveedor.RNC</td>
@@ -153,7 +153,7 @@
 					<ul>
 						<li><strong>ProveedorId:</strong> @proveedor.ProveedorId</li>
 						<li><strong>Empresa:</strong> @proveedor.NombreEmpresa</li>
-						<li><strong>Encargado:</strong> @proveedor.Encargado</li>
+						<li><strong>Encargado:</strong> @proveedor.Representante</li>
 					</ul>
 
 					<em>Si deseas restaurar pulsa "Aceptar"</em>
@@ -352,7 +352,7 @@
 
 			case "nombre":
 				var resultadoNombre = proveedores
-				.FirstOrDefault(p => p.Encargado.ToLower().Contains(valorFiltro.ToLower()));
+				.FirstOrDefault(p => p.Representante.ToLower().Contains(valorFiltro.ToLower()));
 
 				if (resultadoNombre != null &&
 					(resultadoNombre.FechaCreacion >= desde && resultadoNombre.FechaCreacion <= hasta))

@@ -9,7 +9,7 @@
 
 <PageTitle>Crear Nuevo Proveedor</PageTitle>
 <RadzenNotification />
-<EditForm Model="proveedor" OnValidSubmit="Crear" FormName="RegistroProveedores">
+<EditForm Model="proveedor" OnValidSubmit="Crear" OnInvalidSubmit="ErrorAlGuardar" FormName="RegistroProveedores">
 	<DataAnnotationsValidator />
 	<div class="container">
 		<div class="card shadow-lg">
@@ -42,8 +42,8 @@
 					<div class="col-4">
 						@*Representante*@
 						<label class="form-label" for="representante"><strong>Representante</strong></label>
-						<InputText id="representante" class="form-control" @bind-Value="proveedor.Encargado" placeholder="Ej: Juan Pérez"></InputText>
-						<ValidationMessage For="@(() => proveedor.Encargado)"></ValidationMessage>
+						<InputText id="representante" class="form-control" @bind-Value="proveedor.Representante" placeholder="Ej: Juan Pérez"></InputText>
+						<ValidationMessage For="@(() => proveedor.Representante)"></ValidationMessage>
 					</div>
 					<div class="col-4">
 						@*Cedula*@
@@ -311,7 +311,7 @@
 	public async Task<bool> ValidarProveedor()
 	{
 		var validar = await proveedorService.Listar(p => p.Eliminado == false);
-		var nombre = validar.FirstOrDefault(p => p.Encargado == proveedor.Encargado);
+		var nombre = validar.FirstOrDefault(p => p.Representante == proveedor.Representante);
 		var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
 		var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
 		var numeroCuenta = validar.FirstOrDefault(p => p.NumeroCuenta == proveedor.NumeroCuenta);
@@ -511,6 +511,18 @@
 		contacto = phoneNumber;
 	}
 
+	public void ErrorAlGuardar()
+	{
+		var Mensaje = new NotificationMessage
+			{
+				Severity = NotificationSeverity.Error,
+				Summary = "Error al guardar",
+				Detail = "No deben haber datos vacíos",
+				Duration = 5_000
+			};
+		notificationService.Notify(Mensaje);
+	}
+
 	public async Task LimpiarPantalla()
 	{
 		mensaje = string.Empty;
@@ -525,7 +537,7 @@
 
 	void Volver()
 	{
-		if (proveedor.Encargado != null || proveedor.Direccion != null
+		if (proveedor.Representante != null || proveedor.Direccion != null
 			|| proveedor.Ciudad != null || proveedor.Email != null
 			|| proveedor.NumeroCuenta != null || proveedor.Banco != null
 			|| proveedor.RNC != null || proveedor.Nota != null)
