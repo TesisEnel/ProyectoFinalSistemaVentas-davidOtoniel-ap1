@@ -1,0 +1,33 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+
+
+<h1 class="text-center"><strong>Sistema de Ventas</strong></h1>
+@* <div class="text-center">
+	<button type="button" class="btn btn-outline-danger" @onclick="IrALogin"><i class="bi bi-trash3-fill" /> Eliminar</button>
+</div> *@
+
+<div class="row">
+	@*Suscribete*@
+	<div class="text-center">
+		<button class="btn" @onclick="IrARegister">Suscribete!</button>
+	</div>
+	@*Ya tengo una cuenta*@
+	<div class="text-center">
+		<button class="btn" @onclick="IrALogin">Iniciar Sesi&oacute;n</button>
+	</div>
+</div>
+
+
+@code {
+	void IrALogin()
+	{
+		navigation.NavigateTo("/login");
+	}
+
+	void IrARegister()
+	{
+		navigation.NavigateTo("/Account/Register");
+	}
+}
