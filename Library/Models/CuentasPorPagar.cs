@@ -23,8 +23,9 @@ public class CuentasPorPagar
 
     public string Estado { get; set; }
 
-	List<(DateTime fechaPago, double porcentajePago, double montoPago)> Pagos = new List<(DateTime, double, double)>();
-
 	[ForeignKey("CuentaPorPagarId")]
 	public ICollection<CuentasPorPagarDetalle> CuentasPorPagarDetalle { get; set; } = new List<CuentasPorPagarDetalle>();
+
+	[ForeignKey("CuentaPorPagarId")]
+	public ICollection<PagoDetalle> PagoDetalle { get; set; } = new List<PagoDetalle>();
 }

@@ -12,7 +12,7 @@ using SistemaVentas.Data;
 namespace SistemaVentas.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240408131026_MigracionTemporal2")]
+    [Migration("20240408135856_MigracionTemporal2")]
     partial class MigracionTemporal2
     {
         /// <inheritdoc />
@@ -329,9 +329,11 @@ namespace SistemaVentas.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("DeudaInicial")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("DeudaRestante")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Estado")
@@ -355,6 +357,7 @@ namespace SistemaVentas.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CuentaPorPagarDetalleId"));
 
                     b.Property<decimal>("Abono")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Concepto")
@@ -505,6 +508,31 @@ namespace SistemaVentas.Migrations
                             NumeroId = 2,
                             TipoNumero = "Fax"
                         });
+                });
+
+            modelBuilder.Entity("Library.Models.PagoDetalle", b =>
+                {
+                    b.Property<int>("PagoDetalleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PagoDetalleId"));
+
+                    b.Property<int>("CuentaPorPagarId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaPago")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("MontoPago")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("PagoDetalleId");
+
+                    b.HasIndex("CuentaPorPagarId");
+
+                    b.ToTable("PagoDetalle");
                 });
 
             modelBuilder.Entity("Library.Models.Productos", b =>
@@ -1094,6 +1122,15 @@ namespace SistemaVentas.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Library.Models.PagoDetalle", b =>
+                {
+                    b.HasOne("Library.Models.CuentasPorPagar", null)
+                        .WithMany("PagoDetalle")
+                        .HasForeignKey("CuentaPorPagarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Library.Models.Productos", b =>
                 {
                     b.HasOne("Library.Models.Categorias", null)
@@ -1191,6 +1228,8 @@ namespace SistemaVentas.Migrations
             modelBuilder.Entity("Library.Models.CuentasPorPagar", b =>
                 {
                     b.Navigation("CuentasPorPagarDetalle");
+
+                    b.Navigation("PagoDetalle");
                 });
 
             modelBuilder.Entity("Library.Models.Devoluciones", b =>

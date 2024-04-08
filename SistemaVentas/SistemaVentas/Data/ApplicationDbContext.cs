@@ -177,14 +177,18 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
 		modelBuilder.Entity<CuentasPorPagar>()
 			.Property(cd => cd.DeudaRestante)
-			.HasColumnType("decimal(18,2)");
+			.HasPrecision(18, 2);
 
 		modelBuilder.Entity<CuentasPorPagar>()
 			.Property(cd => cd.DeudaInicial)
-			.HasColumnType("decimal(18,2)");
+			.HasPrecision(18, 2);
 
 		modelBuilder.Entity<CuentasPorPagarDetalle>()
 			.Property(cd => cd.Abono)
-			.HasColumnType("decimal(18,2)");
+			.HasPrecision(18, 2);
+
+		modelBuilder.Entity<PagoDetalle>()
+			.Property(cd => cd.MontoPago)
+			.HasPrecision(18, 2);
 	}
 }
