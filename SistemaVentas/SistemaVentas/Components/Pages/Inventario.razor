@@ -1,0 +1,186 @@
+﻿@page "/Inventario"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject ProductosService productosService
+
+<PageTitle>Inventario</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        @*Header*@
+        <div class="card-header">
+            <h1 class="text-center"><strong>Inventario</strong></h1>
+        </div>
+        @*Body*@
+        <div class="card-body">
+            @if (loading)
+            {
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border text-info">
+                    </div>
+                </div>
+            }
+            else if (productos.Count == 0)
+            {
+                <h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay productos creados</h1>
+            }
+            else
+            {
+				@*Fechas*@
+				@* <div class="mb-3">
+					<div class="row">
+						<div class="col-3">
+							<label class="form-label" for="desde"><strong>Desde:</strong></label>
+							<InputDate id="desde" class="form-control" @bind-Value="desde"></InputDate>
+						</div>
+						<div class="col-3">
+							<label class="form-label" for="hasta"><strong>Hasta:</strong></label>
+							<InputDate id="hasta" class="form-control" @bind-Value="hasta"></InputDate>
+						</div>
+					</div>
+				</div> *@
+
+				@*Campos a Filtrar*@
+				@* <div class="mb-3">
+					<div class="row align-items-center">
+						<label class="form-label" for="filtro"><strong>Campo a Filtrar:</strong></label>
+						<div class="col-3">
+							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+								<option>Elige una opci&oacute;n</option>
+								<option value="id">Id</option>
+								<option value="empresa">Empresa</option>
+								<option value="representante">Representante</option>
+								<option value="contribuyente">Contribuyente</option>
+								<option value="rnc">RNC</option>
+							</InputSelect>
+						</div>
+						<div class="col-auto miFlecha">
+							<p>→</p>
+						</div>
+						<div class="col-4">
+							<div class="input-group">
+								<InputText class="form-control" @bind-Value="valorFiltro" placeholder="Ingrese un dato para filtrar"></InputText>
+								<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search" /></button>
+							</div>
+						</div>
+						<div class="col-3">
+							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
+						</div>
+					</div>
+				</div> *@
+
+				@* <table class="table table-bordered miTabla">
+					<thead>
+						<tr>
+							<th>ProveedorId</th>
+							<th>Fecha de Creaci&oacute;n</th>
+							<th>Empresa</th>
+							<th>Representante</th>
+							<th>Direcci&oacute;n</th>
+							<th>Contribuyente</th>
+							<th>RNC</th>
+							<th>Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var producto in productos)
+						{
+							<tr>
+								<td>@producto.ProveedorId</td>
+								<td>@producto.FechaCreacion.ToShortDateString()</td>
+								<td>@producto.NombreEmpresa</td>
+								<td>@producto.Representante</td>
+								<td>@producto.Direccion</td>
+								<td>@BuscarTipoContribuyente(proveedor.TipoContribuyenteId)</td>
+								<td>@producto.RNC</td>
+								<td>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(proveedor.ProveedorId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
+											<i class="bi bi-eye"></i>
+										</button>
+
+										<button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(proveedor.ProveedorId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+											<i class="bi bi-pencil-square"></i>
+										</button>
+										<button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(proveedor.ProveedorId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar">
+											<i class="bi bi-trash3-fill"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table> *@
+            }
+        </div>
+        @*Footer*@
+        <div class="card-footer">
+        </div>
+    </div>
+</div>
+
+@if (Productos != null && Productos.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var producto in Productos)
+            {
+                <tr>
+                    <td>@producto.Nombre</td>
+                    <td>@producto.Cantidad</td>
+                    <td>@producto.Precio</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay productos en el inventario.</p>
+}
+
+@code {
+    public bool loading { get; set; } = true;
+    public List<Productos> productos { get; set; } = new List<Productos>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // await Task.Delay(500);
+        productos = await productosService.Listar(p => p.Eliminado == false);
+
+        loading = false;
+
+        if (productos.Count == 0)
+            StateHasChanged();
+    }
+
+    // Clase Producto
+    public class Producto
+    {
+        public string Nombre { get; set; }
+        public int Cantidad { get; set; }
+        public decimal Precio { get; set; }
+    }
+
+    // Lista de productos (datos de ejemplo)
+    public List<Producto> Productos { get; set; }
+
+    // Método para inicializar los datos del inventario
+    protected override void OnInitialized()
+    {
+        // Inicializamos la lista de productos con algunos datos de ejemplo
+        Productos = new List<Producto>
+        {
+            new Producto { Nombre = "Producto 1", Cantidad = 10, Precio = 15.99m },
+            new Producto { Nombre = "Producto 2", Cantidad = 20, Precio = 25.49m },
+            new Producto { Nombre = "Producto 3", Cantidad = 15, Precio = 10.79m }
+        };
+    }
+}
