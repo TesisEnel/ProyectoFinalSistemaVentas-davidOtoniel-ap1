@@ -49,6 +49,7 @@
 						@*Cedula*@
 						<label class="form-label" for="cedula"><strong>C&eacute;dula del Representante</strong></label>
 						<InputText id="cedula" class="form-control" @bind-Value="proveedor.CedulaEncargado" @oninput="PonerGuionCedula" placeholder="Ej: 402-3457365-3"></InputText>
+						<spam class="mensajeError">@mensajeCedula</spam>
 						<ValidationMessage For="@(() => proveedor.CedulaEncargado)"></ValidationMessage>
 					</div>
 				</div>
@@ -228,6 +229,7 @@
 	public string mensajeEmail { get; set; } = string.Empty;
 	public string mensajeRNC { get; set; } = string.Empty;
 	public string mensajeCuenta { get; set; } = string.Empty;
+	public string mensajeCedula { get; set; } = string.Empty;
 
 	public bool mostrarModal { get; set; }
 	public int contribuyente { get; set; }
@@ -315,16 +317,18 @@
 		var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
 		var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
 		var numeroCuenta = validar.FirstOrDefault(p => p.NumeroCuenta == proveedor.NumeroCuenta);
+		var cedula = validar.FirstOrDefault(p => p.CedulaEncargado == proveedor.CedulaEncargado);
 
 		bool nombreValido = true;
 		bool emailValido = true;
 		bool rncValido = true;
 		bool numeroCuentaValido = true;
+		bool cedulaValido = true;
 
 		if (nombre != null)
 		{
 			nombreValido = false;
-			mensajeNombreEmpresa = "Ya existe un proveedor con este nombre";
+			mensajeNombreEmpresa = "Ya existe un proveedor con este empresa";
 		}
 
 		if (email != null)
@@ -345,7 +349,13 @@
 			mensajeCuenta = "Ya existe un proveedor con este número de cuenta";
 		}
 
-		return nombreValido && emailValido && rncValido && numeroCuentaValido;
+		if (cedula != null)
+		{
+			cedulaValido = false;
+			mensajeCedula = "Ya existe un proveedor con este número de cedula";
+		}
+
+		return nombreValido && emailValido && rncValido && numeroCuentaValido && cedulaValido;
 	}
 
 	public async Task AgregarDetalle()
