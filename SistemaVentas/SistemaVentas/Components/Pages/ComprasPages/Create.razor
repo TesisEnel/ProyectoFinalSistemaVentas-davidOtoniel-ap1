@@ -24,17 +24,17 @@
 			@*Cuerpo*@
 			<div class="card-body">
 				<div class="row mb-3">
-					<div class="col-2">
+					<div class="col-4">
 						@*CompraId*@
 						<label class="form-label" for="compraId"><strong>CompraId</strong></label>
 						<InputNumber id="compraId" class="form-control" @bind-Value="compra.CompraId" readonly></InputNumber>
 					</div>
-					<div class="col-2">
+					<div class="col-4">
 						@*FechaCreacion*@
 						<label class="form-label" for="fecha"><strong>Fecha Creaci&oacute;n</strong></label>
 						<InputDate id="fecha" class="form-control" @bind-Value="compra.FechaCreacion" readonly></InputDate>
 					</div>
-					<div class="col-3">
+					<div class="col-4">
 						@*Responsable*@
 						<label class="form-label" for="responsable"><strong>Usuario Responsable</strong></label>
 						<InputText id="responsable" class="form-control" @bind-Value="compra.UsuarioResponsable" placeholder="Ej: Juan Pérez"></InputText>
@@ -42,14 +42,14 @@
 					</div>
 				</div>
 				<div class="row mb-3">
-					<div class="col-3">
+					<div class="col-4">
 						@*Nombre*@
 						<label class="form-label" for="nombre"><strong>Proveedor</strong></label>
 						<InputSelect id="nombre" class="form-select" @bind-Value="compra.ProveedorId">
 							<option value="">Elige una opci&oacute;n</option>
 							@foreach (var proveedor in proveedores)
 							{
-								<option value="@proveedor.ProveedorId">@proveedor.Representante</option>
+								<option value="@proveedor.ProveedorId">@proveedor.NombreEmpresa</option>
 							}
 						</InputSelect>
 						<ValidationMessage For="@(() => compra.ProveedorId)"></ValidationMessage>
@@ -63,19 +63,48 @@
 					<div class="col-6">
 						@*Direccion*@
 						<label class="form-label" for="direccion"><strong>Direcci&oacute;n</strong></label>
-						<InputText id="direccion" class="form-control" @bind-Value="direccion" placeholder="Ej: Ave. Libertad #23" readonly></InputText>
+						<InputText id="direccion" class="form-control" @bind-Value="direccion" readonly></InputText>
 					</div>
 				</div>
 				<div class="row mb-3">
-					<div class="col-2">
+					<div class="col-4">
+						@*Representante*@
+						<label class="form-label" for="representante"><strong>Representante</strong></label>
+						<InputText id="representante" class="form-control" @bind-Value="representante" readonly></InputText>
+					</div>
+					<div class="col-4">
+						@*Cedula*@
+						<label class="form-label" for="cedula"><strong>Cedula de Representante</strong></label>
+						<InputText id="cedula" class="form-control" @bind-Value="cedula" readonly></InputText>
+					</div>
+					<div class="col-4">
 						@*TipoContribuyente*@
 						<label class="form-label" for="ipoContribuyente"><strong>Tipo de Contribuyente</strong></label>
-						<InputText id="tipoContribuyente" class="form-control" @bind-Value="contribuyente" placeholder="Persona Física" readonly></InputText>
+						<InputText id="tipoContribuyente" class="form-control" @bind-Value="contribuyente" readonly></InputText>
 					</div>
-					<div class="col-2">
+				</div>
+				<div class="row mb-3">
+					<div class="col-4">
 						@*RNC*@
 						<label class="form-label" for="rnc"><strong>RNC</strong></label>
-						<InputText id="rnc" class="form-control" @bind-Value="rnc" placeholder="40234573653" readonly></InputText>
+						<InputText id="rnc" class="form-control" @bind-Value="rnc" readonly></InputText>
+					</div>
+					<div class="col-4">
+						@*Email*@
+						<label class="form-label" for="email"><strong>Email</strong></label>
+						<InputText id="email" class="form-control" @bind-Value="email" readonly></InputText>
+					</div>
+					<div class="col-4">
+						@*Cuenta*@
+						<label class="form-label" for="rnc"><strong>N&uacute;mero de Cuenta</strong></label>
+						<InputText id="rnc" class="form-control" @bind-Value="cuenta" readonly></InputText>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Banco*@
+						<label class="form-label" for="banco"><strong>Banco</strong></label>
+						<InputText id="banco" class="form-control" @bind-Value="bancoProveedor" readonly></InputText>
 					</div>
 				</div>
 				<div class="row mb-3">
@@ -377,6 +406,9 @@
 	public string direccion { get; set; }
 	public string cuenta { get; set; }
 	public string bancoProveedor { get; set; }
+	public string representante { get; set; }
+	public string cedula { get; set; }
+	public string email { get; set; }
 
 
 	public bool mostrarModal { get; set; }
@@ -764,6 +796,9 @@
 			rnc = proveedorSeleccionado.RNC;
 			bancoProveedor = proveedorSeleccionado.Banco;
 			cuenta = proveedorSeleccionado.NumeroCuenta;
+			representante = proveedorSeleccionado.Representante;
+			cedula = proveedorSeleccionado.CedulaEncargado;
+			email = proveedorSeleccionado.Email;
 
 			var contribuyenteId = tiposContribuyente
 			.FirstOrDefault(tc => tc.TipoContribuyenteId == proveedorSeleccionado.TipoContribuyenteId);
@@ -776,6 +811,10 @@
 			direccion = string.Empty;
 			contribuyente = string.Empty;
 			rnc = string.Empty;
+			cuenta = string.Empty;
+			representante = string.Empty;
+			cedula = string.Empty;
+			email = string.Empty;
 		}
 	}
 
