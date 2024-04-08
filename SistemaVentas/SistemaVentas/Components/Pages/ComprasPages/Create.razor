@@ -127,7 +127,7 @@
 								<div class="col-3">
 									<label class="form-label" for="producto"><strong>Producto</strong></label>
 									<InputSelect id="producto" class="form-select" @bind-Value="producto">
-										<option>Elige una opci&oacute;n</option>
+										<option value="0">Elige una opci&oacute;n</option>
 										@foreach (var product in productos)
 										{
 											<option value="@product.ProductoId">@product.Nombre</option>
@@ -138,7 +138,7 @@
 								<div class="col-2">
 									<label class="form-label"><strong>Uni. Medida</strong></label>
 									<InputSelect class="form-select" @bind-Value="unidadesMedida" @oninput="VerificarUnidades">
-										<option>Elige una opción</option>
+										<option value="0">Elige una opción</option>
 										@foreach (var unidadMedida in unidadesMedidas)
 										{
 											<option value="@unidadMedida.UnidadMedidaId">@unidadMedida.UnidadMedida</option>
@@ -387,7 +387,7 @@
 	public Compras compra { get; set; } = new Compras();
 	public Capital capital { get; set; } = new Capital();
 	public Banco banco { get; set; } = new Banco();
-	public CuentasPorPagar cuentasPorPagar { get; set; } = new CuentasPorPagar();
+	// public CuentasPorPagar cuentasPorPagar { get; set; } = new CuentasPorPagar();
 
 	public List<Proveedores> proveedores = new List<Proveedores>();
 	public List<Productos> productos = new List<Productos>();
@@ -468,14 +468,14 @@
 
 		if (compra.Estado == "Deuda")
 		{
-			cuentasPorPagar = new CuentasPorPagar
+			var cuentasPorPagar = new CuentasPorPagar
 				{
 					CompraId = compra.CompraId,
 					DeudaInicial = compra.Deuda,
 					DeudaRestante = compra.Deuda,
 					Estado = "Pendiente"
 				};
-
+			CalcularPagos(cuentasPorPagar);
 			compra.CuentaPorPagar = cuentasPorPagar;
 		}
 
@@ -485,7 +485,7 @@
 			await Pagar();
 			await SumarExistenciaProducto();
 			await Task.Delay(3000);
-			Volver();
+			VolverAtras();
 		}
 		else
 		{
@@ -649,9 +649,8 @@
 	{
 		if (await ValidarDetalle())
 		{
-
-			var costoUnidad = costoTotal / unidades;
 			var costo = costoTotal * cantidad;
+			var costoUnidad = costo / cantidad;
 			var itbis = (decimal)((double)costo * 0.18);
 
 			var nuevoDetalle = new ComprasDetalle
@@ -764,7 +763,7 @@
 				{
 					Severity = NotificationSeverity.Error,
 					Summary = "Error al agregar detalle",
-					Detail = "El costo debe ser mayor a $0.00 y menor que $100,000.00",
+					Detail = "El costo debe ser mayor a .00 y menor que $100,000.00",
 					Duration = 5_000
 				};
 			notificationService.Notify(Mensaje);
@@ -785,6 +784,43 @@
 		}
 
 		return true;
+	}
+
+	public void CalcularPagos(CuentasPorPagar cuentasPorPagar)
+	{
+		// Definir la lista para almacenar las fechas de pago, porcentajes y montos de pago
+		// // Calcular las fechas de pago y agregar los pagos a la lista
+		// DateTime fechaPago1 = compra.FechaCreacion.AddDays(15);
+		// pagos.Add((fechaPago1, 0.3, CalcularMontoPago(1000, 30))); // Pago inicial del 30%
+
+		// DateTime fechaPago2 = fechaPago1.AddDays(20);
+		// pagos.Add((fechaPago2, 0.4, CalcularMontoPago(1000, 0.4))); // Segundo pago del 40%
+
+		// DateTime fechaPago3 = fechaPago2.AddDays(20);
+		// pagos.Add((fechaPago3, 0.3, CalcularMontoPago(1000, 0.3))); // Pago final del 30%
+
+		//Pago1
+		DateTime fechaPago1 = compra.FechaCreacion.AddDays(15);
+		var monto1 = CalcularMontoPago(compra.Deuda, 0.3m);
+		var pago1 = new PagoDetalle { FechaPago = fechaPago1, MontoPago = monto1 };
+		cuentasPorPagar.PagoDetalle.Add(pago1);
+
+		//Pago2
+		DateTime fechaPago2 = compra.FechaCreacion.AddDays(20);
+		var monto2 = CalcularMontoPago(compra.Deuda, 0.3m);
+		var pago2 = new PagoDetalle { FechaPago = fechaPago2, MontoPago = monto2 };
+		cuentasPorPagar.PagoDetalle.Add(pago2);
+
+		//Pago3
+		DateTime fechaPago3 = compra.FechaCreacion.AddDays(20);
+		var monto3 = CalcularMontoPago(compra.Deuda, 0.3m);
+		var pago3 = new PagoDetalle { FechaPago = fechaPago3, MontoPago = monto3 };
+		cuentasPorPagar.PagoDetalle.Add(pago3);
+	}
+
+	public decimal CalcularMontoPago(decimal montoTotal, decimal porcentaje)
+	{
+		return montoTotal * porcentaje;
 	}
 
 	private void ActualizarDatosProveedor(int proveedorId)
