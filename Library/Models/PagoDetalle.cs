@@ -15,6 +15,7 @@ public class PagoDetalle
 
 	[ForeignKey("CuentasPorPagar")]
 	public int CuentaPorPagarId { get; set; } 
+	public string porciento { get; set; } 
 
 	public DateTime FechaPago { get; set; }
 
