@@ -802,19 +802,19 @@
 		//Pago1
 		DateTime fechaPago1 = compra.FechaCreacion.AddDays(15);
 		var monto1 = CalcularMontoPago(compra.Deuda, 0.3m);
-		var pago1 = new PagoDetalle { FechaPago = fechaPago1, MontoPago = monto1 };
+		var pago1 = new PagoDetalle { FechaPago = fechaPago1, MontoPago = monto1, porciento = "30%" };
 		cuentasPorPagar.PagoDetalle.Add(pago1);
 
 		//Pago2
-		DateTime fechaPago2 = compra.FechaCreacion.AddDays(20);
-		var monto2 = CalcularMontoPago(compra.Deuda, 0.3m);
-		var pago2 = new PagoDetalle { FechaPago = fechaPago2, MontoPago = monto2 };
+		DateTime fechaPago2 = compra.FechaCreacion.AddDays(35);
+		var monto2 = CalcularMontoPago(compra.Deuda, 0.4m);
+		var pago2 = new PagoDetalle { FechaPago = fechaPago2, MontoPago = monto2, porciento = "40%" };
 		cuentasPorPagar.PagoDetalle.Add(pago2);
 
 		//Pago3
-		DateTime fechaPago3 = compra.FechaCreacion.AddDays(20);
+		DateTime fechaPago3 = compra.FechaCreacion.AddDays(50);
 		var monto3 = CalcularMontoPago(compra.Deuda, 0.3m);
-		var pago3 = new PagoDetalle { FechaPago = fechaPago3, MontoPago = monto3 };
+		var pago3 = new PagoDetalle { FechaPago = fechaPago3, MontoPago = monto3, porciento = "30%" };
 		cuentasPorPagar.PagoDetalle.Add(pago3);
 	}
 

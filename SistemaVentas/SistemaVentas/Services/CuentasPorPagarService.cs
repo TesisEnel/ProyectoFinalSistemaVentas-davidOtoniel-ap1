@@ -54,7 +54,7 @@ public class CuentasPorPagarService
     public async Task<CuentasPorPagar?> BuscarId(int id)
     {
         return await _contexto.CuentasPorPagar
-            .Include(p => p.CuentasPorPagarDetalle)
+            .Include(p => p.CuentasPorPagarDetalle).Include(p => p.PagoDetalle)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.CuentaPorPagarId == id);
     }
@@ -80,8 +80,8 @@ public class CuentasPorPagarService
     public async Task<List<CuentasPorPagar>>? Listar(Expression<Func<CuentasPorPagar, bool>> criterio)
     {
         return _contexto.CuentasPorPagar
-            .Include(p => p.CuentasPorPagarDetalle)
-            .AsNoTracking()
+            .Include(p => p.CuentasPorPagarDetalle).Include(p => p.PagoDetalle)
+			.AsNoTracking()
             .Where(criterio)
             .ToList();
     }
