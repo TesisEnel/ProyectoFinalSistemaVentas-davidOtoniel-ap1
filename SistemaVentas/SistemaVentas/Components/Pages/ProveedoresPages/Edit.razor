@@ -48,6 +48,7 @@
 						@*Cedula*@
 						<label class="form-label" for="cedula"><strong>C&eacute;dula del Representante</strong></label>
 						<InputText id="cedula" class="form-control" @bind-Value="proveedor.CedulaEncargado" @oninput="PonerGuionCedula" placeholder="Ej: 402-3457365-3"></InputText>
+						<spam class="mensajeError">@mensajeCedula</spam>
 						<ValidationMessage For="@(() => proveedor.CedulaEncargado)"></ValidationMessage>
 					</div>
 				</div>
@@ -162,15 +163,18 @@
 									<tbody>
 										@foreach (var detalle in proveedor.ProveedoresDetalle)
 										{
-											<tr>
-												<td>@ObtenerTipoNumero(detalle.ContactoId)</td>
-												<td>@detalle.Contacto</td>
-												<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
-											</tr>
+											@if(detalle.Eliminado == false)
+											{
+												<tr>
+													<td>@ObtenerTipoNumero(detalle.ContactoId)</td>
+													<td>@detalle.Contacto</td>
+													<td><button type="button" class="btn btn-outline-danger" @onclick="()=> EliminarDetalle(detalle)"><i class="bi bi-trash3-fill" /></button></td>
+												</tr>
+											}
 										}
 									</tbody>
 								</table>
-								<p><strong>Total Números de Contactos: </strong>@proveedor.ProveedoresDetalle.Count</p>
+								<p><strong>Total Números de Contactos: </strong>@proveedor.ProveedoresDetalle.Count(d => d.Eliminado == false)</p>
 							}
 						</section>
 					</div>
@@ -246,6 +250,7 @@
 	public string rncLast { get; set; } = string.Empty;
 	public string notaLast { get; set; } = string.Empty;
 	public string numeroCuentaLast { get; set; } = string.Empty;
+	public string mensajeCedula { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -331,11 +336,13 @@
 		var email = validar.FirstOrDefault(p => p.Email == proveedor.Email);
 		var rnc = validar.FirstOrDefault(p => p.RNC == proveedor.RNC);
 		var numeroCuenta = validar.FirstOrDefault(p => p.NumeroCuenta == proveedor.NumeroCuenta);
+		var cedula = validar.FirstOrDefault(p => p.CedulaEncargado == proveedor.CedulaEncargado);
 
 		bool nombreValido = true;
 		bool emailValido = true;
 		bool rncValido = true;
 		bool numeroCuentaValido = true;
+		bool cedulaValido = true;
 
 		if (nombre != null && nombre.Representante != nombreLast)
 		{
@@ -361,7 +368,13 @@
 			mensajeCuenta = "Ya existe un proveedor con este número de cuenta";
 		}
 
-		return nombreValido && emailValido && rncValido && numeroCuentaValido;
+		if (cedula != null && cedula.NumeroCuenta != numeroCuentaLast)
+		{
+			cedulaValido = false;
+			mensajeCuenta = "Ya existe un proveedor con este número de cuenta";
+		}
+
+		return nombreValido && emailValido && rncValido && numeroCuentaValido && cedulaValido;
 	}
 
 	public async Task AgregarDetalle()
@@ -464,9 +477,9 @@
 			}
 		}
 
-		foreach (var detalle in listaTemporal)
+		foreach (var detalle in proveedor.ProveedoresDetalle)
 		{
-			if (detalle.Contacto == contacto)
+			if (detalle.Contacto == contacto && detalle.Eliminado == false)
 			{
 				var Mensaje = new NotificationMessage
 					{
@@ -487,8 +500,9 @@
 	{
 		contacto = detalle.Contacto;
 		tipo = detalle.ContactoId;
-		proveedor.ProveedoresDetalle.Remove(detalle);
-		listaTemporal.Remove(detalle);
+		detalle.Eliminado = true;
+		// proveedor.ProveedoresDetalle.Remove(detalle);
+		// listaTemporal.Remove(detalle);
 
 		var Mensaje = new NotificationMessage
 			{
