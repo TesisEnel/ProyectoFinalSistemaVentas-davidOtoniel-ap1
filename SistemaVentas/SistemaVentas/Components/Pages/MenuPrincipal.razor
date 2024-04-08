@@ -96,6 +96,13 @@
                 </div>
                 @*Fila #4*@
                 <div class="row justify-content-center mb-5">
+                    @*Inventario*@
+                    <div class="col-md-3 text-center">
+                        <button type="button" class="d-block mx-auto borde" @onclick="IrAInventario">
+                            <h6><strong>Inventario</strong></h6>
+                            <img src="Imagenes/inventario.png" class="icon" style="width: 150px; height: auto; margin-right: 10px;" />
+                        </button>
+                    </div>
                     @*Acerca de*@
                     <div class="col-md-3 text-center">
                         <button type="button" class="d-block mx-auto borde" @onclick="IrAAcercaDe">
@@ -159,6 +166,10 @@
     private void IrAAcercaDe()
     {
         navigation.NavigateTo("/AcercaDe");
+    }
+    private void IrAInventario()
+    {
+        navigation.NavigateTo("/Inventario");
     }
     private void IrACompras()
     {
